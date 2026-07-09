@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Quiz Game – Khoa học tự nhiên</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+body {
+    margin: 0;
+    font-family: "Inter", sans-serif;
+    background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+    background-attachment: fixed;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+    animation: backgroundShift 20s ease-in-out infinite alternate;
+    z-index: -1;
+}
+
+@keyframes backgroundShift {
+    0% { transform: scale(1) rotate(0deg); opacity: 0.8; }
+    100% { transform: scale(1.1) rotate(180deg); opacity: 1; }
+}
+
+#gameBox {
+    width: 900px;
+    max-width: 95%;
+    padding: 50px 40px;
+    background: rgba(26, 26, 46, 0.8);
+    backdrop-filter: blur(20px) saturate(180%);
+    border-radius: 24px;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    text-align: center;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+}
+
+#gameBox::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+}
+
+#menu { display: flex; flex-direction: column; gap: 20px; }
+.menuBtn {
+    padding: 20px 30px;
+    background: rgba(255, 255, 255, 0.05);
+    color: #e0e0e0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    font-size: 24px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+}
+
+.menuBtn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.menuBtn:hover::before { left: 100%; }
+.menuBtn:hover { 
+    transform: translateY(-2px) scale(1.02);
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 0 20px rgba(120, 119, 198, 0.2);
+    color: #fff;
+}
+
+#subjectName {
+    font-size: 22px;
+    color: #b0b0ff;
+    margin-bottom: 10px;
+    display: none;
+    text-shadow: 0 0 10px rgba(176, 176, 255, 0.5);
+    animation: glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+    from { text-shadow: 0 0 10px rgba(176, 176, 255, 0.5); }
+    to { text-shadow: 0 0 20px rgba(176, 176, 255, 0.8), 0 0 30px rgba(176, 176, 255, 0.4); }
+}
+
+#scoreDisplay {
+    font-size: 18px;
+    color: #4ade80;
+    margin-bottom: 10px;
+    display: none;
+    animation: pulse 1.5s infinite;
+    text-shadow: 0 0 10px rgba(74, 222, 128, 0.5);
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+#timer {
+    font-size: 22px;
+    color: #ff6b6b;
+    margin-bottom: 10px;
+    display: none;
+    animation: tick 1s infinite;
+}
+
+@keyframes tick {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+#questionImg {
+    width: 100%;
+    max-height: 250px;
+    object-fit: cover;
+    border-radius: 16px;
+    display: none;
+    margin-bottom: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease;
+}
+
+#questionImg:hover { transform: scale(1.02); }
+
+#questionText {
+    font-size: 42px;
+    font-weight: 600;
+    color: #f0f0f0;
+    margin-bottom: 30px;
+    min-height: 70px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.answers {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 50px 80px; /* Tăng khoảng cách ngang (column-gap: 80px) và dọc (row-gap: 50px) */
+    justify-items: center;
+    margin-top: 40px;
+    max-width: 800px; /* Tăng max-width để có không gian ngang rộng hơn */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.answerBtn {
+    padding: 30px 35px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.05);
+    color: #e0e0e0;
+    font-size: 18px;
+    font-weight: 400;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 100%;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+    min-height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+.answerBtn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s;
+}
+
+.answerBtn:hover::before { left: 100%; }
+.answerBtn:hover {
+    transform: translateY(-3px) scale(1.02);
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(120, 119, 198, 0.3);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.wrong { 
+    background: rgba(255, 75, 75, 0.8) !important; 
+    animation: shake 0.5s ease-in-out, fadeOut 0.5s ease-in-out 0.5s forwards;
+    box-shadow: 0 0 20px rgba(255, 75, 75, 0.5) !important;
+}
+
+.correct { 
+    background: rgba(74, 222, 128, 0.8) !important; 
+    animation: bounce 0.6s ease-out, glowPulse 1s infinite;
+    box-shadow: 0 0 30px rgba(74, 222, 128, 0.7) !important;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+    20%, 40%, 60%, 80% { transform: translateX(10px); }
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-15px); }
+    60% { transform: translateY(-8px); }
+}
+
+@keyframes glowPulse {
+    0% { box-shadow: 0 0 20px rgba(74, 222, 128, 0.7); }
+    50% { box-shadow: 0 0 40px rgba(74, 222, 128, 1); }
+    100% { box-shadow: 0 0 20px rgba(74, 222, 128, 0.7); }
+}
+
+@keyframes fadeOut {
+    to { opacity: 0.5; }
+}
+
+#progressBarContainer {
+    width: 100%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 30px;
+    display: none;
+    position: relative;
+}
+
+#progressBar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #4ade80, #22c55e);
+    transition: width 0.5s ease;
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+}
+
+#progressBar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.slideOut { animation: slideOut 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+.slideIn { animation: slideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+@keyframes slideOut { 
+    to { transform: translateX(-100%); opacity: 0; } 
+}
+@keyframes slideIn { 
+    from { transform: translateX(100%); opacity: 0; } 
+    to { transform: translateX(0); opacity: 1; } 
+}
+
+#restartBtn {
+    padding: 15px 40px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #e0e0e0;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    font-size: 18px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 20px;
+    display: none;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+#restartBtn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    color: #fff;
+}
+
+/* Thêm phần hiển thị vật phẩm mới */
+#itemsSection {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin: 10px 0;
+    display: none;
+}
+
+.itemBtn {
+    padding: 10px 15px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #e0e0e0;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.itemBtn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+.itemBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+</style>
+</head>
+<body>
+<div id="gameBox">
+    <div id="menu">
+        <div class="menuBtn" onclick="startSubject('ly')">📘 Vật Lý</div>
+        <div class="menuBtn" onclick="startSubject('hoa')">🧪 Hóa Học</div>
+        <div class="menuBtn" onclick="startSubject('sinh')">🌱 Sinh Học</div>
+        <div class="menuBtn" onclick="startSubject('td')">🌍 Địa Lí</div>
+    </div>
+
+    <div id="itemsSection"></div> <!-- Thêm phần hiển thị vật phẩm -->
+
+    <div id="subjectName"></div>
+    <div id="scoreDisplay">Điểm: 0</div>
+    <div id="timer">Thời gian: 30s</div>
+    <div id="progressBarContainer"><div id="progressBar"></div></div>
+    <img id="questionImg">
+    <div id="questionText"></div>
+    <div class="answers" id="answerBox"></div>
+    <button id="restartBtn" onclick="restartGame()">Chơi lại</button>
+    <canvas id="confettiCanvas" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:10;"></canvas>
+    <canvas id="particleCanvas" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;"></canvas>
+</div>
+
+<script>
+const confettiCanvas = document.getElementById("confettiCanvas");
+const ctxConfetti = confettiCanvas.getContext("2d");
+confettiCanvas.width = 900; confettiCanvas.height = 600;
+let confetti = [];
+
+const particleCanvas = document.getElementById("particleCanvas");
+const ctxParticle = particleCanvas.getContext("2d");
+particleCanvas.width = 900; particleCanvas.height = 600;
+let particles = [];
+
+function spawnConfetti() {
+    for(let i=0; i<80; i++){
+        confetti.push({
+            x: Math.random() * confettiCanvas.width,
+            y: Math.random() * confettiCanvas.height - confettiCanvas.height,
+            s: Math.random() * 8 + 3,
+            c: `hsl(${Math.random()*360}, 100%, ${50 + Math.random()*30}%)`,
+            vX: (Math.random() - 0.5) * 4,
+            vY: Math.random() * 3 + 2,
+            r: Math.random() * 360,
+            rotSpeed: Math.random() * 10 - 5
+        });
+    }
+}
+
+function updateConfetti(){
+    ctxConfetti.clearRect(0,0,confettiCanvas.width,confettiCanvas.height);
+    confetti.forEach((p,i)=>{
+        p.x += p.vX;
+        p.y += p.vY;
+        p.r += p.rotSpeed;
+        ctxConfetti.save();
+        ctxConfetti.translate(p.x, p.y);
+        ctxConfetti.rotate(p.r * Math.PI / 180);
+        ctxConfetti.fillStyle = p.c;
+        ctxConfetti.fillRect(-p.s/2, -p.s/2, p.s, p.s);
+        ctxConfetti.restore();
+        if(p.y > confettiCanvas.height + 50) confetti.splice(i,1);
+    });
+    requestAnimationFrame(updateConfetti);
+}
+updateConfetti();
+
+function spawnParticles(x, y, color, count = 20) {
+    for(let i = 0; i < count; i++) {
+        particles.push({
+            x: x,
+            y: y,
+            vX: (Math.random() - 0.5) * 10,
+            vY: (Math.random() - 0.5) * 10,
+            life: 1,
+            decay: Math.random() * 0.02 + 0.01,
+            size: Math.random() * 4 + 2,
+            color: color
+        });
+    }
+}
+
+function updateParticles() {
+    ctxParticle.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+    particles.forEach((p, i) => {
+        p.x += p.vX;
+        p.y += p.vY;
+        p.vX *= 0.98;
+        p.vY *= 0.98;
+        p.life -= p.decay;
+        if(p.life <= 0) {
+            particles.splice(i, 1);
+            return;
+        }
+        ctxParticle.save();
+        ctxParticle.globalAlpha = p.life;
+        ctxParticle.fillStyle = p.color;
+        ctxParticle.beginPath();
+        ctxParticle.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctxParticle.fill();
+        ctxParticle.restore();
+    });
+    requestAnimationFrame(updateParticles);
+}
+updateParticles();
+
+// Thêm inventory vật phẩm
+let inventory = { time: 0, points: 0, double: 0, fifty: 0, hint: 0 };
+let doubleCount = 0; // Số câu còn lại cho x2 điểm
+let extraTime = 0; // Thời gian thêm
+
+// Load inventory từ URL param khi trang load
+window.onload = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const itemsParam = urlParams.get('items');
+    if (itemsParam) {
+        try {
+            const purchasedItems = JSON.parse(decodeURIComponent(itemsParam));
+            purchasedItems.forEach(item => {
+                inventory[item.type] += item.quantity || 1;
+            });
+            renderItems(); // Hiển thị ngay
+            alert('🎉 Nhận vật phẩm từ shop! Kiểm tra phần vật phẩm để dùng.');
+        } catch (e) {
+            console.error('Lỗi parse items:', e);
+        }
+    }
+};
+
+function renderItems() {
+    const itemsSection = document.getElementById('itemsSection');
+    itemsSection.innerHTML = '';
+    itemsSection.style.display = 'flex';
+
+    Object.keys(inventory).forEach(type => {
+        if (inventory[type] > 0) {
+            const btn = document.createElement('button');
+            btn.className = 'itemBtn';
+            btn.textContent = `${getItemName(type)} (${inventory[type]})`;
+            btn.onclick = () => useItem(type);
+            itemsSection.appendChild(btn);
+        }
+    });
+}
+
+function getItemName(type) {
+    const names = { time: 'Thêm Thời Gian', points: '+Điểm', double: 'x2 Điểm', fifty: '50/50', hint: 'Gợi Ý' };
+    return names[type] || type;
+}
+
+function useItem(type) {
+    if (inventory[type] <= 0) return;
+
+    inventory[type]--;
+    if (type === 'time') {
+        extraTime += 30;
+        alert('⏰ +30 giây cho mỗi câu!');
+    } else if (type === 'points') {
+        score += 100;
+        updateScoreDisplay();
+        alert('⭐ +100 điểm bonus!');
+    } else if (type === 'double') {
+        doubleCount += 5;
+        alert('🔥 x2 điểm cho 5 câu tiếp theo!');
+    } else if (type === 'fifty') {
+        // Áp dụng 50/50 khi load câu hỏi
+        alert('🎯 50/50 sẵn sàng cho câu hỏi tiếp theo!');
+    } else if (type === 'hint') {
+        // Áp dụng hint khi load câu hỏi
+        alert('💡 Gợi ý sẵn sàng cho câu hỏi tiếp theo!');
+    }
+
+    renderItems();
+}
+
+let quiz = {
+    ly:[
+        {q:"Ánh sáng truyền đi theo đường gì?", img:"", a:["Đường thẳng","Đường cong","Ziczac","Tùy lúc"], c:0},
+        {q:"Âm thanh lan truyền trong môi trường nào?", img:"", a:["Rắn","Lỏng","Khí","Tất cả đúng"], c:3},
+        {q:"Đơn vị đo cường độ dòng điện?", img:"", a:["Vôn","Ampe","Ohm","Wat"], c:1},
+        {q:"Vật nào bay lên không khí?", img:"", a:["Bóng bay","Xe hơi","Đá","Bàn"], c:0},
+        {q:"Định luật Ôm liên quan gì?", img:"", a:["Dòng điện","Điện áp","Điện trở","Cả 3"], c:3},
+        {q:"Đơn vị đo điện trở?", img:"", a:["Ohm","Ampe","Vôn","Wat"], c:0},
+        {q:"Gia tốc trọng trường kí hiệu?", img:"", a:["g","G","a","t"], c:0},
+        {q:"Đơn vị lực?", img:"", a:["Newton","Joule","Watt","Ampere"], c:0},
+        {q:"Tốc độ ánh sáng?", img:"", a:["3x10^8 m/s","3x10^6 m/s","3x10^5 m/s","3x10^7 m/s"], c:0},
+        {q:"Ánh sáng màu nào có bước sóng dài nhất?", img:"", a:["Đỏ","Xanh lá","Xanh dương","Tím"], c:0},
+        {q:"Chuyển động thẳng đều là gì?", img:"", a:["Vận tốc không đổi","Tăng dần","Giảm dần","Ngẫu nhiên"], c:0},
+        {q:"Công thức tính vận tốc?", img:"", a:["s/t","t/s","a*t","F/m"], c:0},
+        {q:"Năng lượng cơ học gồm?", img:"", a:["Động năng và thế năng","Chỉ động năng","Chỉ thế năng","Nhiệt năng"], c:0},
+        {q:"Sóng âm lan truyền trong?", img:"", a:["Chất rắn, lỏng, khí","Chỉ khí","Chỉ lỏng","Chỉ rắn"], c:0},
+        {q:"Điện trường do?", img:"", a:["Của điện tích","Từ trường","Hấp dẫn","Ma sát"], c:0}
+    ],
+    hoa:[
+        {q:"Nguyên tử gồm?", img:"", a:["e,p,n","Chỉ e","Chỉ p","Ion"], c:0},
+        {q:"Phản ứng oxi hóa khử?", img:"", a:["Trao đổi e","H+","pH","O2"], c:0},
+        {q:"H2O là gì?", img:"", a:["Nước","Hydrogen","Oxy","Độ ẩm"], c:0},
+        {q:"Công thức muối ăn?", img:"", a:["NaCl","KCl","CaCl2","MgCl2"], c:0},
+        {q:"Hóa trị của O?", img:"", a:["2","1","3","4"], c:0},
+        {q:"Nguyên tố C?", img:"", a:["Carbon","Calcium","Chlorine","Cobalt"], c:0},
+        {q:"pH axit nhỏ hơn?", img:"", a:["7","8","6","5"], c:2},
+        {q:"Tốc độ phản ứng tăng khi?", img:"", a:["Nhiệt độ tăng","Ánh sáng","Không khí","Khác"], c:0},
+        {q:"Kim loại nào mềm?", img:"", a:["Na","Fe","Cu","Ag"], c:0},
+        {q:"Hợp chất hữu cơ chứa?", img:"", a:["C,H,O","C,O,N","H,O,N","C,H,N"], c:0},
+        {q:"Axit có vị?", img:"", a:["Chua","Ngọt","Mặn","Đắng"], c:0},
+        {q:"Bazơ có tính?", img:"", a:["Xà phòng","Chua","Mặn","Ngọt"], c:0},
+        {q:"Phản ứng cháy là?", img:"", a:["Oxi hóa","Khử","Trao đổi","Phân hủy"], c:0},
+        {q:"Nguyên tố H là?", img:"", a:["Hidro","Heli","Hơi","Hạt"], c:0},
+        {q:"Mol là đơn vị?", img:"", a:["Chất","Khối lượng","Thể tích","Nhiệt độ"], c:0}
+    ],
+    sinh:[
+        {q:"Đơn vị cấu tạo cơ thể sống?", img:"", a:["Tế bào","Mô","Cơ quan","Hệ cơ quan"], c:0},
+        {q:"DNA chứa?", img:"", a:["A,T,G,C","A,G,C","A,T,C","A,G,T"], c:0},
+        {q:"Hô hấp ở người xảy ra ở?", img:"", a:["Phổi","Tim","Gan","Thận"], c:0},
+        {q:"Chức năng xương?", img:"", a:["Nâng đỡ","Chuyển hóa","Bảo vệ","Cả 3"], c:3},
+        {q:"Động vật nào có vú?", img:"", a:["Chó","Gà","Cá","Thằn lằn"], c:0},
+        {q:"Thực vật quang hợp?", img:"", a:["Cây xanh","Cây khô","Cỏ","Khác"], c:0},
+        {q:"Hệ tuần hoàn gồm?", img:"", a:["Tim, mạch máu","Tim","Mạch máu","Phổi"], c:0},
+        {q:"Chức năng hô hấp?", img:"", a:["Trao đổi khí","Tiêu hóa","Vận động","Bài tiết"], c:0},
+        {q:"Động vật đơn bào?", img:"", a:["Amip","Chó","Cá","Thực vật"], c:0},
+        {q:"Hệ thần kinh gồm?", img:"", a:["Não, tủy sống, dây thần kinh","Tim","Gan","Thận"], c:0},
+        {q:"Vách tế bào thực vật gọi là?", img:"", a:["Teo bào","Màng tế bào","Nhân","Ribosome"], c:0},
+        {q:"Quang hợp cần gì?", img:"", a:["Ánh sáng, CO2, nước","Chỉ ánh sáng","Chỉ nước","Chỉ CO2"], c:0},
+        {q:"Hệ tiêu hóa gồm?", img:"", a:["Miệng, dạ dày, ruột","Phổi","Tim","Gan"], c:0},
+        {q:"Virus là gì?", img:"", a:["Sinh vật không tế bào","Tế bào đơn","Động vật","Thực vật"], c:0},
+        {q:"Máu đỏ nhờ?", img:"", a:["Hemoglobin","Oxy","CO2","Nước"], c:0}
+    ],
+    td:[
+        {q:"Lục địa lớn nhất?", img:"", a:["Á‑Âu","Phi","Mỹ","Úc"], c:0},
+        {q:"Đại dương lớn nhất?", img:"", a:["Thái Bình Dương","Ấn Độ Dương","Đại Tây Dương","Bắc Băng Dương"], c:0},
+        {q:"Núi cao nhất?", img:"", a:["Everest","K2","Kangchenjunga","Lhotse"], c:0},
+        {q:"Sông dài nhất?", img:"", a:["Nil","Amazon","Hằng","Mekong"], c:0},
+        {q:"Quốc gia đông dân nhất?", img:"", a:["Trung Quốc","Ấn Độ","Mỹ","Indonesia"], c:0},
+        {q:"Kinh độ đi qua Hà Nội?", img:"", a:["105°Đ","106°Đ","104°Đ","103°Đ"], c:0},
+        {q:"Vĩ độ đi qua Hà Nội?", img:"", a:["21°B","22°B","20°B","23°B"], c:0},
+        {q:"Thủ đô Việt Nam?", img:"", a:["Hà Nội","Hồ Chí Minh","Đà Nẵng","Huế"], c:0},
+        {q:"Biển lớn nhất Việt Nam?", img:"", a:["Biển Đông","Biển Tây","Biển Bắc","Biển Nam"], c:0},
+        {q:"Đảo lớn nhất Việt Nam?", img:"", a:["Phú Quốc","Côn Đảo","Lý Sơn","Bạch Long Vĩ"], c:0},
+        {q:"Nguyên nhân nào làm cho thiên nhiên Việt Nam khác hẳn với thiên nhiên các nước có cùng vĩ độ Tây Á, Đông Phi và Tây Phi?", img:"", a:["Việt Nam nằm trong khu vực nhiệt đới gió mùa","Việt Nam có bờ biển dài, khúc khuỷu","Do đất nước hẹp ngang, trải dài trên nhiều vĩ độ","Do cả 3 nguyên nhân"], c:3},
+        {q:"Tài nguyên giữ vị trí quan trọng nhất Việt Nam hiện nay là?", img:"", a:["Tài nguyên đất","Tài nguyên sinh vật","Tài nguyên nước","Tài nguyên khoáng sản"], c:0},
+        {q:"Trong các tài nguyên sau, loại nào bị suy giảm nghiêm trọng nhất?", img:"", a:["Tài nguyên đất","Tài nguyên biển","Tài nguyên rừng","Tài nguyên nước"], c:2},
+        {q:"Tài nguyên đất của Việt Nam rất phong phú, trong đó có nhiều nhất là?", img:"", a:["Đất đồng cỏ","Đất hoang mạc","Đất phù sa","Đất phù sa và đất feralit"], c:3},
+        {q:"Đặc điểm của đất feralit là?", img:"", a:["Thường có màu đỏ, phèn, chua, nghèo mùn","Thường có màu đen, xốp thoát nước","Thường có màu đỏ, vàng rất màu mỡ","Thường có màu nâu, khô không thích hợp trồng lúa"], c:0}
+    ]
+};
+
+let questions=[], index=0, score=0, currentSubject='', timerInterval, timeLeft=30;
+
+function startSubject(subject){
+    currentSubject = subject;
+    questions = quiz[subject].sort(()=>Math.random()-0.5);
+    index=0; score=0; doubleCount = inventory.double * 5; // Khởi tạo double nếu có
+    document.getElementById("menu").style.display="none";
+    document.getElementById("subjectName").textContent = `Môn: ${getSubjectName(subject)}`;
+    document.getElementById("subjectName").style.display="block";
+    document.getElementById("scoreDisplay").style.display="block";
+    document.getElementById("timer").style.display="block";
+    document.getElementById("progressBarContainer").style.display="block";
+    updateScoreDisplay();
+    loadQuestion();
+}
+
+function getSubjectName(sub) {
+    switch(sub) {
+        case 'ly': return 'Vật Lý';
+        case 'hoa': return 'Hóa Học';
+        case 'sinh': return 'Sinh Học';
+        case 'td': return 'Địa Lí';
+        default: return '';
+    }
+}
+
+function loadQuestion(){
+    clearInterval(timerInterval);
+    timeLeft = 30 + extraTime; // Áp dụng extra time nếu có
+    extraTime = 0; // Reset sau khi dùng
+    document.getElementById("timer").textContent = `Thời gian: ${timeLeft}s`;
+    document.getElementById("timer").style.color = "#ff6b6b";
+    timerInterval = setInterval(updateTimer, 1000);
+    
+    let q = questions[index];
+    let qBox = document.getElementById("questionText");
+    let aBox = document.getElementById("answerBox");
+    qBox.classList.add("slideIn");
+    aBox.classList.add("slideIn");
+    qBox.textContent = q.q;
+    if(q.img){document.getElementById("questionImg").src=q.img; document.getElementById("questionImg").style.display="block";}
+    else document.getElementById("questionImg").style.display="none";
+
+    aBox.innerHTML="";
+    let options = [...q.a]; // Copy mảng
+
+    // Áp dụng 50/50 nếu có
+    if (inventory.fifty > 0) {
+        inventory.fifty--; // Dùng 1 lần
+        // Loại bỏ 2 sai (giữ đúng và 1 sai ngẫu nhiên)
+        let wrongIndices = [];
+        for (let i = 0; i < options.length; i++) {
+            if (i !== q.c) wrongIndices.push(i);
+        }
+        let removeCount = Math.min(2, wrongIndices.length - 1); // Giữ ít nhất 1 sai
+        for (let i = 0; i < removeCount; i++) {
+            let randWrong = wrongIndices.splice(Math.random() * wrongIndices.length | 0, 1)[0];
+            options.splice(randWrong, 1);
+        }
+        alert('🎯 50/50: Đã loại bỏ 2 lựa chọn sai!');
+        renderItems();
+    }
+
+    // Áp dụng hint nếu có
+    if (inventory.hint > 0) {
+        inventory.hint--; // Dùng 1 lần
+        let hintText = `Gợi ý: Câu trả lời bắt đầu bằng chữ "${q.a[q.c][0]}"`;
+        qBox.innerHTML += `<p style="font-size: 18px; color: #ffd700; margin-top: 10px;">💡 ${hintText}</p>`;
+        alert('💡 Đã hiển thị gợi ý!');
+        renderItems();
+    }
+
+    // Shuffle options nếu 50/50
+    if (options.length < q.a.length) {
+        options = options.sort(() => Math.random() - 0.5);
+    }
+
+    options.forEach((ans,i)=>{
+        let realIndex = q.a.indexOf(ans); // Map về index gốc để check đúng/sai
+        aBox.innerHTML += `<div class="answerBtn" onclick="choose(${realIndex})">${ans}</div>`;
+    });
+
+    setTimeout(()=>{ qBox.classList.remove("slideIn"); aBox.classList.remove("slideIn"); },500);
+}
+
+function updateTimer() {
+    timeLeft--;
+    document.getElementById("timer").textContent = `Thời gian: ${timeLeft}s`;
+    if (timeLeft <= 10) {
+        document.getElementById("timer").style.color = "#ff4757";
+    }
+    if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        timeOut();
+    }
+}
+
+function timeOut() {
+    let q = questions[index];
+    let btns = document.querySelectorAll(".answerBtn");
+    btns.forEach(b=>b.style.pointerEvents="none");
+    btns[q.c].classList.add("correct");
+    spawnParticles(confettiCanvas.width / 2, confettiCanvas.height / 2, 'rgba(255, 75, 75, 0.8)', 30);
+    document.getElementById("timer").style.color = "#ff4757";
+    setTimeout(slideNext, 1000);
+}
+
+function choose(i){
+    clearInterval(timerInterval);
+    let q = questions[index];
+    let btns = document.querySelectorAll(".answerBtn");
+    let btnRect = btns[i].getBoundingClientRect();
+    btns.forEach(b=>b.style.pointerEvents="none");
+
+    let pointGain = 1;
+    if (doubleCount > 0) {
+        pointGain *= 2;
+        doubleCount--;
+        alert('🔥 x2 điểm kích hoạt!');
+    }
+
+    if(i===q.c){ 
+        btns[i].classList.add("correct"); 
+        spawnConfetti(); 
+        spawnParticles(btnRect.left + btnRect.width / 2, btnRect.top + btnRect.height / 2, 'rgba(74, 222, 128, 0.8)', 25);
+        score += pointGain; 
+        updateProgress(); 
+        updateScoreDisplay(); 
+    }
+    else { 
+        btns[i].classList.add("wrong");
+        spawnParticles(btnRect.left + btnRect.width / 2, btnRect.top + btnRect.height / 2, 'rgba(255, 75, 75, 0.8)', 15);
+        btns[q.c].classList.add("correct"); 
+    }
+
+    setTimeout(slideNext,800);
+}
+
+function updateScoreDisplay() {
+    document.getElementById("scoreDisplay").textContent = `Điểm: ${score}`;
+}
+
+function slideNext(){
+    let qBox = document.getElementById("questionText");
+    let aBox = document.getElementById("answerBox");
+    qBox.classList.add("slideOut"); aBox.classList.add("slideOut");
+    setTimeout(()=>{
+        qBox.classList.remove("slideOut"); aBox.classList.remove("slideOut");
+        index++; 
+        if(index<questions.length) loadQuestion(); 
+        else endGame();
+    },500);
+}
+
+function updateProgress(){
+    document.getElementById("progressBar").style.width = ((index+1)/questions.length*100) + "%";
+}
+
+function endGame(){
+    clearInterval(timerInterval);
+    document.getElementById("timer").style.display="none";
+    document.getElementById("questionImg").style.display="none";
+    document.getElementById("questionText").textContent = `Hoàn thành! Bạn đúng ${score}/${questions.length}`;
+    document.getElementById("answerBox").innerHTML = ``;
+    document.getElementById("restartBtn").style.display="block";
+    if (score / questions.length >= 0.7) {
+        spawnConfetti();
+        let confettiInterval = setInterval(spawnConfetti, 500);
+        setTimeout(() => clearInterval(confettiInterval), 3000);
+    }
+}   
+
+function restartGame() {
+    document.getElementById("menu").style.display="flex";
+    document.getElementById("subjectName").style.display="none";
+    document.getElementById("scoreDisplay").style.display="none";
+    document.getElementById("progressBarContainer").style.display="none";
+    document.getElementById("itemsSection").style.display="none"; // Ẩn items khi restart
+    document.getElementById("restartBtn").style.display="none";
+    document.getElementById("progressBar").style.width = "0%";
+    confetti = [];
+    particles = [];
+    // Reset inventory nếu cần, nhưng giữ để chơi tiếp
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Bài kiểm tra Hóa học — Nguyên tử (20 phút)</title>
+  <style>
+    :root{--bg:#06121a;--card:#071827;--accent:#3b82f6;--muted:#94a3b8;--glass:rgba(255,255,255,0.03)}
+    *{box-sizing:border-box}
+    body{font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial; background:linear-gradient(180deg,#04121a 0%, #082430 100%); color:#eef6fb; padding:24px}
+    .wrap{max-width:900px;margin:0 auto}
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+    h1{font-size:20px;margin:0}
+    .meta{color:var(--muted);font-size:13px}
+    .card{background:var(--card);border-radius:12px;padding:18px;margin-bottom:14px;box-shadow:0 6px 18px rgba(2,6,23,0.6)}
+    .controls{display:flex;gap:8px;align-items:center}
+    button{background:var(--accent);border:none;color:#081019;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:700}
+    button.secondary{background:transparent;color:var(--accent);border:1px solid rgba(59,130,246,0.2)}
+    .timer{font-weight:700;font-size:18px}
+    form .question{margin-bottom:14px;padding:12px;border-radius:8px;background:var(--glass);border:1px solid rgba(255,255,255,0.03)}
+    .q-title{font-weight:700;margin-bottom:8px}
+    .options label{display:block;padding:8px;border-radius:6px;cursor:pointer}
+    input[type="radio"]{margin-right:8px}
+    textarea,input[type='text'],input[type='number']{width:100%;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:inherit}
+    .actions{display:flex;gap:8px;justify-content:flex-end}
+    .result{font-size:16px;font-weight:700}
+    .footnote{color:var(--muted);font-size:13px;margin-top:8px}
+    @media (max-width:600px){.controls{flex-direction:column;align-items:flex-start}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Bài kiểm tra: Hóa học — Nguyên tử (20 phút)</h1>
+        <div class="meta">8 câu trắc nghiệm + 5 câu tự luận / Thời gian: <span class="timer" id="display-timer">20:00</span></div>
+      </div>
+      <div class="controls">
+        <button id="start-btn">Bắt đầu</button>
+        <button id="submit-btn" class="secondary" disabled>Nộp bài</button>
+        <button id="cancel-btn" class="secondary" disabled>Bỏ bài</button>
+      </div>
+    </header>
+
+    <section class="card">
+      <div style="margin-bottom:8px">
+        Hướng dẫn: Nhấn "Bắt đầu" để bắt đầu đồng hồ 20 phút. Sau khi hết giờ, hệ thống sẽ tự nộp và chấm trắc nghiệm. Các câu tự luận có gợi ý đáp án để giáo viên/học sinh đối chiếu.
+      </div>
+
+      <form id="quiz-form">
+
+        <div class="question" data-qtype="mc">
+          <div class="q-title">1. Nguyên tử là gì?</div>
+          <div class="options">
+            <label><input type="radio" name="q1" value="A">A. Hạt có khối lượng rất lớn</label>
+            <label><input type="radio" name="q1" value="B">B. Hạt nhỏ nhất của chất, không chia nhỏ hơn trong phản ứng hóa học</label>
+            <label><input type="radio" name="q1" value="C">C. Hạt mang điện âm</label>
+            <label><input type="radio" name="q1" value="D">D. Phân tử nhỏ nhất</label>
+          </div>
+        </div>
+
+        <div class="question" data-qtype="mc">
+          <div class="q-title">2. Hạt nhân nguyên tử gồm những hạt nào?</div>
+          <div class="options">
+            <label><input type="radio" name="q2" value="A">A. Electron và proton</label>
+            <label><input type="radio" name="q2" value="B">B. Proton và nơtron</label>
+            <label><input type="radio" name="q2" value="C">C. Electron và nơtron</label>
+            <label><input type="radio" name="q2" value="D">D. Chỉ có electron</label>
+          </div>
+        </div>
+
+        <div class="question" data-qtype="mc">
+          <div class="q-title">3. Điện tích của electron là bao nhiêu?</div>
+          <div class="options">
+            <label><input type="radio" name="q3" value="A">A. +1e</label>
+            <label><input type="radio" name="q3" value="B">B. 0</label>
+            <label><input type="radio" name="q3" value="C">C. -1e</label>
+            <label><input type="radio" name="q3" value="D">D. -2e</label>
+          </div>
+        </div>
+
+        <div class="question" data-qtype="mc">
+          <div class="q-title">4. Số khối (A) của một nguyên tử được tính bằng công thức nào?</div>
+          <div class="options">
+            <label><input type="radio" name="q4" value="A">A. A = Z + N</label>
+            <label><input type="radio" name="q4" value="B">B. A = Z - N</label>
+            <label><input type="radio" name="q4" value="C">C. A = Z × N</label>
+            <label><input type="radio" name="q4" value="D">D. A = Z / N</label>
+          </div>
+        </div>
+
+        <div class="question" data-qtype="mc">
+          <div class="q-title">5. Trong nguyên tử trung hòa về điện, số electron bằng:</div>
+          <div class="options">
+            <label><input type="radio" name="q5" value="A">A. Số nơtron</label>
+            <label><input type="radio" name="q5" value="B">B. Số proton</label>
+            <label><input type="radio" name="q5" value="C">C. Tổng số hạt</label>
+            <label><input type="radio" name="q5" value="D">D. Số khối</label>
+          </div>
+        </div>
+
+        <div class="question" data-qtype="mc">
+          <div class="q-title">6. Nguyên tố hóa học được xác định bởi đại lượng nào?</div>
+          <div class="options">
+            <label><input type="radio" name="q6" value="A">A. Số khối A</label>
+            <label><input type="radio" name="q6" value="B">B. Số proton (Z)</label>
+            <label><input type="radio" name="q6" value="C">C. Số nơtron (N)</label>
+            <label><input type="radio" name="q6" value="D">D. Số electron lớp ngoài cùng</label>
+          </div>
+        </div>
+
+        <div class="question" data-qtype="mc">
+          <div class="q-title">7. Kí hiệu hóa học của nguyên tử Oxi là:</div>
+          <div class="options">
+            <label><input type="radio" name="q7" value="A">A. O</label>
+            <label><input type="radio" name="q7" value="B">B. Ox</label>
+            <label><input type="radio" name="q7" value="C">C. Oz</label>
+            <label><input type="radio" name="q7" value="D">D. Oxi</label>
+          </div>
+        </div>
+
+        <div class="question" data-qtype="mc">
+          <div class="q-title">8. Hạt có khối lượng nhỏ nhất trong nguyên tử là:</div>
+          <div class="options">
+            <label><input type="radio" name="q8" value="A">A. Proton</label>
+            <label><input type="radio" name="q8" value="B">B. Electron</label>
+            <label><input type="radio" name="q8" value="C">C. Nơtron</label>
+            <label><input type="radio" name="q8" value="D">D. Hạt nhân</label>
+          </div>
+        </div>
+
+        <hr style="border:none;height:1px;background:rgba(255,255,255,0.03);margin:12px 0" />
+
+        <div class="question" data-qtype="sa">
+          <div class="q-title">9. (Tính) Một nguyên tử có 11 proton và 12 nơtron. Số khối của nguyên tử là bao nhiêu?</div>
+          <input type="text" name="q9" placeholder="Nhập đáp án (A = ?)" />
+        </div>
+
+        <div class="question" data-qtype="sa">
+          <div class="q-title">10. (Ngắn) Viết định nghĩa nguyên tử.</div>
+          <input type="text" name="q10" placeholder="Viết 1 câu ngắn" />
+        </div>
+
+        <div class="question" data-qtype="sa">
+          <div class="q-title">11. (Tính) Nguyên tử có Z = 8. Hỏi có bao nhiêu electron và proton?</div>
+          <input type="text" name="q11" placeholder="Nhập đáp án" />
+        </div>
+
+        <div class="question" data-qtype="sa">
+          <div class="q-title">12. (Ngắn) Nêu mối quan hệ giữa số khối, số proton và số nơtron.</div>
+          <input type="text" name="q12" placeholder="Ví dụ: A = ..." />
+        </div>
+
+        <div class="question" data-qtype="sa">
+          <div class="q-title">13. (Tính) Nguyên tử có 17 proton và 18 nơtron. Tính số khối A.</div>
+          <input type="text" name="q13" placeholder="Nhập đáp án" />
+        </div>
+
+      </form>
+
+      <div class="actions" style="margin-top:12px">
+        <button id="auto-check" class="secondary" disabled>Kiểm tra nhanh trắc nghiệm</button>
+      </div>
+      <div class="footnote">Ghi chú: Trắc nghiệm chấm tự động. Các bài tính so sánh với sai số ±0.5 nếu là số thập phân. Tự luận có gợi ý đáp án để đối chiếu.</div>
+    </section>
+
+    <section class="card" id="result-card" style="display:none">
+      <div id="result-summary"></div>
+      <div id="answers"></div>
+    </section>
+
+  </div>
+
+  <script>
+    const startBtn=document.getElementById('start-btn');
+    const submitBtn=document.getElementById('submit-btn');
+    const cancelBtn=document.getElementById('cancel-btn');
+    const autoCheckBtn=document.getElementById('auto-check');
+    const timerDisplay=document.getElementById('display-timer');
+    const form=document.getElementById('quiz-form');
+    const resultCard=document.getElementById('result-card');
+    const resultSummary=document.getElementById('result-summary');
+    const answersDiv=document.getElementById('answers');
+
+    const MC_ANSWERS={q1:'B',q2:'B',q3:'C',q4:'A',q5:'B',q6:'B',q7:'A',q8:'B'};
+    const SA_ANSWERS={
+      q9:()=>11+12,
+      q10:'Nguyên tử là hạt nhỏ nhất của chất, vẫn giữ nguyên tính chất hóa học của chất đó.',
+      q11:'Nguyên tử có 8 electron và 8 proton.',
+      q12:'A = Z + N (số khối bằng tổng số proton và nơtron).',
+      q13:()=>17+18
+    };
+
+    let timerInterval=null; let timeLeft=20*60; let started=false;
+    const startTime = performance.now();  // Để tính thời gian chơi cho stats
+    function formatTime(s){const m=Math.floor(s/60),ss=s%60;return `${String(m).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;}
+    timerDisplay.textContent=formatTime(timeLeft);
+
+    // ===== HÀM CẬP NHẬT STATS KHI HOÀN THÀNH QUIZ =====
+    function updateQuizStats(correctCount, wrongCount, quizTimeSeconds, pointsEarned) {
+      const stats = JSON.parse(localStorage.getItem('playerStats') || '{}');
+      
+      // Cập nhật cơ bản
+      stats.totalCorrect += correctCount;
+      stats.totalWrong += wrongCount;
+      stats.totalQuizzes += 1;
+      stats.totalPoints += pointsEarned;
+      stats.playTime += quizTimeSeconds;
+      
+      // Cập nhật streak (nếu hoàn thành, tăng streak; nếu không, reset nếu cần)
+      const now = Date.now();
+      if (stats.currentStreakDate && (now - stats.currentStreakDate) < (24 * 60 * 60 * 1000)) {  // Trong ngày
+        stats.quizStreak += 1;
+      } else {
+        stats.quizStreak = 1;  // Bắt đầu streak mới
+      }
+      stats.currentStreakDate = now;
+      
+      // Lưu lại
+      localStorage.setItem('playerStats', JSON.stringify(stats));
+      
+      // Lưu điểm riêng cho môn nếu cần (ví dụ: cho Hóa học - Nguyên tử)
+      const subject = 'hoahoc';
+      localStorage.setItem(`diem_${subject}`, pointsEarned.toString());  // Để dùng ở trang chủ nếu cần
+      
+      alert(`Hoàn thành! Điểm: ${pointsEarned}. Stats đã cập nhật. Quay về trang chủ để xem.`);
+      window.location.href = 'skibdi.html';  // Redirect về trang chủ
+    }
+
+    // ===== NÚT BỎ QUIZ (RESET STREAK) =====
+    cancelBtn.addEventListener('click', () => {
+      if (confirm('Bạn có chắc muốn bỏ bài? Streak sẽ bị reset.')) {
+        const stats = JSON.parse(localStorage.getItem('playerStats') || '{}');
+        stats.quizStreak = 0;  // Reset streak nếu bỏ
+        localStorage.setItem('playerStats', JSON.stringify(stats));
+        window.location.href = 'skibdi.html';
+      }
+    });
+
+    startBtn.addEventListener('click',()=>{
+      if(started)return; started=true;
+      startBtn.disabled=true; submitBtn.disabled=false; cancelBtn.disabled=false; autoCheckBtn.disabled=false;
+      timerInterval=setInterval(()=>{
+        timeLeft--; timerDisplay.textContent=formatTime(timeLeft);
+        if(timeLeft<=0){clearInterval(timerInterval);doSubmit(true);}
+      },1000);
+    });
+
+    submitBtn.addEventListener('click',()=>doSubmit(false));
+    autoCheckBtn.addEventListener('click',()=>gradeMCOnly());
+
+    function gradeMCOnly(){
+      const fd=new FormData(form);let correct=0,total=8;
+      for(let i=1;i<=8;i++){const k='q'+i;if(fd.get(k)===MC_ANSWERS[k])correct++;}
+      alert(`Trắc nghiệm: ${correct}/${total} đúng`);
+    }
+
+    function doSubmit(timeout){
+      if(timerInterval)clearInterval(timerInterval);
+      submitBtn.disabled=true; cancelBtn.disabled=true; autoCheckBtn.disabled=true;
+      const fd=new FormData(form);
+      let mcCorrect=0;for(let i=1;i<=8;i++){const k='q'+i;if(fd.get(k)===MC_ANSWERS[k])mcCorrect++;}
+      const saResults=[];
+      let saCorrect = 0;
+      for(let k=9;k<=13;k++){
+        const user=(fd.get(k)||'').trim();
+        let expected=SA_ANSWERS[k];
+        if(typeof expected==='function')expected=expected();
+        let ok=false,note='';
+        if(!isNaN(expected)){
+          const num=parseFloat(user.replace(',','.'));
+          if(!isNaN(num)){ok=Math.abs(num-expected)<=0.5;note=`Đáp chuẩn: ${expected}`;}
+          else{ok=false;note=`Đáp chuẩn (số): ${expected}`;}
+        }else{
+          const exp=String(expected).toLowerCase(),u=user.toLowerCase();
+          // Kiểm tra cụ thể cho từng câu
+          if (k === 10) {
+            ok = u.length > 0 && (u.includes('nguyên tử') && (u.includes('hạt nhỏ nhất') || u.includes('không chia nhỏ') || u.includes('tính chất hóa học')));
+          } else if (k === 11) {
+            ok = u.length > 0 && u.includes('8') && (u.includes('electron') || u.includes('e-')) && (u.includes('proton') || u.includes('p+'));
+          } else if (k === 12) {
+            ok = u.length > 0 && (u.includes('a = z + n') || u.includes('số khối = proton + nơtron'));
+          }
+          note=`Gợi ý đáp án: ${expected}`;
+        }
+        if (ok) saCorrect++;
+        saResults.push({q:k,user:user||'(trống)',ok,note});
+      }
+
+      // TÍNH TỔNG ĐIỂM CHO STATS
+      const totalCorrect = mcCorrect + saCorrect;
+      const totalQuestions = 13;  // 8 MC + 5 SA
+      const wrongCount = totalQuestions - totalCorrect;
+      const quizTimeSeconds = Math.floor((performance.now() - startTime) / 1000);
+      const pointsEarned = totalCorrect * 10;  // 10 điểm/câu đúng (tổng max 130)
+
+      // Cập nhật stats
+      updateQuizStats(totalCorrect, wrongCount, quizTimeSeconds, pointsEarned);
+
+      // Show result (trước khi redirect)
+      resultCard.style.display='block';
+      resultSummary.innerHTML=`<div class="result">Kết quả trắc nghiệm: ${mcCorrect}/8 đúng</div><div style="margin-top:8px;color:var(--muted)">(Gợi ý đáp án cho tự luận hiển thị bên dưới)</div>`;
+      let html='<h3>Chi tiết</h3><ol>';
+      for(let i=1;i<=8;i++){
+        const k='q'+i;const user=fd.get(k)||'(chưa chọn)';
+        const ok=user===MC_ANSWERS[k];
+        html+=`<li>Câu ${i}: Bạn chọn <b>${user}</b> — ${ok?'<span style="color:#57f287">Đúng</span>':'<span style="color:#ff8a8a">Sai</span>'} (Đáp án: <b>${MC_ANSWERS[k]}</b>)</li>`;
+      }
+      html+='</ol><h4>Các câu tự luận (gợi ý đáp án / chấm sơ bộ)</h4><ol>';
+      saResults.forEach(r=>{
+        html+=`<li>${r.q}: Bạn: <i>${escapeHtml(r.user)}</i> — ${r.ok?'<span style="color:#57f287">Được</span>':'<span style="color:#ff8a8a">Chưa được</span>'}<br/><small style="color:var(--muted)">${r.note}</small></li>`;
+      });
+      html+='</ol>';
+      answersDiv.innerHTML=html;
+      if(timeout)resultSummary.innerHTML+='<div style="color:#ffcc66;margin-top:8px">Hết giờ! Hệ thống đã nộp bài tự động.</div>';
+      resultCard.scrollIntoView({behavior:'smooth'});
+    }
+
+    function escapeHtml(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+    window.addEventListener('beforeunload',e=>{if(started&&!submitBtn.disabled){e.preventDefault();e.returnValue='';}});
+  </script>
+
+</body>
+</html>

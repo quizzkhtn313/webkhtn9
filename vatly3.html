@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Bài kiểm tra Vật lý 8 — Điện học (20 phút)</title>
+    <style>
+      :root {
+        --bg: #06121a;
+        --card: #071827;
+        --accent: #a855f7; /* tím điện cho Điện học */
+        --muted: #94a3b8;
+        --glass: rgba(255, 255, 255, 0.03);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+        background: linear-gradient(180deg, #04121a 0%, #082430 100%);
+        color: #eef6fb;
+        padding: 24px;
+      }
+      .wrap {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+      }
+      h1 {
+        font-size: 20px;
+        margin: 0;
+      }
+      .meta {
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .card {
+        background: var(--card);
+        border-radius: 12px;
+        padding: 18px;
+        margin-bottom: 14px;
+        box-shadow: 0 6px 18px rgba(2, 6, 23, 0.6);
+      }
+      button {
+        background: var(--accent);
+        border: none;
+        color: #fff;
+        padding: 8px 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 700;
+      }
+      button.secondary {
+        background: transparent;
+        color: var(--accent);
+        border: 1px solid rgba(168, 85, 247, 0.4);
+      }
+      .timer {
+        font-weight: 700;
+        font-size: 18px;
+      }
+      .question {
+        margin-bottom: 14px;
+        padding: 12px;
+        border-radius: 8px;
+        background: var(--glass);
+        border: 1px solid rgba(255, 255, 255, 0.03);
+      }
+      .q-title {
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+      .options label {
+        display: block;
+        padding: 8px;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+      input[type="radio"] {
+        margin-right: 8px;
+      }
+      input[type="text"] {
+        width: 100%;
+        padding: 8px;
+        border-radius: 6px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        background: transparent;
+        color: inherit;
+      }
+      .actions {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+        margin-top: 12px;
+      }
+      .footnote {
+        color: var(--muted);
+        font-size: 13px;
+        margin-top: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <div>
+          <h1>Bài kiểm tra: Vật lý 8 — Điện học (20 phút)</h1>
+          <div class="meta">
+            8 câu trắc nghiệm + 5 câu tự luận/tính toán • Thời gian:
+            <span class="timer" id="display-timer">20:00</span>
+          </div>
+        </div>
+        <div class="controls">
+          <button id="start-btn">Bắt đầu</button>
+          <button id="submit-btn" class="secondary" disabled>Nộp bài</button>
+          <button id="cancel-btn" class="secondary" disabled>Bỏ bài</button>
+        </div>
+      </header>
+
+      <section class="card">
+        <div style="margin-bottom: 12px">
+          Nhấn “Bắt đầu” để chạy đồng hồ 20 phút. Điểm tự động lưu.
+        </div>
+
+        <form id="quiz-form">
+          <!-- TRẮC NGHIỆM -->
+          <div class="question" data-qtype="mc">
+            <div class="q-title">1. Đơn vị của điện trở trong Hệ SI là:</div>
+            <div class="options">
+              <label><input type="radio" name="q1" value="A" />A. Ôm (Ω)</label>
+              <label
+                ><input type="radio" name="q1" value="B" />B. Vôn (V)</label
+              >
+              <label
+                ><input type="radio" name="q1" value="C" />C. Ampe (A)</label
+              >
+              <label
+                ><input type="radio" name="q1" value="D" />D. Oát (W)</label
+              >
+            </div>
+          </div>
+
+          <div class="question" data-qtype="mc">
+            <div class="q-title">
+              2. Theo định luật Ôm, cường độ dòng điện qua dây dẫn tỉ lệ:
+            </div>
+            <div class="options">
+              <label
+                ><input type="radio" name="q2" value="A" />A. Thuận với hiệu
+                điện thế, nghịch với điện trở</label
+              >
+              <label
+                ><input type="radio" name="q2" value="B" />B. Nghịch với hiệu
+                điện thế</label
+              >
+              <label
+                ><input type="radio" name="q2" value="C" />C. Thuận với điện
+                trở</label
+              >
+              <label
+                ><input type="radio" name="q2" value="D" />D. Không phụ thuộc U
+                và R</label
+              >
+            </div>
+          </div>
+
+          <div class="question" data-qtype="mc">
+            <div class="q-title">
+              3. Bóng đèn có ghi 220V – 100W, điện trở của bóng khi sáng bình
+              thường là:
+            </div>
+            <div class="options">
+              <label><input type="radio" name="q3" value="A" />A. 484 Ω</label>
+              <label><input type="radio" name="q3" value="B" />B. 220 Ω</label>
+              <label><input type="radio" name="q3" value="C" />C. 100 Ω</label>
+              <label><input type="radio" name="q3" value="D" />D. 242 Ω</label>
+            </div>
+          </div>
+
+          <div class="question" data-qtype="mc">
+            <div class="q-title">
+              4. Khi mắc nối tiếp 2 điện trở R₁ = R₂ = 20 Ω thì điện trở tương
+              đương là:
+            </div>
+            <div class="options">
+              <label><input type="radio" name="q4" value="A" />A. 40 Ω</label>
+              <label><input type="radio" name="q4" value="B" />B. 10 Ω</label>
+              <label><input type="radio" name="q4" value="C" />C. 20 Ω</label>
+              <label><input type="radio" name="q4" value="D" />D. 60 Ω</label>
+            </div>
+          </div>
+
+          <div class="question" data-qtype="mc">
+            <div class="q-title">
+              5. Công suất định mức của dụng cụ điện là công suất khi nó:
+            </div>
+            <div class="options">
+              <label
+                ><input type="radio" name="q5" value="A" />A. Làm việc ở điện áp
+                định mức</label
+              >
+              <label
+                ><input type="radio" name="q5" value="B" />B. Làm việc ở dòng
+                điện nhỏ nhất</label
+              >
+              <label
+                ><input type="radio" name="q5" value="C" />C. Tắt hoàn
+                toàn</label
+              >
+              <label
+                ><input type="radio" name="q5" value="D" />D. Bị chập
+                mạch</label
+              >
+            </div>
+          </div>
+
+          <div class="question" data-qtype="mc">
+            <div class="q-title">
+              6. Để an toàn khi sử dụng điện trong nhà, không nên:
+            </div>
+            <div class="options">
+              <label
+                ><input type="radio" name="q6" value="A" />A. Dùng tay ướt lau
+                bóng đèn đang sáng</label
+              >
+              <label
+                ><input type="radio" name="q6" value="B" />B. Dùng cầu chì phù
+                hợp</label
+              >
+              <label
+                ><input type="radio" name="q6" value="C" />C. Nối dây tiếp đất
+                cho vỏ kim loại</label
+              >
+              <label
+                ><input type="radio" name="q6" value="D" />D. Tắt cầu dao khi
+                không dùng</label
+              >
+            </div>
+          </div>
+
+          <div class="question" data-qtype="mc">
+            <div class="q-title">7. Điện trở của dây dẫn tỉ lệ thuận với:</div>
+            <div class="options">
+              <label
+                ><input type="radio" name="q7" value="A" />A. Chiều dài và
+                nghịch với tiết diện</label
+              >
+              <label
+                ><input type="radio" name="q7" value="B" />B. Nghịch với chiều
+                dài</label
+              >
+              <label
+                ><input type="radio" name="q7" value="C" />C. Thuận với tiết
+                diện</label
+              >
+              <label
+                ><input type="radio" name="q7" value="D" />D. Không phụ thuộc
+                chiều dài</label
+              >
+            </div>
+          </div>
+
+          <div class="question" data-qtype="mc">
+            <div class="q-title">
+              8. Bóng đèn có R = 484 Ω, mắc vào nguồn 220 V thì công suất tiêu
+              thụ là:
+            </div>
+            <div class="options">
+              <label><input type="radio" name="q8" value="A" />A. 100 W</label>
+              <label><input type="radio" name="q8" value="B" />B. 200 W</label>
+              <label><input type="radio" name="q8" value="C" />C. 50 W</label>
+              <label><input type="radio" name="q8" value="D" />D. 484 W</label>
+            </div>
+          </div>
+
+          <hr
+            style="
+              border: none;
+              height: 1px;
+              background: rgba(255, 255, 255, 0.03);
+              margin: 20px 0;
+            "
+          />
+
+          <!-- TỰ LUẬN / TÍNH TOÁN -->
+          <div class="question" data-qtype="sa">
+            <div class="q-title">9. Nêu công thức định luật Ôm.</div>
+            <input
+              type="text"
+              name="q9"
+              placeholder="I = U/R hoặc U = IR hoặc R = U/I"
+            />
+          </div>
+
+          <div class="question" data-qtype="sa">
+            <div class="q-title">
+              10. Bóng đèn 220V – 60W có điện trở là bao nhiêu Ω?
+            </div>
+            <input
+              type="text"
+              name="q10"
+              placeholder="806.6 hoặc 807 hoặc 806,67"
+            />
+          </div>
+
+          <div class="question" data-qtype="sa">
+            <div class="q-title">
+              11. Qua một điện trở 50 Ω có dòng điện 0,4 A. Tính hiệu điện thế
+              giữa hai đầu điện trở.
+            </div>
+            <input type="text" name="q11" placeholder="20 hoặc 20V" />
+          </div>
+
+          <div class="question" data-qtype="sa">
+            <div class="q-title">
+              12. Mắc song song 2 điện trở 30 Ω và 70 Ω. Tính điện trở tương
+              đương.
+            </div>
+            <input type="text" name="q12" placeholder="21 hoặc 21Ω" />
+          </div>
+
+          <div class="question" data-qtype="sa">
+            <div class="q-title">
+              13. Một ấm đun nước 220V có công suất 1100W hoạt động trong 5 phút
+              tiêu thụ bao nhiêu số điện (kWh)?
+            </div>
+            <input
+              type="text"
+              name="q13"
+              placeholder="0.0917 hoặc 0,092 hoặc 0.09 hoặc 1/12"
+            />
+          </div>
+        </form>
+
+        <div class="actions">
+          <button id="auto-check" class="secondary" disabled>
+            Kiểm tra nhanh trắc nghiệm
+          </button>
+        </div>
+        <div class="footnote">
+          Mỗi câu đúng = 10 điểm (tối đa 130 điểm). Điểm tự động lưu.
+        </div>
+      </section>
+
+      <section class="card" id="result-card" style="display: none">
+        <div id="result-summary"></div>
+        <div id="answers"></div>
+      </section>
+    </div>
+
+    <script>
+      const MC_ANSWERS = {
+        q1: "A",
+        q2: "A",
+        q3: "A",
+        q4: "A",
+        q5: "A",
+        q6: "A",
+        q7: "A",
+        q8: "A",
+      };
+
+      const SA_ANSWERS = {
+        q9: /i.*u.*r|u.*i.*r|r.*u.*i/i,
+        q10: /806|807|806[.,]?6|806[.,]?7/i,
+        q11: /20/,
+        q12: /21/,
+        q13: /0[.,]?09|0[.,]?091|0[.,]?092|1\/12/i,
+      };
+
+      let timerInterval = null,
+        timeLeft = 20 * 60,
+        started = false;
+      const startTime = performance.now();
+      document.getElementById("display-timer").textContent = "20:00";
+
+      function formatTime(s) {
+        const m = Math.floor(s / 60),
+          ss = s % 60;
+        return `${String(m).padStart(2, "0")}:${String(ss).padStart(2, "0")}`;
+      }
+
+      function updateQuizStats(c, w, sec, pts) {
+        const user = localStorage.getItem("currentUser") || "guest";
+        const key = `playerStats_${user}`;
+        let stats = JSON.parse(localStorage.getItem(key) || "{}");
+        if (Object.keys(stats).length === 0)
+          stats = {
+            totalCorrect: 0,
+            totalWrong: 0,
+            totalQuizzes: 0,
+            quizStreak: 0,
+            totalPoints: 0,
+            playTime: 0,
+            currentStreakDate: 0,
+          };
+        stats.totalCorrect += c;
+        stats.totalWrong += w;
+        stats.totalQuizzes += 1;
+        stats.totalPoints += pts;
+        stats.playTime += sec;
+        const now = Date.now();
+        stats.quizStreak =
+          stats.currentStreakDate &&
+          now - stats.currentStreakDate < 24 * 60 * 60 * 1000
+            ? stats.quizStreak + 1
+            : 1;
+        stats.currentStreakDate = now;
+        localStorage.setItem(key, JSON.stringify(stats));
+        alert(`Điện học xong! ${pts} điểm ngon lành!`);
+        setTimeout(() => (location.href = "trangchu.html"), 1800);
+      }
+
+      document.getElementById("start-btn").onclick = () => {
+        if (started) return;
+        started = true;
+        document.getElementById("start-btn").disabled = true;
+        ["submit-btn", "cancel-btn", "auto-check"].forEach(
+          (id) => (document.getElementById(id).disabled = false)
+        );
+        timerInterval = setInterval(() => {
+          timeLeft--;
+          document.getElementById("display-timer").textContent =
+            formatTime(timeLeft);
+          if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            doSubmit(true);
+          }
+        }, 1000);
+      };
+
+      document.getElementById("cancel-btn").onclick = () => {
+        if (confirm("Bỏ bài mất streak nha bro!")) {
+          const user = localStorage.getItem("currentUser") || "guest";
+          let stats = JSON.parse(
+            localStorage.getItem(`playerStats_${user}`) || "{}"
+          );
+          stats.quizStreak = 0;
+          localStorage.setItem(`playerStats_${user}`, JSON.stringify(stats));
+          location.href = "trangchu.html";
+        }
+      };
+
+      document.getElementById("auto-check").onclick = () => {
+        const fd = new FormData(document.getElementById("quiz-form"));
+        let c = 0;
+        for (let i = 1; i <= 8; i++)
+          if (fc.get("q" + i) === MC_ANSWERS["q" + i]) c++;
+        alert(`Trắc nghiệm: ${c}/8 đúng`);
+      };
+
+      document.getElementById("submit-btn").onclick = () => doSubmit(false);
+
+      function doSubmit(timeout = false) {
+        if (timerInterval) clearInterval(timerInterval);
+        ["submit-btn", "cancel-btn", "auto-check"].forEach(
+          (id) => (document.getElementById(id).disabled = true)
+        );
+
+        const fd = new FormData(document.getElementById("quiz-form"));
+        let mc = 0;
+        for (let i = 1; i <= 8; i++)
+          if (fd.get("q" + i) === MC_ANSWERS["q" + i]) mc++;
+
+        let sa = 0;
+        const results = [];
+        for (let i = 9; i <= 13; i++) {
+          const raw = (fd.get("q" + i) || "").trim();
+          const user = raw.toLowerCase().replace(/\s/g, "");
+          let ok = false;
+          if (i === 9) ok = /i.*u.*r|u.*i.*r|r.*u.*i/.test(user);
+          else if (i === 10) ok = /806|807|806[.,]?6|806[.,]?7/.test(user);
+          else if (i === 11) ok = /20/.test(user);
+          else if (i === 12) ok = /21/.test(user);
+          else if (i === 13)
+            ok = /0[.,]?09|0[.,]?091|0[.,]?092|1\/12/.test(user);
+          if (ok) sa++;
+          results.push({ q: i, user: raw, ok });
+        }
+
+        const total = mc + sa,
+          points = total * 10;
+        const seconds = Math.floor((performance.now() - startTime) / 1000);
+        updateQuizStats(total, 13 - total, seconds, points);
+
+        document.getElementById("result-card").style.display = "block";
+        document.getElementById("result-summary").innerHTML = `
+          <div style="font-size:19px;font-weight:700">Trắc nghiệm: ${mc}/8 • Tự luận: ${sa}/5 • Tổng: ${points} điểm</div>
+          ${
+            timeout
+              ? '<div style="color:#ffcc66;margin-top:8px">Hết giờ rồi bro, tự động nộp!</div>'
+              : ""
+          }
+        `;
+
+        let html = "<ol>";
+        for (let i = 1; i <= 8; i++) {
+          const a = fd.get("q" + i) || "(trống)";
+          html += `<li>Câu ${i}: ${
+            a === MC_ANSWERS["q" + i]
+              ? "Đúng"
+              : "Sai (đáp án: " + MC_ANSWERS["q" + i] + ")"
+          }</li>`;
+        }
+        html += "</ol><h4>Tự luận</h4><ol start=9>";
+        results.forEach(
+          (r) =>
+            (html += `<li>Câu ${r.q}: ${
+              r.ok ? "Đúng" : "Chưa đúng"
+            }<br><small>Bạn: ${escapeHtml(r.user)}</small></li>`)
+        );
+        html += "</ol>";
+        document.getElementById("answers").innerHTML = html;
+        document
+          .getElementById("result-card")
+          .scrollIntoView({ behavior: "smooth" });
+      }
+
+      function escapeHtml(t) {
+        return t
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+      }
+
+      window.addEventListener("beforeunload", (e) => {
+        if (started && !document.getElementById("submit-btn").disabled) {
+          e.preventDefault();
+          e.returnValue = "";
+        }
+      });
+    </script>
+  </body>
+</html>

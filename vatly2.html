@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Bài kiểm tra Vật lý 8 — Nhiệt học (20 phút)</title>
+    <style>
+      :root {
+        --bg: #06121a;
+        --card: #071827;
+        --accent: #fb923c; /* cam đỏ cho Nhiệt học */
+        --muted: #94a3b8;
+        --glass: rgba(255, 255, 255, 0.03);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+        background: linear-gradient(180deg, #04121a 0%, #082430 100%);
+        color: #eef6fb;
+        padding: 24px;
+      }
+      .wrap {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+      }
+      h1 {
+        font-size: 20px;
+        margin: 0;
+      }
+      .meta {
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .card {
+        background: var(--card);
+        border-radius: 12px;
+        padding: 18px;
+        margin-bottom: 14px;
+        box-shadow: 0 6px 18px rgba(2, 6, 23, 0.6);
+      }
+      button {
+        background: var(--accent);
+        border: none;
+        color: #fff;
+        padding: 8px 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 700;
+      }
+      button.secondary {
+        background: transparent;
+        color: var(--accent);
+        border: 1px solid rgba(251, 146, 60, 0.4);
+      }
+      .timer {
+        font-weight: 700;
+        font-size: 18px;
+      }
+      .question {
+        margin-bottom: 14px;
+        padding: 12px;
+        border-radius: 8px;
+        background: var(--glass);
+        border: 1px solid rgba(255, 255, 255, 0.03);
+      }
+      .q-title {
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+      .options label {
+        display: block;
+        padding: 8px;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+      input[type="radio"] {
+        margin-right: 8px;
+      }
+      input[type="text"] {
+        width: 100%;
+        padding: 8px;
+        border-radius: 6px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        background: transparent;
+        color: inherit;
+      }
+      .actions {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+        margin-top: 12px;
+      }
+      .footnote {
+        color: var(--muted);
+        font-size: 13px;
+        margin-top: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <div>
+          <h1>Bài kiểm tra: Vật lý 8 — Nhiệt học (20 phút)</h1>
+          <div class="meta">
+            8 câu trắc nghiệm + 5 câu tự luận/tính toán • Thời gian:
+            <span class="timer" id="display-timer">20:00</span>
+          </div>
+        </div>
+        <div class="controls">
+          <button id="start-btn">Bắt đầu</button>
+          <button id="submit-btn" class="secondary" disabled>Nộp bài</button>
+          <button id="cancel-btn" class="secondary" disabled>Bỏ bài</button>
+        </div>
+      </header>
+
+      <section class="card">
+        <div style="margin-bottom: 12px">
+          Nhấn “Bắt đầu” để chạy đồng hồ 20 phút. Điểm tự động lưu.
+        </div>
+
+        <form id="quiz-form">
+          <!-- TRẮC NGHIỆM -->
+          <div class="question" data-qtype="mc">
+            <div class="q-title">
+              1. Nhiệt lượng cần thiết để làm nóng 1 kg nước từ 20°C lên 21°C là
+              bao nhiêu (cₙ = 4200 J/kg.độ)?
+            </div>
+            <div class="options">
+              <label><input type="radio" name="q1" value="A" />A. 4200 J</label>
+              <label><input type="radio" name="q1" value="B" />B. 420 J</label>
+              <label><input type="radio" name="q1" value="C" />C. 8400 J</label>
+              <label><input type="radio" name="q1" value="D" />D. 2100 J</label>
+            </div>
+          </div>
+
+          <div class="question" data-qtype="mc">
+            <div class="q-title">
+              2. Hiện tượng nào sau đây là sự truyền nhiệt bằng đối lưu?
+            </div>
+            <div class="options">
+              <label
+                ><input type="radio" name="q2" value="A" />A. Làm nóng nước
+                trong ấm bằng bếp từ</label
+              >
+              <label
+                ><input type="radio" name="q2" value="B" />B. Nước nóng ở đáy
+                nồi dâng lên trên</label
+              >
+              <label
+                ><input type="radio" name="q2" value="C" />C. Bàn là làm nóng
+                quần áo</label
+              >
+              <label
+                ><input type="radio" name="q2" value="D" />D. Tia nắng mặt trời
+                sưởi ấm mặt đất</label
+              >
+            </div>
+          </div>
+
+          <div class="question" data-qtype="mc">
+            <div class="q-title">
+              3. Nhiệt dung riêng của nước là 4200 J/kg.độ, nghĩa là:
+            </div>
+            <div class="options">
+              <label
+                ><input type="radio" name="q3" value="A" />A. Cần 4200 J để làm
+                nóng 1 kg nước tăng 1°C</label
+              >
+              <label
+                ><input type="radio" name="q3" value="B" />B. Cần 4200 J để làm
+                tan chảy 1 kg nước</label
+              >
+              <label
+                ><input type="radio" name="q3" value="C" />C. 1 kg nước tỏa 4200
+                J khi giảm 1°C</label
+              >
+              <label
+                ><input type="radio" name="q3" value="D" />D. Cả A và C đều
+                đúng</label
+              >
+            </div>
+          </div>
+
+          <div class="question" data-qtype="mc">
+            <div class="q-title">4. Khi nước sôi ở 100°C thì:</div>
+            <div class="options">
+              <label
+                ><input type="radio" name="q4" value="A" />A. Nhiệt độ không đổi
+                dù vẫn cung cấp nhiệt</label
+              >
+              <label
+                ><input type="radio" name="q4" value="B" />B. Nhiệt độ vẫn tăng
+                dần</label
+              >
+              <label
+                ><input type="radio" name="q4" value="C" />C. Không cần cung cấp
+                nhiệt nữa</label
+              >
+              <label
+                ><input type="radio" name="q4" value="D" />D. Chỉ xảy ra ở áp
+                suất thường</label
+              >
+            </div>
+          </div>
+
+          <div class="question" data-qtype="mc">
+            <div class="q-title">
+              5. Nhiệt hóa hơi riêng của nước là 2,26 × 10⁶ J/kg. Điều đó có
+              nghĩa là:
+            </div>
+            <div class="options">
+              <label
+                ><input type="radio" name="q5" value="A" />A. Cần 2,26 × 10⁶ J
+                để làm bay hơi 1 kg nước ở 100°C</label
+              >
+              <label
+                ><input type="radio" name="q5" value="B" />B. Cần 2,26 × 10⁶ J
+                để đun sôi 1 kg nước</label
+              >
+              <label
+                ><input type="radio" name="q5" value="C" />C. 1 kg hơi nước
+                ngưng tụ tỏa ra 2,26 × 10⁶ J</label
+              >
+              <label
+                ><input type="radio" name="q5" value="D" />D. Cả A và C đều
+                đúng</label
+              >
+            </div>
+          </div>
+
+          <div class="question" data-qtype="mc">
+            <div class="q-title">6. Khi đá tan ở 0°C thì:</div>
+            <div class="options">
+              <label
+                ><input type="radio" name="q6" value="A" />A. Nhiệt độ vẫn giữ
+                0°C cho đến khi tan hết</label
+              >
+              <label
+                ><input type="radio" name="q6" value="B" />B. Nhiệt độ tăng
+                dần</label
+              >
+              <label
+                ><input type="radio" name="q6" value="C" />C. Không cần hấp thụ
+                nhiệt</label
+              >
+              <label
+                ><input type="radio" name="q6" value="D" />D. Chỉ xảy ra ở áp
+                suất cao</label
+              >
+            </div>
+          </div>
+
+          <div class="question" data-qtype="mc">
+            <div class="q-title">
+              7. Nội năng của một vật có thể thay đổi bằng cách nào?
+            </div>
+            <div class="options">
+              <label
+                ><input type="radio" name="q7" value="A" />A. Thực hiện công và
+                truyền nhiệt</label
+              >
+              <label
+                ><input type="radio" name="q7" value="B" />B. Chỉ thực hiện
+                công</label
+              >
+              <label
+                ><input type="radio" name="q7" value="C" />C. Chỉ truyền
+                nhiệt</label
+              >
+              <label
+                ><input type="radio" name="q7" value="D" />D. Cả A, B, C đều
+                đúng</label
+              >
+            </div>
+          </div>
+
+          <div class="question" data-qtype="mc">
+            <div class="q-title">
+              8. Phương pháp truyền nhiệt nào không cần môi trường?
+            </div>
+            <div class="options">
+              <label
+                ><input type="radio" name="q8" value="A" />A. Dẫn nhiệt</label
+              >
+              <label
+                ><input type="radio" name="q8" value="B" />B. Đối lưu</label
+              >
+              <label
+                ><input type="radio" name="q8" value="C" />C. Bức xạ
+                nhiệt</label
+              >
+              <label
+                ><input type="radio" name="q8" value="D" />D. Cả A và B</label
+              >
+            </div>
+          </div>
+
+          <hr
+            style="
+              border: none;
+              height: 1px;
+              background: rgba(255, 255, 255, 0.03);
+              margin: 20px 0;
+            "
+          />
+
+          <!-- TỰ LUẬN / TÍNH TOÁN -->
+          <div class="question" data-qtype="sa">
+            <div class="q-title">
+              9. Nhiệt dung riêng của nước là bao nhiêu J/kg.độ?
+            </div>
+            <input type="text" name="q9" placeholder="4200" />
+          </div>
+
+          <div class="question" data-qtype="sa">
+            <div class="q-title">
+              10. Tính nhiệt lượng cần thiết để làm nóng 2 kg nước từ 25°C lên
+              75°C (cₙ = 4200 J/kg.độ)
+            </div>
+            <input
+              type="text"
+              name="q10"
+              placeholder="420000 hoặc 420000J hoặc 420 kJ"
+            />
+          </div>
+
+          <div class="question" data-qtype="sa">
+            <div class="q-title">
+              11. Nêu hiện tượng xảy ra khi đốt nóng một thanh kim loại ở một
+              đầu.
+            </div>
+            <input
+              type="text"
+              name="q11"
+              placeholder="dẫn nhiệt, đầu kia nóng lên, giãn nở..."
+            />
+          </div>
+
+          <div class="question" data-qtype="sa">
+            <div class="q-title">
+              12. Để làm tan 0,5 kg đá ở 0°C cần cung cấp bao nhiêu nhiệt lượng?
+              (L = 3,36 × 10⁵ J/kg)
+            </div>
+            <input
+              type="text"
+              name="q12"
+              placeholder="168000 hoặc 168000J hoặc 168 kJ"
+            />
+          </div>
+
+          <div class="question" data-qtype="sa">
+            <div class="q-title">
+              13. Khi 1 kg hơi nước ở 100°C ngưng tụ thành nước lỏng ở 100°C thì
+              tỏa ra bao nhiêu nhiệt? (λ = 2,26 × 10⁶ J/kg)
+            </div>
+            <input
+              type="text"
+              name="q13"
+              placeholder="2260000 hoặc 2,26 × 10^6 hoặc 2260 kJ"
+            />
+          </div>
+        </form>
+
+        <div class="actions">
+          <button id="auto-check" class="secondary" disabled>
+            Kiểm tra nhanh trắc nghiệm
+          </button>
+        </div>
+        <div class="footnote">
+          Mỗi câu đúng = 10 điểm (tối đa 130 điểm). Điểm tự động lưu.
+        </div>
+      </section>
+
+      <section class="card" id="result-card" style="display: none">
+        <div id="result-summary"></div>
+        <div id="answers"></div>
+      </section>
+    </div>
+
+    <script>
+      const MC_ANSWERS = {
+        q1: "A",
+        q2: "B",
+        q3: "D",
+        q4: "A",
+        q5: "D",
+        q6: "A",
+        q7: "A",
+        q8: "C",
+      };
+
+      const SA_ANSWERS = {
+        q9: /4200/,
+        q10: /420000|420\s*000|420\s*kj|420000j/i,
+        q11: /dẫn.*nhiệt|nóng.*lên|giãn.*nở|nhiệt.*lan/i,
+        q12: /168000|168\s*000|168\s*kj/i,
+        q13: /2260000|2[\.,]?26|2260\s*kj|2\.26/i,
+      };
+
+      let timerInterval = null,
+        timeLeft = 20 * 60,
+        started = false;
+      const startTime = performance.now();
+      document.getElementById("display-timer").textContent = "20:00";
+
+      function formatTime(s) {
+        const m = Math.floor(s / 60),
+          ss = s % 60;
+        return `${String(m).padStart(2, "0")}:${String(ss).padStart(2, "0")}`;
+      }
+
+      function updateQuizStats(c, w, sec, pts) {
+        const user = localStorage.getItem("currentUser") || "guest";
+        const key = `playerStats_${user}`;
+        let stats = JSON.parse(localStorage.getItem(key) || "{}");
+        if (Object.keys(stats).length === 0)
+          stats = {
+            totalCorrect: 0,
+            totalWrong: 0,
+            totalQuizzes: 0,
+            quizStreak: 0,
+            totalPoints: 0,
+            playTime: 0,
+            currentStreakDate: 0,
+          };
+        stats.totalCorrect += c;
+        stats.totalWrong += w;
+        stats.totalQuizzes += 1;
+        stats.totalPoints += pts;
+        stats.playTime += sec;
+        const now = Date.now();
+        stats.quizStreak =
+          stats.currentStreakDate &&
+          now - stats.currentStreakDate < 24 * 60 * 60 * 1000
+            ? stats.quizStreak + 1
+            : 1;
+        stats.currentStreakDate = now;
+        localStorage.setItem(key, JSON.stringify(stats));
+        alert(`Hoàn thành Nhiệt học! Bạn được ${pts} điểm`);
+        setTimeout(() => (location.href = "trangchu.html"), 1800);
+      }
+
+      document.getElementById("start-btn").onclick = () => {
+        if (started) return;
+        started = true;
+        document.getElementById("start-btn").disabled = true;
+        ["submit-btn", "cancel-btn", "auto-check"].forEach(
+          (id) => (document.getElementById(id).disabled = false)
+        );
+        timerInterval = setInterval(() => {
+          timeLeft--;
+          document.getElementById("display-timer").textContent =
+            formatTime(timeLeft);
+          if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            doSubmit(true);
+          }
+        }, 1000);
+      };
+
+      document.getElementById("cancel-btn").onclick = () => {
+        if (confirm("Bỏ bài mất streak nha!")) {
+          const user = localStorage.getItem("currentUser") || "guest";
+          let stats = JSON.parse(
+            localStorage.getItem(`playerStats_${user}`) || "{}"
+          );
+          stats.quizStreak = 0;
+          localStorage.setItem(`playerStats_${user}`, JSON.stringify(stats));
+          location.href = "trangchu.html";
+        }
+      };
+
+      document.getElementById("auto-check").onclick = () => {
+        const fd = new FormData(document.getElementById("quiz-form"));
+        let c = 0;
+        for (let i = 1; i <= 8; i++)
+          if (fd.get("q" + i) === MC_ANSWERS["q" + i]) c++;
+        alert(`Trắc nghiệm: ${c}/8 đúng`);
+      };
+
+      document.getElementById("submit-btn").onclick = () => doSubmit(false);
+
+      function doSubmit(timeout = false) {
+        if (timerInterval) clearInterval(timerInterval);
+        ["submit-btn", "cancel-btn", "auto-check"].forEach(
+          (id) => (document.getElementById(id).disabled = true)
+        );
+
+        const fd = new FormData(document.getElementById("quiz-form"));
+        let mc = 0;
+        for (let i = 1; i <= 8; i++)
+          if (fd.get("q" + i) === MC_ANSWERS["q" + i]) mc++;
+
+        let sa = 0;
+        const results = [];
+        for (let i = 9; i <= 13; i++) {
+          const raw = (fd.get("q" + i) || "").trim();
+          const user = raw.toLowerCase().replace(/\s/g, "");
+          let ok =
+            i === 9 || i === 10 || i === 12 || i === 13
+              ? SA_ANSWERS["q" + i].test(user + raw)
+              : SA_ANSWERS["q" + i].test(user);
+          if (ok) sa++;
+          results.push({ q: i, user: raw, ok });
+        }
+
+        const total = mc + sa,
+          points = total * 10;
+        const seconds = Math.floor((performance.now() - startTime) / 1000);
+        updateQuizStats(total, 13 - total, seconds, points);
+
+        document.getElementById("result-card").style.display = "block";
+        document.getElementById("result-summary").innerHTML = `
+          <div style="font-size:19px;font-weight:700">Trắc nghiệm: ${mc}/8 • Tự luận: ${sa}/5 • Tổng: ${points} điểm</div>
+          ${
+            timeout
+              ? '<div style="color:#ffcc66;margin-top:8px">Hết giờ rồi, tự động nộp!</div>'
+              : ""
+          }
+        `;
+
+        let html = "<ol>";
+        for (let i = 1; i <= 8; i++) {
+          const a = fd.get("q" + i) || "(trống)";
+          html += `<li>Câu ${i}: ${
+            a === MC_ANSWERS["q" + i]
+              ? "Đúng"
+              : "Sai (đáp án: " + MC_ANSWERS["q" + i] + ")"
+          }</li>`;
+        }
+        html += "</ol><h4>Tự luận</h4><ol start=9>";
+        results.forEach(
+          (r) =>
+            (html += `<li>Câu ${r.q}: ${
+              r.ok ? "Đúng" : "Chưa đúng"
+            }<br><small>Bạn: ${escapeHtml(r.user)}</small></li>`)
+        );
+        html += "</ol>";
+        document.getElementById("answers").innerHTML = html;
+        document
+          .getElementById("result-card")
+          .scrollIntoView({ behavior: "smooth" });
+      }
+
+      function escapeHtml(t) {
+        return t
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+      }
+
+      window.addEventListener("beforeunload", (e) => {
+        if (started && !document.getElementById("submit-btn").disabled) {
+          e.preventDefault();
+          e.returnValue = "";
+        }
+      });
+    </script>
+  </body>
+</html>

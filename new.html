@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Mô phỏng Phát triển Thực vật</title>
+  <style>
+    body { font-family: Arial; text-align: center; background: #f0f8f0; }
+    canvas { border: 3px solid #4CAF50; border-radius: 15px; background: #e8f5e9; }
+    .controls { margin: 20px; }
+    input[type="range"] { width: 300px; }
+    h1 { color: #2e7d32; }
+  </style>
+</head>
+<body>
+  <h1>🌱 Mô phỏng sự phát triển của cây</h1>
+  
+  <canvas id="canvas" width="600" height="500"></canvas>
+  
+  <div class="controls">
+    <p>Ánh sáng: <input type="range" id="light" min="0" max="100" value="50"></p>
+    <p>Nước: <input type="range" id="water" min="0" max="100" value="50"></p>
+    <p>Phân bón: <input type="range" id="fertilizer" min="0" max="100" value="30"></p>
+    <button onclick="resetPlant()">🔄 Trồng lại hạt</button>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    
+    let growth = 0; // 0 = hạt, 100 = cây trưởng thành + quả
+    
+    function drawPlant() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Đất
+      ctx.fillStyle = '#5D4037';
+      ctx.fillRect(0, 400, 600, 100);
+      
+      const light = parseInt(document.getElementById('light').value);
+      const water = parseInt(document.getElementById('water').value);
+      const fert = parseInt(document.getElementById('fertilizer').value);
+      
+      // Tốc độ lớn
+      growth += (light + water + fert) / 300;
+      if (growth > 100) growth = 100;
+      
+      // Thân cây
+      ctx.strokeStyle = '#2e7d32';
+      ctx.lineWidth = 12 + growth/10;
+      ctx.beginPath();
+      ctx.moveTo(300, 400);
+      ctx.quadraticCurveTo(300, 400 - growth*3, 300, 400 - growth*3.5);
+      ctx.stroke();
+      
+      // Lá
+      if (growth > 20) {
+        ctx.fillStyle = '#4CAF50';
+        ctx.beginPath();
+        ctx.ellipse(250, 400 - growth*2.2, 40 + growth/3, 20 + growth/5, -0.5, 0, Math.PI*2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.ellipse(350, 400 - growth*2.2, 40 + growth/3, 20 + growth/5, 0.5, 0, Math.PI*2);
+        ctx.fill();
+      }
+      
+      // Hoa/quả khi trưởng thành
+      if (growth > 70) {
+        ctx.fillStyle = '#FF4081';
+        ctx.beginPath();
+        ctx.arc(300, 400 - growth*3.2, 25, 0, Math.PI*2);
+        ctx.fill();
+      }
+      
+      requestAnimationFrame(drawPlant);
+    }
+    
+    function resetPlant() {
+      growth = 0;
+    }
+    
+    drawPlant();
+  </script>
+</body>
+</html>

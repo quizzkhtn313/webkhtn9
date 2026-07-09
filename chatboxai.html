@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat AI Button</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        #chatButton {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #1da1f2; /* Màu xanh Twitter/X */
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 15px 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            font-size: 16px;
+        }
+        #chatButton:hover {
+            background-color: #0d8bd9;
+        }
+        #chatModal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        #chatContainer {
+            background-color: white;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 500px;
+            height: 60vh;
+            display: flex;
+            flex-direction: column;
+        }
+        #chatHeader {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #1da1f2;
+        }
+        #chatMessages {
+            flex: 1;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .message {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 5px;
+        }
+        .user-message {
+            background-color: #e3f2fd;
+            text-align: right;
+        }
+        .ai-message {
+            background-color: #f5f5f5;
+            text-align: left;
+        }
+        #chatInput {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        #sendButton {
+            background-color: #1da1f2;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #closeButton {
+            float: right;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <h1>Trang web của bạn</h1>
+    <p>Đây là nội dung trang web. Bấm nút dưới để chat với AI!</p>
+
+    <!-- Nút bấm để mở chat -->
+    <button id="chatButton">💬 Chat với AI</button>
+
+    <!-- Modal chat AI -->
+    <div id="chatModal">
+        <div id="chatContainer">
+            <div id="chatHeader">
+                Chat với AI
+                <button id="closeButton">&times;</button>
+            </div>
+            <div id="chatMessages"></div>
+            <input type="text" id="chatInput" placeholder="Hỏi tôi bất cứ gì..." onkeypress="if(event.key==='Enter') sendMessage();">
+            <button id="sendButton" onclick="sendMessage()">Gửi</button>
+        </div>
+    </div>
+
+    <script>
+        // Mở/đóng modal
+        const chatButton = document.getElementById('chatButton');
+        const chatModal = document.getElementById('chatModal');
+        const closeButton = document.getElementById('closeButton');
+
+        chatButton.onclick = function() {
+            chatModal.style.display = 'block';
+        }
+        closeButton.onclick = function() {
+            chatModal.style.display = 'none';
+        }
+        window.onclick = function(event) {
+            if (event.target == chatModal) {
+                chatModal.style.display = 'none';
+            }
+        }
+
+        // Hàm gửi tin nhắn
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            // Hiển thị tin nhắn người dùng
+            addMessage(message, 'user');
+            input.value = '';
+
+            // Mock AI trả lời (thay thế bằng API thật ở dưới)
+            setTimeout(() => {
+                const aiReply = getAIResponse(message); // Hàm mock
+                addMessage(aiReply, 'ai');
+            }, 1000); // Delay 1 giây để giống AI thật
+        }
+
+        // Thêm tin nhắn vào chat
+        function addMessage(text, sender) {
+            const messages = document.getElementById('chatMessages');
+            const div = document.createElement('div');
+            div.classList.add('message', sender === 'user' ? 'user-message' : 'ai-message');
+            div.textContent = (sender === 'user' ? 'Bạn: ' : 'AI: ') + text;
+            messages.appendChild(div);
+            messages.scrollTop = messages.scrollHeight; // Scroll xuống dưới
+        }
+
+        // Mock AI trả lời đơn giản (bạn có thể mở rộng)
+        function getAIResponse(message) {
+            const lowerMsg = message.toLowerCase();
+            if (lowerMsg.includes('chào') || lowerMsg.includes('hi')) {
+                return 'Chào bạn! Tôi là AI, sẵn sàng trả lời câu hỏi của bạn.';
+            } else if (lowerMsg.includes('thời tiết')) {
+                return 'Hôm nay trời đẹp, khoảng 25°C ở Hà Nội!';
+            } else if (lowerMsg.includes('bạn là ai')) {
+                return 'Tôi là AI do Grok xây dựng, giúp bạn trả lời mọi thứ.';
+            } else {
+                return 'Câu hỏi thú vị! Tôi nghĩ câu trả lời là: ' + message.split(' ').reverse().join(' ') + ' (đùa thôi, hỏi cụ thể hơn nhé 😊)';
+            }
+        }
+
+        // PHẦN NÀY: Để kết nối API thật (ví dụ xAI Grok API)
+        // Thay getAIResponse bằng async function gọi API:
+        /*
+        async function getAIResponse(message) {
+            try {
+                const response = await fetch('https://api.x.ai/v1/chat/completions', { // URL API xAI
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer YOUR_API_KEY', // Lấy key tại https://x.ai/api
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: 'grok-beta', // Hoặc model phù hợp
+                        messages: [{ role: 'user', content: message }]
+                    })
+                });
+                const data = await response.json();
+                return data.choices[0].message.content;
+            } catch (error) {
+                return 'Xin lỗi, lỗi kết nối API. Hãy thử lại!';
+            }
+        }
+        // Và làm sendMessage async: async function sendMessage() { ... await getAIResponse... }
+        */
+    </script>
+</body>
+</html>

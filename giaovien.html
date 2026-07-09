@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tạo Bài Kiểm Tra Với Grok AI - Full Version</title>
+  <script src="https://js.puter.com/v2/"></script>
+  
+  <!-- Thư viện xuất Word -->
+  <script src="https://unpkg.com/docx@8.5.0/build/index.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --primary-light: #a5b4fc;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --gray-1: #f8fafc;
+      --gray-2: #e2e8f0;
+      --gray-3: #64748b;
+      --text: #1e293b;
+      --shadow-sm: 0 4px 12px rgba(0,0,0,0.08);
+      --shadow-md: 0 12px 32px rgba(0,0,0,0.14);
+      --radius-lg: 16px;
+      --radius-md: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 32px 20px;
+      color: var(--text);
+      background-attachment: fixed;
+    }
+
+    .main-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      gap: 24px;
+    }
+
+    .sidebar {
+      width: 300px;
+      background: rgba(255, 255, 255, 0.97);
+      backdrop-filter: blur(14px);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: var(--shadow-md);
+      height: fit-content;
+      position: sticky;
+      top: 20px;
+    }
+
+    .content {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.97);
+      backdrop-filter: blur(14px);
+      border-radius: 24px;
+      padding: 40px;
+      box-shadow: 0 25px 60px -15px rgba(0,0,0,0.22);
+    }
+
+    h1 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 2.8rem;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 2.5rem;
+      background: linear-gradient(90deg, #4f46e5, #c084fc, #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.7rem;
+      font-weight: 600;
+      color: #334155;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 14px 18px;
+      border: 2px solid var(--gray-2);
+      border-radius: var(--radius-md);
+      font-size: 1.05rem;
+    }
+
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 5px rgba(99,102,241,0.2);
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: 2rem 0 3rem;
+      justify-content: center;
+    }
+
+    button {
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      padding: 12px 26px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.3s;
+      border: none;
+      color: white;
+      font-size: 1.05rem;
+    }
+
+    button:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
+    }
+
+    #addMCBtn { background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%); }
+    #addEssayBtn { background: linear-gradient(135deg, #8b5cf6 0%, #d946ef 100%); }
+    #saveQuizBtn { background: linear-gradient(135deg, var(--success) 0%, #34d399 100%); }
+    #exportBtn { background: linear-gradient(135deg, var(--warning) 0%, #fbbf24 100%); }
+    #exportWordBtn { background: linear-gradient(135deg, #7c3aed, #a855f7); }
+    #copyAllBtn { background: linear-gradient(135deg, #06b6d4, #22d3ee); }
+    #newQuizBtn { background: linear-gradient(135deg, #64748b, #475569); }
+
+    .question-block {
+      background: white;
+      padding: 28px;
+      margin: 32px 0;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      position: relative;
+    }
+
+    .question-type-badge {
+      position: absolute;
+      top: 16px; left: 16px;
+      background: var(--primary-light);
+      color: white;
+      padding: 6px 14px;
+      border-radius: 30px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .delete-btn {
+      position: absolute;
+      top: 16px; right: 16px;
+      background: var(--danger);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 10px;
+    }
+
+    .options {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+      margin-top: 1.8rem;
+    }
+
+    .option {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 16px 18px;
+      border-radius: var(--radius-md);
+      background: var(--gray-1);
+      border: 2px solid transparent;
+      transition: all 0.3s;
+      min-height: 68px;           /* Tăng chiều cao */
+    }
+
+    .option:hover {
+      background: #f1f5f9;
+      border-color: #cbd5e1;
+    }
+
+    .option input[type="radio"] {
+      width: 24px;
+      height: 24px;
+      margin-top: 4px;
+      accent-color: var(--primary);
+      flex-shrink: 0;
+    }
+
+    .option input[type="text"] {
+      flex: 1;
+      border: none;
+      background: transparent;
+      font-size: 1.08rem;         /* Chữ to hơn */
+      line-height: 1.5;
+      min-height: 52px;           /* Ô nhập dài hơn */
+      resize: vertical;           /* Cho phép kéo dài nếu cần */
+      padding: 6px 0;
+    }
+
+    .option input[type="text"]:focus {
+      background: white;
+      border-radius: 8px;
+      padding: 8px 12px;
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+    }
+
+    .saved-item {
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      background: #f8fafc;
+      border-radius: 12px;
+      cursor: pointer;
+      border: 1px solid #e2e8f0;
+      transition: all 0.2s;
+    }
+
+    .saved-item:hover {
+      background: #f1f5f9;
+      border-color: var(--primary);
+    }
+
+    .saved-item.active {
+      background: #e0e7ff;
+      border-color: var(--primary);
+      font-weight: 600;
+    }
+
+    .saved-date {
+      font-size: 0.85rem;
+      color: #64748b;
+      margin-top: 6px;
+    }
+
+    @media (max-width: 1024px) {
+      .main-container { flex-direction: column; }
+      .sidebar { width: 100%; position: static; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="main-container">
+    
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <h3 style="margin-bottom: 16px; color: var(--primary-dark);">📚 Bài kiểm tra đã lưu</h3>
+      
+      <button id="newQuizBtn" style="width:100%; margin-bottom: 20px; padding: 14px;">
+        + Tạo dự án mới
+      </button>
+
+      <div id="savedQuizzesList" class="saved-quizzes-list"></div>
+    </div>
+
+    <!-- Nội dung chính -->
+    <div class="content">
+      <h1>Tạo Bài Kiểm Tra Với Grok AI</h1>
+
+      <div class="form-group">
+        <label>Tên bài kiểm tra / Chủ đề:</label>
+        <input type="text" id="quizTitle" placeholder="Ví dụ: Sinh học 6 - Hệ tuần hoàn">
+      </div>
+
+      <div class="header-actions">
+        <button id="addMCBtn">+ Thêm câu trắc nghiệm</button>
+        <button id="addEssayBtn">+ Thêm câu tự luận</button>
+        <button id="saveQuizBtn">💾 Lưu bài</button>
+        <button id="exportBtn">Export JSON</button>
+
+        <button id="copyAllBtn">📋 Copy toàn bộ đề</button>
+      </div>
+
+      <div id="questionsContainer"></div>
+    </div>
+  </div>
+
+  <script>
+    const questionsContainer = document.getElementById('questionsContainer');
+    const savedQuizzesList = document.getElementById('savedQuizzesList');
+    let questionCounter = 0;
+    let currentQuizId = null;
+
+    // Tạo khối câu hỏi (giữ nguyên như cũ)
+    function createQuestionBlock(type = 'multiple') {
+      questionCounter++;
+      const block = document.createElement('div');
+      block.className = 'question-block';
+      block.dataset.type = type;
+
+      const isMC = type === 'multiple';
+
+      block.innerHTML = `
+        <div class="question-type-badge">${isMC ? 'TRẮC NGHIỆM' : 'TỰ LUẬN'}</div>
+        <h3>Câu ${questionCounter}</h3>
+
+        <div class="form-group">
+          <label>Nội dung câu hỏi:</label>
+          <textarea class="q-text" placeholder="${isMC ? 'Nhập câu hỏi trắc nghiệm...' : 'Nhập câu hỏi tự luận...'}"></textarea>
+        </div>
+
+        ${isMC ? `
+        <button class="generate-btn" style="background: linear-gradient(135deg, #3b82f6, #60a5fa); margin:12px 10px 12px 0; padding:10px 20px;">Gợi ý 4 đáp án nhanh</button>
+        <button class="think-btn" style="background: linear-gradient(135deg, var(--success), #34d399); margin:12px 10px 12px 0; padding:10px 20px;">AI suy nghĩ + giải thích chi tiết</button>
+        <div class="options">
+          <div class="option"><input type="radio" name="correct${questionCounter}" value="A"><input type="text" class="opt" placeholder="A. ..."></div>
+          <div class="option"><input type="radio" name="correct${questionCounter}" value="B"><input type="text" class="opt" placeholder="B. ..."></div>
+          <div class="option"><input type="radio" name="correct${questionCounter}" value="C"><input type="text" class="opt" placeholder="C. ..."></div>
+          <div class="option"><input type="radio" name="correct${questionCounter}" value="D"><input type="text" class="opt" placeholder="D. ..."></div>
+        </div>` : `
+        <button class="think-btn" style="background: linear-gradient(135deg, #8b5cf6, #d946ef); margin:12px 0;">Gợi ý đáp án mẫu & rubric</button>
+        <div class="essay-answer form-group">
+          <label>Đáp án mẫu / gợi ý chấm điểm (từ Grok):</label>
+          <textarea class="essay-model big" placeholder="Đáp án mẫu sẽ xuất hiện ở đây..."></textarea>
+        </div>`}
+
+        <p class="status" style="margin:12px 0; font-weight:500; color:#64748b;"></p>
+
+        <div class="explanation" style="display:none; margin-top:1.8rem; padding:20px; background:linear-gradient(135deg,#f3e8ff 0%,#e0f2fe 100%); border-radius:12px; border-left:6px solid #8b5cf6;">
+          <strong>Giải thích / Rubric từ Grok:</strong><br>
+          <span class="exp-text"></span>
+        </div>
+
+        <button class="delete-btn">Xóa câu</button>
+      `;
+
+      // Các sự kiện AI (giữ nguyên như code bạn đưa)
+      const qText = block.querySelector('.q-text');
+      const status = block.querySelector('.status');
+      const expDiv = block.querySelector('.explanation');
+      const expText = block.querySelector('.exp-text');
+
+      if (isMC) {
+        const opts = block.querySelectorAll('.opt');
+        const radios = block.querySelectorAll('input[type="radio"]');
+
+        function fillOptions(data) {
+          data.options?.forEach((opt, i) => {
+            if (opts[i]) opts[i].value = opt.replace(/^[A-D]\.\s*/i, '');
+          });
+          radios.forEach(r => {
+            if (r.value === data.correct_letter) r.checked = true;
+          });
+        }
+
+        block.querySelector('.generate-btn').addEventListener('click', async () => {
+          const q = qText.value.trim();
+          if (!q) return alert('Vui lòng nhập nội dung câu hỏi trước!');
+          status.textContent = 'Grok đang tạo...';
+          block.querySelector('.generate-btn').disabled = true;
+
+          try {
+            const prompt = `Bạn là trợ lý tạo câu hỏi trắc nghiệm cho giáo viên Việt Nam.\nDựa vào câu hỏi sau, tạo đúng 4 lựa chọn (A, B, C, D) với 1 đáp án đúng.\nTrả về CHỈ JSON: {"options": ["A. ...","B. ...","C. ...","D. ..."], "correct_letter": "A"}\n\nCâu hỏi: ${q}`;
+            const response = await puter.ai.chat(prompt, { model: "x-ai/grok-4-1-fast-non-reasoning" });
+            const data = JSON.parse(response.message.content);
+            fillOptions(data);
+            status.textContent = 'Đã tạo xong!';
+          } catch (e) {
+            status.textContent = 'Lỗi: ' + e.message;
+          } finally {
+            block.querySelector('.generate-btn').disabled = false;
+          }
+        });
+
+        block.querySelector('.think-btn').addEventListener('click', async () => {
+          const q = qText.value.trim();
+          if (!q) return alert('Vui lòng nhập nội dung câu hỏi trước!');
+          status.textContent = 'Grok đang suy nghĩ sâu...';
+          block.querySelector('.think-btn').disabled = true;
+
+          try {
+            const prompt = `Bạn là giáo viên giỏi. Trả về CHỈ JSON:\n{"options": ["A. ...","B. ...","C. ...","D. ..."], "correct_letter": "A", "explanation": "Giải thích chi tiết"}\nCâu hỏi: ${q}`;
+            const response = await puter.ai.chat(prompt, { model: "x-ai/grok-4-1-fast" });
+            const data = JSON.parse(response.message.content);
+            fillOptions(data);
+            expText.textContent = data.explanation || '';
+            expDiv.style.display = 'block';
+            status.textContent = 'Hoàn thành!';
+          } catch (e) {
+            status.textContent = 'Lỗi: ' + e.message;
+          } finally {
+            block.querySelector('.think-btn').disabled = false;
+          }
+        });
+      } else {
+        block.querySelector('.think-btn').addEventListener('click', async () => {
+          const q = qText.value.trim();
+          if (!q) return alert('Vui lòng nhập nội dung câu hỏi trước!');
+          status.textContent = 'Grok đang tạo đáp án mẫu...';
+          block.querySelector('.think-btn').disabled = true;
+
+          try {
+            const prompt = `Bạn là giáo viên giỏi. Câu hỏi tự luận: ${q}\nTrả về CHỈ JSON: {"model_answer": "...", "rubric": "...", "explanation": "..." }`;
+            const response = await puter.ai.chat(prompt, { model: "x-ai/grok-4-1-fast" });
+            const data = JSON.parse(response.message.content);
+
+            block.querySelector('.essay-model').value = data.model_answer || '';
+            expText.textContent = `**Rubric:**\n${data.rubric || ''}\n\n**Hướng dẫn:**\n${data.explanation || ''}`;
+            expDiv.style.display = 'block';
+            status.textContent = 'Đã tạo xong!';
+          } catch (e) {
+            status.textContent = 'Lỗi: ' + e.message;
+          } finally {
+            block.querySelector('.think-btn').disabled = false;
+          }
+        });
+      }
+
+      block.querySelector('.delete-btn').onclick = () => {
+        if (confirm('Xóa câu hỏi này?')) {
+          block.remove();
+          renumberQuestions();
+        }
+      };
+
+      questionsContainer.appendChild(block);
+    }
+
+    function renumberQuestions() {
+      questionCounter = 0;
+      document.querySelectorAll('.question-block').forEach(() => questionCounter++);
+    }
+
+    // ==================== LƯU BÀI - ĐÃ SỬA ====================
+    function saveQuiz() {
+      const title = document.getElementById('quizTitle').value.trim() || 'Bài kiểm tra không tên';
+
+      const questions = [];
+      document.querySelectorAll('.question-block').forEach(block => {
+        const type = block.dataset.type;
+        const qText = block.querySelector('.q-text').value.trim();
+
+        if (type === 'multiple') {
+          const opts = Array.from(block.querySelectorAll('.opt')).map(inp => inp.value.trim());
+          const correct = block.querySelector('input[type="radio"]:checked')?.value || null;
+          questions.push({ type: 'multiple', question: qText, options: opts, correct });
+        } else {
+          const modelAnswer = block.querySelector('.essay-model')?.value.trim() || '';
+          questions.push({ type: 'essay', question: qText, modelAnswer });
+        }
+      });
+
+      let savedQuizzes = JSON.parse(localStorage.getItem('savedQuizzes') || '[]');
+
+      const quizData = {
+        id: currentQuizId || 'quiz_' + Date.now(),
+        title: title,
+        questions: questions,
+        savedAt: new Date().toISOString()
+      };
+
+      if (currentQuizId) {
+        // Cập nhật bài đang chỉnh sửa
+        savedQuizzes = savedQuizzes.map(q => q.id === currentQuizId ? quizData : q);
+      } else {
+        // Thêm bài mới
+        savedQuizzes.unshift(quizData);
+
+        // Giới hạn tối đa 20 bài
+        if (savedQuizzes.length > 20) {
+          savedQuizzes.pop(); // Xóa bài cũ nhất
+        }
+      }
+
+      localStorage.setItem('savedQuizzes', JSON.stringify(savedQuizzes));
+
+      alert('✅ Đã lưu bài kiểm tra thành công!');
+      currentQuizId = quizData.id;   // Đánh dấu đang chỉnh sửa bài này
+      loadSavedQuizzes();
+    }
+
+    // Tạo dự án mới (reset hoàn toàn)
+    function createNewQuiz() {
+      if (questionsContainer.children.length > 0) {
+        if (!confirm('Bạn có muốn tạo bài kiểm tra mới? Nội dung hiện tại sẽ bị xóa.')) {
+          return;
+        }
+      }
+
+      currentQuizId = null;
+      document.getElementById('quizTitle').value = '';
+      questionsContainer.innerHTML = '';
+      questionCounter = 0;
+
+      loadSavedQuizzes();
+      alert('Đã tạo dự án mới. Hãy thêm câu hỏi và lưu lại.');
+    }
+
+    // Load danh sách bài đã lưu
+    function loadSavedQuizzes() {
+      const savedQuizzes = JSON.parse(localStorage.getItem('savedQuizzes') || '[]');
+      savedQuizzesList.innerHTML = '';
+
+      if (savedQuizzes.length === 0) {
+        savedQuizzesList.innerHTML = '<p style="color:#64748b; text-align:center; padding:20px;">Chưa có bài kiểm tra nào được lưu</p>';
+        return;
+      }
+
+      savedQuizzes.forEach(quiz => {
+        const item = document.createElement('div');
+        item.className = `saved-item ${quiz.id === currentQuizId ? 'active' : ''}`;
+
+        const date = new Date(quiz.savedAt);
+        const dateStr = date.toLocaleDateString('vi-VN') + ' ' + date.toLocaleTimeString('vi-VN', {hour:'2-digit', minute:'2-digit'});
+
+        item.innerHTML = `
+          <strong>${quiz.title}</strong>
+          <div class="saved-date">${dateStr} • ${quiz.questions.length} câu</div>
+        `;
+
+        item.onclick = () => loadQuiz(quiz);
+        savedQuizzesList.appendChild(item);
+      });
+    }
+
+    function loadQuiz(quiz) {
+      currentQuizId = quiz.id;
+      document.getElementById('quizTitle').value = quiz.title;
+      questionsContainer.innerHTML = '';
+      questionCounter = 0;
+
+      quiz.questions.forEach(q => {
+        createQuestionBlock(q.type);
+        const lastBlock = questionsContainer.lastElementChild;
+
+        lastBlock.querySelector('.q-text').value = q.question || '';
+
+        if (q.type === 'multiple' && q.options) {
+          const optsInputs = lastBlock.querySelectorAll('.opt');
+          q.options.forEach((opt, i) => {
+            if (optsInputs[i]) optsInputs[i].value = opt;
+          });
+
+          const radios = lastBlock.querySelectorAll('input[type="radio"]');
+          if (q.correct) {
+            radios.forEach(r => {
+              if (r.value === q.correct) r.checked = true;
+            });
+          }
+        } else if (q.modelAnswer) {
+          const modelArea = lastBlock.querySelector('.essay-model');
+          if (modelArea) modelArea.value = q.modelAnswer;
+        }
+      });
+
+      loadSavedQuizzes();
+    }
+
+    // Gán sự kiện
+    document.getElementById('addMCBtn').onclick = () => createQuestionBlock('multiple');
+    document.getElementById('addEssayBtn').onclick = () => createQuestionBlock('essay');
+    document.getElementById('saveQuizBtn').onclick = saveQuiz;
+    document.getElementById('newQuizBtn').onclick = createNewQuiz;
+
+    // Copy toàn bộ đề
+    document.getElementById('copyAllBtn').onclick = async () => {
+      const title = document.getElementById('quizTitle').value.trim() || 'Bài Kiểm Tra';
+      let fullText = `${title.toUpperCase()}\nĐỀ KIỂM TRA\n\n`;
+      let qNum = 1;
+
+      document.querySelectorAll('.question-block').forEach(block => {
+        const qText = block.querySelector('.q-text').value.trim();
+        if (!qText) return;
+
+        fullText += `Câu ${qNum++}: ${qText}\n\n`;
+
+        if (block.dataset.type === 'multiple') {
+          const opts = block.querySelectorAll('.opt');
+          const correctVal = block.querySelector('input[type="radio"]:checked')?.value || '';
+
+          ['A','B','C','D'].forEach((letter, i) => {
+            const val = opts[i]?.value.trim() || '(Chưa nhập)';
+            fullText += `${letter}. ${val}${letter === correctVal ? ' ← Đáp án đúng' : ''}\n`;
+          });
+          fullText += '\n';
+        } else {
+          const model = block.querySelector('.essay-model')?.value.trim() || 'Chưa có đáp án mẫu';
+          fullText += `Đáp án mẫu:\n${model}\n\n`;
+        }
+        fullText += '──────────────────────────────\n\n';
+      });
+
+      if (fullText.length < 100) return alert('Chưa có câu hỏi nào để copy!');
+
+      await navigator.clipboard.writeText(fullText);
+      alert('✅ Đã copy toàn bộ đề vào clipboard!');
+    };
+
+    // Khởi tạo khi tải trang
+    window.onload = () => {
+      loadSavedQuizzes();
+    };
+  </script>
+</body>
+</html>

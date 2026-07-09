@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>宇宙星河·生物与地球宝典 | 初中科学终极汇总</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', 'Segoe UI', 'Orbitron', system-ui, -apple-system, 'Quicksand', sans-serif;
+      background: radial-gradient(ellipse at 20% 30%, #0a0f2a, #03050b);
+      color: #eef4ff;
+      padding: 2rem 1rem;
+      scroll-behavior: smooth;
+    }
+
+    /* 星河粒子背景 (纯CSS星光效果) 增强宇宙感 */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      background-image: 
+        radial-gradient(2px 2px at 15% 40%, #fff, rgba(0,0,0,0)),
+        radial-gradient(3px 3px at 72% 18%, #f9f3c1, rgba(0,0,0,0)),
+        radial-gradient(1px 1px at 95% 70%, #b2ebf2, rgba(0,0,0,0)),
+        radial-gradient(4px 4px at 8% 85%, #ffd8a9, rgba(0,0,0,0)),
+        radial-gradient(2px 2px at 50% 95%, #d9b4ff, rgba(0,0,0,0)),
+        radial-gradient(3px 3px at 30% 60%, #7fffd4, rgba(0,0,0,0));
+      background-repeat: no-repeat;
+      background-size: 250px 250px, 300px 300px, 200px 200px, 400px 400px, 350px 350px, 280px 280px;
+      opacity: 0.6;
+      animation: starMove 140s linear infinite;
+      z-index: 0;
+    }
+
+    @keyframes starMove {
+      0% { background-position: 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%; }
+      100% { background-position: 300% 200%, 250% 180%, 400% 300%, 200% 150%, 500% 250%, 150% 350%; }
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+      backdrop-filter: blur(2px);
+    }
+
+    /* 玻璃宇宙卡片 */
+    header {
+      background: rgba(10, 20, 40, 0.55);
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(120, 180, 255, 0.4);
+      border-radius: 3rem;
+      text-align: center;
+      padding: 2.5rem 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 25px rgba(0, 200, 255, 0.3);
+      transition: 0.4s;
+    }
+
+    header h1 {
+      font-size: 3.2rem;
+      background: linear-gradient(135deg, #fff, #b3e5ff, #c084fc, #6ee7b7);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: 2px;
+      text-shadow: 0 0 12px #00a6ff40;
+      font-weight: 700;
+    }
+
+    header p {
+      font-size: 1.2rem;
+      color: #c4e0ff;
+      margin-top: 0.7rem;
+      font-weight: 500;
+    }
+
+    /* 星际导航 */
+    nav {
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(20px);
+      border-radius: 60px;
+      padding: 0.8rem 1.8rem;
+      margin-bottom: 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.8rem 1.8rem;
+      border: 1px solid rgba(0, 255, 255, 0.4);
+      position: sticky;
+      top: 15px;
+      z-index: 99;
+    }
+
+    nav a {
+      color: #d2eaff;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 1.05rem;
+      padding: 0.4rem 0;
+      transition: 0.2s;
+      border-bottom: 2px solid transparent;
+      letter-spacing: 1px;
+    }
+
+    nav a:hover {
+      color: #ffd966;
+      border-bottom-color: #00ffff;
+      text-shadow: 0 0 6px cyan;
+    }
+
+    /* 内容区域 - 星云卡片 */
+    .section {
+      background: rgba(6, 12, 28, 0.72);
+      backdrop-filter: blur(8px);
+      border-radius: 2.5rem;
+      padding: 2rem 2rem;
+      margin-bottom: 2.5rem;
+      border: 1px solid rgba(72, 187, 255, 0.3);
+      box-shadow: 0 25px 35px -12px rgba(0, 0, 0, 0.5);
+      transition: transform 0.2s ease, box-shadow 0.2s;
+    }
+
+    .section:hover {
+      transform: translateY(-5px);
+      border-color: #7c3aed80;
+      box-shadow: 0 30px 45px -12px #000000cc, 0 0 14px #2dd4bf60;
+    }
+
+    h2 {
+      font-size: 2.3rem;
+      background: linear-gradient(120deg, #b8f2ff, #d9b4ff, #a5f3c3);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 1.2rem;
+      border-left: 6px solid #2dd4bf;
+      padding-left: 20px;
+      letter-spacing: -0.5px;
+    }
+
+    h3 {
+      font-size: 1.7rem;
+      margin: 1.6rem 0 0.8rem 0;
+      color: #bbe4ff;
+      display: inline-block;
+      border-bottom: 2px dashed #2dd4bf80;
+    }
+
+    ul, .glossary-list {
+      background: rgba(20, 30, 55, 0.6);
+      border-radius: 1.5rem;
+      padding: 1.2rem 1.8rem;
+      margin: 1rem 0;
+      list-style-type: none;
+      border-left: 5px solid #7e57c2;
+    }
+
+    li {
+      margin: 0.75rem 0;
+      padding-left: 1.5rem;
+      position: relative;
+      font-size: 1.03rem;
+      line-height: 1.45;
+    }
+
+    li::before {
+      content: "✨";
+      position: absolute;
+      left: 0;
+      color: #ffe69b;
+      font-size: 1rem;
+    }
+
+    .formula {
+      background: linear-gradient(145deg, #0f1a2f, #030617);
+      color: #b9f3ff;
+      font-weight: bold;
+      padding: 1rem;
+      border-radius: 2rem;
+      text-align: center;
+      margin: 1.2rem 0;
+      font-size: 1.1rem;
+      font-family: monospace;
+      border: 1px solid #2dd4bf;
+      box-shadow: 0 0 8px cyan;
+    }
+
+    .highlight {
+      background: rgba(255, 215, 120, 0.12);
+      backdrop-filter: blur(4px);
+      padding: 1rem 1.3rem;
+      border-radius: 1.5rem;
+      border-left: 6px solid #facc15;
+      margin: 1.4rem 0;
+      font-weight: 500;
+    }
+
+    .definition {
+      background: rgba(0, 200, 200, 0.08);
+      padding: 1rem 1.4rem;
+      border-radius: 1.5rem;
+      border-left: 6px solid #34d399;
+      margin: 1.2rem 0;
+      font-size: 1.05rem;
+    }
+
+    .cosmic-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.2rem;
+      margin: 1rem 0;
+    }
+
+    .card-mini {
+      background: #0b142cb3;
+      border-radius: 1.5rem;
+      padding: 0.8rem 1.2rem;
+      flex: 1 1 210px;
+      border: 1px solid #3792ff40;
+      transition: 0.2s;
+    }
+
+    .card-mini strong {
+      color: #facc15;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1.8rem;
+      background: rgba(0, 0, 0, 0.65);
+      border-radius: 3rem;
+      margin-top: 1.5rem;
+      font-size: 0.9rem;
+      backdrop-filter: blur(8px);
+    }
+
+    @media (max-width: 780px) {
+      h2 { font-size: 1.8rem; }
+      h3 { font-size: 1.4rem; }
+      header h1 { font-size: 2rem; }
+      .section { padding: 1.3rem; }
+      nav a { font-size: 0.85rem; }
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #03050b;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #4f46e5;
+      border-radius: 20px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>🌌 SINH HỌC & KHOA HỌC TRÁI ĐẤT 🌍</h1>
+    <p>Kiến thức lớp 7–9 · Sinh học + Địa chất + Khí quyển · Tra cứu nhanh cho quiz & ôn thi</p>
+    <p style="font-size:0.9rem;">⭐ 800+ khái niệm · Từ tế bào đến vũ trụ bao la ⭐</p>
+  </header>
+
+  <nav>
+    <a href="#tebao">🔬 TẾ BÀO</a>
+    <a href="#sinh-san">🧬 SINH SẢN</a>
+    <a href="#di-truyen">🧬 DI TRUYỀN</a>
+    <a href="#sinh-thai">🌍 SINH THÁI</a>
+    <a href="#nguoi">🧠 CƠ THỂ NGƯỜI</a>
+    <a href="#tienhoa">🦕 TIẾN HÓA</a>
+    <a href="#traidat">🌎 TRÁI ĐẤT & KHÍ QUYỂN</a>
+  </nav>
+
+  <!-- TẾ BÀO MỞ RỘNG -->
+  <div class="section" id="tebao">
+    <h2>🔬 I. THẾ GIỚI TẾ BÀO – VIÊN NGỌC SỰ SỐNG</h2>
+    <div class="definition">📖 <strong>Tế bào</strong> là đơn vị cấu trúc và chức năng cơ bản của mọi cơ thể sống. Cơ thể người có khoảng 37,2 nghìn tỉ tế bào!</div>
+    <h3>1️⃣ Tế bào nhân sơ & nhân thực</h3>
+    <ul>
+      <li><strong>Nhân sơ</strong> (Vi khuẩn, vi khuẩn cổ): không có màng nhân, DNA vùng nhân, ribosome 70S. Kích thước 1-5μm.</li>
+      <li><strong>Nhân thực</strong> (Động vật, thực vật, nấm, nguyên sinh): có nhân hoàn chỉnh, bào quan có màng, ribosome 80S.</li>
+      <li><strong>Điểm khác then chốt:</strong> Thực vật có thành tế bào (cellulose), lục lạp, không bào trung tâm lớn. Động vật có trung thể, lysosome nhiều.</li>
+    </ul>
+    <h3>2️⃣ Bào quan siêu cấu trúc</h3>
+    <ul>
+      <li><strong>Màng tế bào</strong>: Mô hình khảm lỏng, gồm phospholipid kép, protein xuyên màng, thực hiện vận chuyển chủ động/thụ động.</li>
+      <li><strong>Nhân</strong>: Chứa DNA, nhân con tổng hợp ribosome, lỗ nhân trao đổi chất.</li>
+      <li><strong>Ty thể</strong>: “Nhà máy năng lượng” – chu trình Krebs, chuỗi vận chuyển electron → ATP (36-38 ATP/glucose).</li>
+      <li><strong>Lục lạp</strong>: Chỉ có ở thực vật, tảo. Chứa diệp lục a,b, carotenoit. Quang hợp tạo O₂ và glucose.</li>
+      <li><strong>Lưới nội chất hạt (RER)</strong>: Tổng hợp protein xuất bào. Lưới nội chất trơn (SER): tổng hợp lipid, giải độc.</li>
+      <li><strong>Bộ máy Golgi</strong>: Sửa đổi, đóng gói protein vào túi tiết, tạo lysosome.</li>
+      <li><strong>Peroxisome</strong>: Phân giải axit béo, khử độc H₂O₂.</li>
+      <li><strong>Khung xương tế bào</strong>: vi ống, vi sợi – định hình, di chuyển tế bào.</li>
+    </ul>
+    <div class="formula">⚡ Phương trình quang hợp: 6CO₂ + 12H₂O + Ánh sáng → C₆H₁₂O₆ + 6O₂ + 6H₂O</div>
+    <div class="formula">🔥 Hô hấp tế bào: C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O + 38 ATP</div>
+    <div class="highlight">💡 <strong>Thẩm thấu & khuếch tán:</strong> Màng bán thấm chọn lọc. Tế bào hồng cầu trong môi trường nhược trương sẽ trương nước và vỡ. Hiện tượng co nguyên sinh ở thực vật khi ở môi trường ưu trương.</div>
+  </div>
+
+  <!-- SINH SẢN CHI TIẾT -->
+  <div class="section" id="sinh-san">
+    <h2>🧬 II. SINH SẢN – DUY TRÌ SỰ SỐNG</h2>
+    <h3>🟢 Sinh sản vô tính</h3>
+    <ul>
+      <li>Phân đôi (trực khuẩn, amip) – sao chép DNA, phân chia tế bào chất.</li>
+      <li>Nảy chồi (thủy tức, nấm men) – chồi con lớn dần và tách.</li>
+      <li>Bào tử (rêu, dương xỉ, nấm) – bào tử phát tán nảy mầm.</li>
+      <li>Sinh dưỡng ở thực vật: thân bò, củ khoai tây, giâm, chiết, ghép.</li>
+    </ul>
+    <h3>🔴 Sinh sản hữu tính</h3>
+    <ul>
+      <li><strong>Giảm phân:</strong> 1 lần nhân đôi, 2 lần phân chia → 4 giao tử đơn bội (n).</li>
+      <li><strong>Thụ tinh:</strong> Hợp tử 2n → phát triển thành cơ thể mới, đa dạng di truyền.</li>
+      <li><strong>Ở động vật:</strong> Đẻ trứng (chim, bò sát), đẻ con (thú), thai sinh, noãn thai sinh.</li>
+    </ul>
+    <h3>🌻 Sinh sản thực vật hạt kín</h3>
+    <ul>
+      <li>Hoa: nhị (bao phấn → hạt phấn) và nhụy (đầu nhụy, vòi nhụy, bầu nhụy chứa noãn).</li>
+      <li>Thụ phấn nhờ gió, côn trùng, nước. Ống phấn mọc xuyên vòi nhụy.</li>
+      <li><strong>Thụ tinh kép đặc trưng:</strong> 1 tinh tử + noãn → hợp tử (2n); 1 tinh tử + nhân lưỡng bội trung tâm → nội nhũ (3n) nuôi phôi.</li>
+    </ul>
+    <div class="definition">📌 Quả và hạt: Quả thịt (cà chua, đu đủ) và quả khô (đậu, cải). Phát tán nhờ động vật, gió, tự phát tán. Hạt có thể ngủ nghỉ trong điều kiện bất lợi.</div>
+  </div>
+
+  <!-- DI TRUYỀN MỞ RỘNG -->
+  <div class="section" id="di-truyen">
+    <h2>🧬 III. DI TRUYỀN HỌC – MÃ BÍ ẨN SỰ SỐNG</h2>
+    <div class="definition">🧬 <strong>DNA</strong> (axit deoxyribonucleic) là vật chất di truyền cấu tạo theo nguyên tắc bổ sung A=T; G≡C. Xoắn kép, mang gen mã hóa protein.</div>
+    <h3>📜 Gen & Alen</h3>
+    <ul>
+      <li>Gen là đoạn DNA quy định tính trạng. Mỗi gen có 2 alen (trội – lặn).</li>
+      <li>Kiểu gen (AA, Aa, aa) → Kiểu hình biểu hiện ra ngoài.</li>
+    </ul>
+    <h3>⚖️ Quy luật Mendel</h3>
+    <ul>
+      <li>Định luật phân li: Trong quá trình phát sinh giao tử, mỗi alen phân li về một giao tử.</li>
+      <li>Định luật phân li độc lập: Các cặp alen phân li độc lập nhau (nằm trên các cặp NST khác nhau).</li>
+      <li>Ví dụ lai hai tính trạng: AaBb × AaBb → F₂ thu được 9:3:3:1 (trội hoàn toàn).</li>
+    </ul>
+    <div class="formula">🧬 Cấu trúc ADN: 2 mạch polynucleotide, chiều 5'→3', liên kết phosphodiester, liên kết hydro giữa các base. Hệ gen người có khoảng 3,2 tỉ cặp base.</div>
+    <h3>🧬 ARN và cơ chế di truyền</h3>
+    <ul>
+      <li>mARN: khuôn tổng hợp protein (phiên mã từ ADN).</li>
+      <li>tARN: vận chuyển axit amin, có bộ ba đối mã (anticodon).</li>
+      <li>rARN: thành phần ribosome, xúc tác hình thành liên kết peptit.</li>
+      <li>Quá trình: Phiên mã (ADN → ARN) tại nhân → Dịch mã (ARN → chuỗi polipeptit) tại ribosome.</li>
+    </ul>
+    <h3>🧬 Đột biến & Biến dị</h3>
+    <ul>
+      <li>Đột biến gen: thay thế, mất, thêm 1 cặp nucleotit → thay đổi protein.</li>
+      <li>Đột biến NST: lệch bội (Down: thể ba NST 21), đa bội (3n,4n ở thực vật).</li>
+      <li>Biến dị tổ hợp: phong phú do trao đổi chéo & tổ hợp tự do.</li>
+    </ul>
+    <div class="highlight">⭐ Thường biến: biến đổi kiểu hình do môi trường, không di truyền. Mức phản ứng do gen quy định. Công nghệ CRISPR-Cas9 cho phép chỉnh sửa gen chính xác.</div>
+  </div>
+
+  <!-- SINH THÁI SIÊU CHI TIẾT -->
+  <div class="section" id="sinh-thai">
+    <h2>🌿 IV. SINH THÁI HỌC – MẠNG LƯỚI SỰ SỐNG</h2>
+    <h3>🌎 Các cấp độ tổ chức</h3>
+    <ul>
+      <li><strong>Cá thể → Quần thể (cùng loài) → Quần xã (nhiều loài) → Hệ sinh thái → Sinh quyển</strong></li>
+      <li>Quần thể: mật độ, tỉ lệ giới tính, nhóm tuổi, tăng trưởng (chữ J hoặc S).</li>
+      <li>Quần xã: độ đa dạng, ổ sinh thái, quan hệ hỗ trợ & đối kháng.</li>
+    </ul>
+    <h3>🍃 Chuỗi & lưới thức ăn</h3>
+    <ul>
+      <li>Sinh vật sản xuất (thực vật, tảo) → sinh vật tiêu thụ bậc 1 (động vật ăn cỏ) → bậc 2,3 → sinh vật phân giải (vi khuẩn, nấm).</li>
+      <li>Hiệu suất sinh thái: trung bình 10% năng lượng chuyển lên bậc dinh dưỡng sau.</li>
+    </ul>
+    <div class="formula">🌾 Tháp sinh thái: tháp số lượng, tháp sinh khối, tháp năng lượng (luôn có dạng chuẩn).</div>
+    <h3>🤝 Tương tác sinh học</h3>
+    <div class="cosmic-grid">
+      <div class="card-mini"><strong>Cộng sinh:</strong> Địa y (nấm + tảo), vi khuẩn cố định đạm trong nốt sần cây họ Đậu.</div>
+      <div class="card-mini"><strong>Hội sinh:</strong> Phong lan bám cây gỗ (có lợi không hại).</div>
+      <div class="card-mini"><strong>Ký sinh:</strong> Giun đũa, sán lá gan, cây tầm gửi.</div>
+      <div class="card-mini"><strong>Cạnh tranh:</strong> Cùng loài hoặc khác loài tranh nơi ở, thức ăn.</div>
+      <div class="card-mini"><strong>Vật ăn thịt – con mồi:</strong> Hổ – nai, điều chỉnh số lượng quần thể.</div>
+    </div>
+    <h3>🌍 Các hệ sinh thái chính</h3>
+    <ul>
+      <li>Rừng nhiệt đới: đa dạng sinh học cao, đất nghèo dinh dưỡng nhưng vòng tuần hoàn nhanh.</li>
+      <li>Savanna: đồng cỏ, động vật móng guốc, khí hậu khô hạn.</li>
+      <li>Hoang mạc: ít mưa, thực vật mọng nước, động vật hoạt động về đêm.</li>
+      <li>Hệ sinh thái nước ngọt (ao, hồ) và nước mặn (rạn san hô, rừng ngập mặn).</li>
+    </ul>
+    <div class="highlight">🌱 Vòng tuần hoàn vật chất: Cacbon, nitơ, nước. Quang hợp hấp thụ CO₂; hô hấp, phân giải trả lại môi trường. Chu trình nước gồm bốc hơi, ngưng tụ, mưa và dòng chảy.</div>
+  </div>
+
+  <!-- CƠ THỂ NGƯỜI BỔ SUNG -->
+  <div class="section" id="nguoi">
+    <h2>🧠 V. SINH LÝ NGƯỜI – HỆ THỐNG HOÀN HẢO</h2>
+    <h3>🩸 Hệ tuần hoàn</h3>
+    <ul>
+      <li>Tim 4 ngăn: tâm nhĩ phải, thất phải (máu đỏ thẫm), tâm nhĩ trái, thất trái (máu đỏ tươi).</li>
+      <li>Vòng tuần hoàn lớn: thất trái → động mạch chủ → mao mạch → tĩnh mạch → nhĩ phải.</li>
+      <li>Vòng tuần hoàn nhỏ: thất phải → động mạch phổi → trao đổi khí ở phổi → tĩnh mạch phổi → nhĩ trái.</li>
+      <li>Nhóm máu: A, B, AB, O; nguyên tắc truyền máu tránh kháng nguyên – kháng thể.</li>
+    </ul>
+    <h3>💨 Hệ hô hấp</h3>
+    <ul>
+      <li>Đường dẫn khí: mũi → hầu → thanh quản → khí quản → phế quản → phế nang (trao đổi khí).</li>
+      <li>Cơ hoành và cơ liên sườn tham gia hít thở. Khí O₂ khuếch tán vào máu, CO₂ ra ngoài.</li>
+    </ul>
+    <h3>🧪 Hệ tiêu hóa</h3>
+    <ul>
+      <li>Ống tiêu hóa: miệng → thực quản → dạ dày → ruột non (hấp thụ chính) → ruột già.</li>
+      <li>Tuyến gan: tiết mật, khử độc; tuyến tụy: tiết insulin, amylase; ruột non có vi nhung mao tăng diện tích hấp thụ.</li>
+      <li>Enzyme tiêu hóa: pepsin (dạ dày), trypsin, lipase, lactase.</li>
+    </ul>
+    <h3>🧠 Hệ thần kinh & giác quan</h3>
+    <ul>
+      <li>Thần kinh trung ương: não bộ (bán cầu đại não, tiểu não, thân não) & tủy sống.</li>
+      <li>Phản xạ: cung phản xạ gồm 5 thành phần (thụ quan, nơron hướng tâm, trung ương, nơron li tâm, cơ quan đáp ứng).</li>
+      <li>Mắt: giác mạc, thủy tinh thể, võng mạc (tế bào que, nón). Tai: ốc tai chứa cơ quan Corti.</li>
+    </ul>
+    <div class="definition">💉 Nội tiết: tuyến yên (hormone tăng trưởng), tuyến giáp (thyroxin điều hòa trao đổi chất), tuyến tụy (insulin & glucagon), tuyến sinh dục (testosterone, estrogen). Hệ miễn dịch: bạch cầu, kháng thể, miễn dịch đặc hiệu và không đặc hiệu.</div>
+  </div>
+
+  <!-- TIẾN HÓA & ĐA DẠNG SINH HỌC -->
+  <div class="section" id="tienhoa">
+    <h2>🦕 VI. TIẾN HÓA & ĐA DẠNG SINH GIỚI</h2>
+    <h3>🧬 Bằng chứng tiến hóa</h3>
+    <ul>
+      <li>Hóa thạch: dấu tích sinh vật sống qua các địa tầng, xác định niên đại.</li>
+      <li>Giải phẫu so sánh: cơ quan tương đồng (tay người – cánh dơi – chân trước mèo) → nguồn gốc chung.</li>
+      <li>Cơ quan thoái hóa: ruột thừa ở người, xương cụt.</li>
+      <li>Phôi sinh học: giai đoạn đầu phôi thai của các động vật có xương sống giống nhau.</li>
+    </ul>
+    <h3>📘 Học thuyết Darwin & chọn lọc tự nhiên</h3>
+    <ul>
+      <li>Các cá thể có biến dị thích nghi tốt hơn sẽ sống sót và sinh sản nhiều hơn.</li>
+      <li>Hình thành loài mới qua cách li địa lý, sinh thái, tập tính.</li>
+    </ul>
+    <h3>🌳 Phân loại sinh giới (5 giới)</h3>
+    <ul>
+      <li>Giới Khởi sinh (vi khuẩn), Nguyên sinh (trùng roi, tảo), Nấm, Thực vật, Động vật.</li>
+      <li>Phân loại thực vật: Rêu → Dương xỉ → Hạt trần → Hạt kín.</li>
+      <li>Phân loại động vật: Thân lỗ → Ruột khoang → Giun dẹp/tròn/đốt → Thân mềm → Chân khớp → Động vật có dây sống (cá, lưỡng cư, bò sát, chim, thú).</li>
+    </ul>
+    <div class="formula">🌿 Sự đa dạng: Rừng mưa nhiệt đới chiếm <7% diện tích đất liền nhưng chứa >50% loài sinh vật. Khoảng 8,7 triệu loài trên Trái Đất, phần lớn chưa được khám phá.</div>
+    <div class="highlight">🌎 Bảo tồn: Lâm nghiệp bền vững, khu bảo tồn, ngăn chặn săn bắt trái phép, giảm phát thải khí nhà kính. Các lĩnh vực: bảo tồn ex-situ (vườn thực vật, ngân hàng hạt giống) và in-situ (khu dự trữ sinh quyển).</div>
+  </div>
+
+  <!-- KHOA HỌC TRÁI ĐẤT HOÀN TOÀN MỚI, PHONG PHÚ -->
+  <div class="section" id="traidat">
+    <h2>🌎 VII. KHOA HỌC TRÁI ĐẤT & KHÍ QUYỂN</h2>
+    <div class="definition">🌍 <strong>Khoa học Trái Đất</strong> nghiên cứu cấu trúc, thành phần, quá trình vật lý và hóa học của hành tinh chúng ta, từ lõi đến khí quyển.</div>
+    
+    <h3>🌋 Cấu trúc Trái Đất</h3>
+    <ul>
+      <li><strong>Lớp vỏ</strong> (0-40km): đại dương (basalt) và lục địa (granit), dày 5-70 km. Nhiệt độ tăng dần 25-30°C/km.</li>
+      <li><strong>Lớp phủ</strong> (40-2890km): chứa peridotite, dòng đối lưu tạo ra kiến tạo mảng. Asthenosphere (quyển mềm) nằm ở phần trên.</li>
+      <li><strong>Nhân ngoài</strong> (2890-5150km): hợp kim sắt-niken lỏng, sinh ra từ trường Trái Đất (hiệu ứng dynamo).</li>
+      <li><strong>Nhân trong</strong> (5150-6371km): rắn, nhiệt độ lên đến 5500°C, áp suất cực lớn.</li>
+    </ul>
+    <h3>🌊 Thạch quyển & Kiến tạo mảng</h3>
+    <ul>
+      <li>Các mảng kiến tạo (mảng Thái Bình Dương, Âu-Á, Ấn-Úc…) di chuyển 2-10 cm/năm.</li>
+      <li>Biên giới hội tụ → hình thành núi (Himalaya), rãnh đại dương, động đất và núi lửa.</li>
+      <li>Biên giới phân kỳ → sống núi giữa đại dương, thung lũng tách giãn.</li>
+      <li>Biên giới trượt ngang → động đất (đứt gãy San Andreas).</li>
+    </ul>
+    <div class="formula">🌋 Thuyết kiến tạo mảng: Nội lực từ đối lưu manti làm di chuyển các mảng, gây ra động đất, núi lửa, và hình thành địa hình.</div>
+    
+    <h3>🌦️ Khí quyển & Khí hậu</h3>
+    <ul>
+      <li><strong>Tầng đối lưu</strong> (0-12km): chứa 80% khối lượng khí quyển, xảy ra các hiện tượng thời tiết (mây, mưa, bão).</li>
+      <li><strong>Tầng bình lưu</strong> (12-50km): có tầng ozone hấp thụ tia UV.</li>
+      <li><strong>Tầng trung lưu</strong> (50-85km): nhiệt độ giảm mạnh, các thiên thạch bốc cháy.</li>
+      <li><strong>Tầng nhiệt & ngoại quyển</strong> (85-600km): cực quang, trạm vũ trụ.</li>
+      <li>Thành phần: Nitơ (78%), Oxy (21%), Argon (0.93%), CO₂ (0.04%), hơi nước.</li>
+    </ul>
+    <div class="highlight">🌪️ Hiệu ứng nhà kính tự nhiên: giữ nhiệt độ Trái Đất ở mức 15°C. Tuy nhiên, hoạt động công nghiệp làm tăng CO₂, CH₄ gây biến đổi khí hậu, băng tan, nước biển dâng.</div>
+    
+    <h3>💧 Thủy quyển & Đại dương</h3>
+    <ul>
+      <li>Đại dương bao phủ 71% bề mặt Trái Đất, chứa 97% nước của hành tinh.</li>
+      <li>Dòng hải lưu: Gulf Stream, Kuroshio – điều hòa khí hậu toàn cầu.</li>
+      <li>Chu trình nước: bốc hơi, ngưng tụ, mưa, dòng chảy mặt và ngầm.</li>
+      <li>Sóng thần: do động đất dưới đáy biển hoặc núi lửa phun trào.</li>
+    </ul>
+    <h3>⛰️ Khoáng vật & Đá</h3>
+    <ul>
+      <li><strong>Đá macma</strong>: hình thành từ magma nguội (granit, basalt).</li>
+      <li><strong>Đá trầm tích</strong>: do tích tụ trầm tích (đá vôi, sa thạch).</li>
+      <li><strong>Đá biến chất</strong>: biến đổi dưới nhiệt độ/áp suất (đá hoa, gneiss).</li>
+      <li>Vòng tuần hoàn đá: macma → đá macma → phong hóa → trầm tích → biến chất → nóng chảy trở lại.</li>
+    </ul>
+    <div class="definition">🌱 Tài nguyên thiên nhiên: khoáng sản, nhiên liệu hóa thạch (than đá, dầu mỏ, khí tự nhiên) hình thành từ xác sinh vật qua hàng triệu năm. Khai thác bền vững là thách thức lớn.</div>
+    <div class="formula">📈 Biến đổi khí hậu: Nhiệt độ toàn cầu tăng ~1.2°C so với thời kỳ tiền công nghiệp. Các giải pháp: năng lượng tái tạo (mặt trời, gió), giảm phát thải, trồng rừng.</div>
+  </div>
+
+  <footer>
+    🌟 TỔNG HỢP KIẾN THỨC SINH HỌC & KHOA HỌC TRÁI ĐẤT 7-9 CHUẨN + NÂNG CAO 🌟 <br/>
+    📖 Tra cứu nhanh dành cho Quiz, ôn thi vào 10, khám phá vũ trụ sự sống và hành tinh xanh. Tri thức là vô tận — hãy luôn tò mò!
+  </footer>
+</div>
+</body>
+</html>

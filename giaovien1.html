@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Creative Quiz — Đang tải...</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #0b0b1f;
+      color: #67e8f9;
+      font-family: 'Orbitron', sans-serif;
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    /* Spotlight theo chuột (giống trang chính của bạn) */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle 800px at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(103,232,249,0.15), transparent 70%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .loading-container {
+      text-align: center;
+      z-index: 10;
+    }
+
+    .logo {
+      font-size: 4.5rem;
+      font-weight: 900;
+      letter-spacing: 0.1em;
+      background: linear-gradient(90deg, #67e8f9, #c026d3, #67e8f9);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 40px rgba(103, 232, 249, 0.8);
+      margin-bottom: 20px;
+      animation: titleGlow 3s ease-in-out infinite alternate;
+    }
+
+    @keyframes titleGlow {
+      from { text-shadow: 0 0 20px #67e8f9, 0 0 40px #c026d3; }
+      to   { text-shadow: 0 0 50px #67e8f9, 0 0 80px #c026d3, 0 0 120px #a855f7; }
+    }
+
+    .subtitle {
+      font-size: 1.3rem;
+      color: #94a3b8;
+      margin-bottom: 40px;
+      opacity: 0.9;
+    }
+
+    /* Loading Animation Neon */
+    .loader {
+      width: 80px;
+      height: 80px;
+      border: 6px solid rgba(103, 232, 249, 0.2);
+      border-top-color: #67e8f9;
+      border-radius: 50%;
+      animation: spin 1.2s linear infinite;
+      box-shadow: 0 0 30px #67e8f9,
+                  0 0 60px #c026d3;
+      margin: 0 auto 30px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .status {
+      font-size: 1.1rem;
+      color: #e0f2fe;
+      margin-top: 15px;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.7; }
+      50% { opacity: 1; }
+    }
+
+    .progress-bar {
+      width: 280px;
+      height: 6px;
+      background: rgba(103, 232, 249, 0.15);
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 25px auto;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #67e8f9, #c026d3);
+      box-shadow: 0 0 20px #67e8f9;
+      animation: loadingProgress 3.5s ease-in-out infinite;
+    }
+
+    @keyframes loadingProgress {
+      0% { width: 0%; }
+      50% { width: 85%; }
+      100% { width: 35%; }
+    }
+
+    /* Particle background nhẹ */
+    canvas#bgCanvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.6;
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="bgCanvas"></canvas>
+
+  <div class="loading-container">
+    <div class="logo">CREATIVE QUIZ</div>
+    <p class="subtitle">Trang Giáo Viên • KHTN</p>
+    
+    <div class="loader"></div>
+    
+    <div class="status">Đang khởi tạo không gian làm việc...</div>
+    
+    <div class="progress-bar">
+      <div class="progress-fill"></div>
+    </div>
+  </div>
+
+  <script>
+    // Spotlight theo chuột
+    const body = document.body;
+    document.addEventListener('mousemove', (e) => {
+      body.style.setProperty('--mouse-x', e.clientX + 'px');
+      body.style.setProperty('--mouse-y', e.clientY + 'px');
+    });
+
+    // Canvas particle nhẹ (giống trang chính của bạn)
+    const canvas = document.getElementById('bgCanvas');
+    const ctx = canvas.getContext('2d');
+    let w = canvas.width = window.innerWidth;
+    let h = canvas.height = window.innerHeight;
+
+    window.addEventListener('resize', () => {
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
+    });
+
+    class Particle {
+      constructor() {
+        this.reset();
+      }
+      reset() {
+        this.x = Math.random() * w;
+        this.y = Math.random() * h;
+        this.size = Math.random() * 2 + 0.5;
+        this.speedX = Math.random() * 0.6 - 0.3;
+        this.speedY = Math.random() * 0.6 - 0.3;
+      }
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        if (this.x < 0 || this.x > w) this.speedX *= -1;
+        if (this.y < 0 || this.y > h) this.speedY *= -1;
+      }
+      draw() {
+        ctx.fillStyle = 'rgba(103, 232, 249, 0.7)';
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    const particles = [];
+    for (let i = 0; i < 80; i++) particles.push(new Particle());
+
+    function animate() {
+      ctx.fillStyle = 'rgba(11, 11, 31, 0.12)';
+      ctx.fillRect(0, 0, w, h);
+      particles.forEach(p => {
+        p.update();
+        p.draw();
+      });
+      requestAnimationFrame(animate);
+    }
+    animate();
+
+    // Tự động chuyển trang sau 4-5 giây (nếu muốn)
+     setTimeout(() => { window.location.href = 'giaovien.html'; }, 4500);
+  </script>
+</body>
+</html>

@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Chọn Tùy Chọn — Creative Quiz</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --purple-50: #EEEDFE;
+      --purple-100: #CECBF6;
+      --purple-200: #AFA9EC;
+      --purple-400: #7F77DD;
+      --purple-600: #534AB7;
+      --purple-800: #3C3489;
+      --purple-900: #26215C;
+
+      --teal-50: #E1F5EE;
+      --teal-100: #9FE1CB;
+      --teal-400: #1D9E75;
+      --teal-600: #0F6E56;
+      --teal-800: #085041;
+
+      --coral-50: #FAECE7;
+      --coral-100: #F5C4B3;
+      --coral-400: #D85A30;
+      --coral-600: #993C1D;
+      --coral-800: #712B13;
+
+      --amber-50: #FAEEDA;
+      --amber-100: #FAC775;
+      --amber-400: #BA7517;
+      --amber-800: #633806;
+
+      --gray-50: #F1EFE8;
+      --gray-100: #D3D1C7;
+      --gray-200: #B4B2A9;
+      --gray-600: #5F5E5A;
+      --gray-800: #444441;
+
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
+    }
+
+    /* ── Background ── */
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 32px 16px;
+      font-family: 'Inter', sans-serif;
+      background: #0f0c29;
+      background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+      background-size: 400% 400%;
+      animation: bgShift 18s ease infinite;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* subtle particle-like dots */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes bgShift {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* ── Main card ── */
+    .container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 860px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 28px;
+      padding: 48px 40px 40px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow:
+        0 2px 0 0 rgba(255,255,255,0.08) inset,
+        0 32px 80px rgba(0,0,0,0.5);
+    }
+
+    /* ── Header ── */
+    .header-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(127,119,221,0.18);
+      border: 1px solid rgba(127,119,221,0.35);
+      color: var(--purple-100);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 100px;
+      margin-bottom: 20px;
+    }
+    .header-badge .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--purple-400);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    h1 span { color: var(--purple-400); }
+
+    .lead {
+      font-size: 1rem;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 6px;
+      line-height: 1.6;
+    }
+    .sub-lead {
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 40px;
+    }
+
+    /* ── Divider ── */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .divider-line { flex: 1; height: 1px; background: rgba(255,255,255,0.08); }
+    .divider-text { font-size: 11px; color: rgba(255,255,255,0.35); letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; }
+
+    /* ── Choice grid ── */
+    .choice-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr 1fr;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    @media (max-width: 640px) {
+      .choice-buttons { grid-template-columns: 1fr; }
+      h1 { font-size: 1.6rem; }
+      .container { padding: 32px 20px; }
+    }
+
+    /* ── Card base ── */
+    .card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius-lg);
+      padding: 28px 22px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+      cursor: default;
+    }
+    .card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(255,255,255,0.22);
+      background: rgba(255,255,255,0.09);
+    }
+
+    /* card accent top strip */
+    .card::before {
+      content: '';
+      display: block;
+      width: 36px;
+      height: 4px;
+      border-radius: 4px;
+      margin-bottom: 18px;
+      transition: width 0.25s ease;
+    }
+    .card:hover::before { width: 56px; }
+    .card.card-info::before  { background: var(--purple-400); }
+    .card.card-game::before  { background: var(--coral-400); }
+    .card.card-quiz::before  { background: var(--teal-400); }
+
+    /* icon circle */
+    .card-icon {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      margin-bottom: 16px;
+      flex-shrink: 0;
+    }
+    .card-info  .card-icon { background: rgba(127,119,221,0.15); }
+    .card-game  .card-icon { background: rgba(216,90,48,0.15); }
+    .card-quiz  .card-icon { background: rgba(29,158,117,0.15); }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .card-desc {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.45);
+      line-height: 1.6;
+      margin-bottom: 22px;
+      flex: 1;
+    }
+
+    .card-game .card-subtitle {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.35);
+      margin-bottom: 18px;
+      line-height: 1.5;
+      font-style: italic;
+    }
+
+    /* ── Buttons ── */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 11px 24px;
+      border: none;
+      border-radius: 100px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .btn-primary:hover  { transform: scale(1.05); filter: brightness(1.1); }
+    .btn-primary:active { transform: scale(0.98); }
+
+    .btn-info {
+      background: linear-gradient(135deg, var(--purple-600), var(--purple-800));
+      color: var(--purple-100);
+      box-shadow: 0 4px 20px rgba(83,74,183,0.4);
+    }
+    .btn-game {
+      background: linear-gradient(135deg, #e8512a, #c73d18);
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(216,90,48,0.5);
+    }
+    .btn-game.clicked {
+      animation: glowPulse 0.6s ease-out;
+    }
+    @keyframes glowPulse {
+      0%   { box-shadow: 0 0 0 0 rgba(232,81,42,0.7); }
+      70%  { box-shadow: 0 0 0 18px rgba(232,81,42,0); }
+      100% { box-shadow: 0 4px 20px rgba(216,90,48,0.5); }
+    }
+    .btn-quiz {
+      background: linear-gradient(135deg, var(--teal-600), var(--teal-800));
+      color: var(--teal-100);
+      box-shadow: 0 4px 20px rgba(15,110,86,0.4);
+    }
+
+    /* icon shimmer on game btn */
+    .btn-icon {
+      display: inline-block;
+      animation: spin 3s linear infinite;
+    }
+    @keyframes spin {
+      0%  { transform: rotate(0deg); }
+      25% { transform: rotate(-10deg); }
+      75% { transform: rotate(10deg); }
+      100%{ transform: rotate(0deg); }
+    }
+
+    /* ── Back button row ── */
+    .back-row {
+      display: flex;
+      justify-content: center;
+      margin-top: 8px;
+    }
+    .btn-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.55);
+      font-size: 0.85rem;
+      font-weight: 500;
+      padding: 10px 22px;
+      border-radius: 100px;
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+    }
+    .btn-back:hover {
+      background: rgba(255,255,255,0.12);
+      border-color: rgba(255,255,255,0.25);
+      color: rgba(255,255,255,0.9);
+      transform: translateX(-3px);
+    }
+    .btn-back svg { transition: transform 0.2s ease; }
+    .btn-back:hover svg { transform: translateX(-3px); }
+
+    /* ── Confetti ── */
+    #confettiCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 9999;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="confettiCanvas"></canvas>
+
+  <div class="container">
+
+    <div class="header-badge"><span class="dot"></span>Creative Quiz</div>
+
+    <h1>Chọn <span>Tùy Chọn</span></h1>
+    <p class="lead">Bạn đã chọn môn học. Hãy tiếp tục hành trình khám phá!</p>
+    <p class="sub-lead">Chọn cách bạn muốn học hôm nay 🚀</p>
+
+    <div class="divider">
+      <span class="divider-line"></span>
+      <span class="divider-text">Lựa chọn của bạn</span>
+      <span class="divider-line"></span>
+    </div>
+
+    <div class="choice-buttons">
+
+      <!-- Info -->
+      <div class="card card-info">
+        <div class="card-icon">📖</div>
+        <div class="card-title">Thông Tin</div>
+        <div class="card-desc">Khám phá kiến thức cơ bản và nâng cao về môn học đã chọn một cách sinh động.</div>
+        <button id="infoBtn" class="btn-primary btn-info">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M8 7v5M8 5v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Xem thông tin
+        </button>
+      </div>
+
+      <!-- Game -->
+      <div class="card card-game">
+        <div class="card-icon">🎲</div>
+        <div class="card-title">Trò Chơi Ngẫu Nhiên</div>
+        <div class="card-subtitle">Quiz ngẫu nhiên từ Vật Lý, Hóa Học,<br>Sinh Học hoặc Địa Lí</div>
+        <div class="card-desc">Thử thách bản thân với câu hỏi bất ngờ — không biết chủ đề nào sẽ xuất hiện!</div>
+        <button id="gameBtn" class="btn-primary btn-game">
+          <span class="btn-icon">🎰</span>
+          Chơi Ngay!
+        </button>
+      </div>
+
+      <!-- Exercise -->
+      <div class="card card-quiz">
+        <div class="card-icon">✏️</div>
+        <div class="card-title">Bài Tập</div>
+        <div class="card-desc">Thực hành với loạt bài tập đa dạng từ cơ bản đến nâng cao, rèn luyện kỹ năng vững chắc.</div>
+        <button id="exerciseBtn" class="btn-primary btn-quiz">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Làm bài tập
+        </button>
+      </div>
+
+    </div>
+
+    <div class="back-row">
+      <button class="btn-back" onclick="window.location.href='trangchu.html'">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+          <path d="M10 12L6 8l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Trở lại trang chủ
+      </button>
+    </div>
+
+  </div>
+
+<script>
+  const confettiCanvas = document.getElementById('confettiCanvas');
+  const ctx = confettiCanvas.getContext('2d');
+  let particles = [];
+
+  function resize() {
+    confettiCanvas.width  = window.innerWidth;
+    confettiCanvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  function createConfetti() {
+    confettiCanvas.style.display = 'block';
+    for (let i = 0; i < 120; i++) {
+      particles.push({
+        x: Math.random() * confettiCanvas.width,
+        y: Math.random() * -confettiCanvas.height,
+        size: Math.random() * 6 + 2,
+        sx: (Math.random() - 0.5) * 2.5,
+        sy: Math.random() * 4 + 2,
+        color: `hsl(${Math.random() * 360}, 85%, 60%)`,
+        rot: Math.random() * 360,
+        rs: (Math.random() - 0.5) * 6
+      });
+    }
+    animateConfetti();
+  }
+
+  function animateConfetti() {
+    ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+    particles.forEach((p, i) => {
+      p.x += p.sx; p.y += p.sy; p.rot += p.rs;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot * Math.PI / 180);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+      ctx.restore();
+      if (p.y > confettiCanvas.height) particles.splice(i, 1);
+    });
+    if (particles.length > 0) requestAnimationFrame(animateConfetti);
+    else confettiCanvas.style.display = 'none';
+  }
+
+  function startGame() {
+    const btn = document.getElementById('gameBtn');
+    btn.classList.add('clicked');
+    btn.innerHTML = '<span style="display:inline-block;animation:none">⏳</span> Đang tải...';
+    btn.disabled = true;
+    createConfetti();
+    setTimeout(() => { window.location.href = 'quizz.html'; }, 1500);
+    setTimeout(() => {
+      btn.classList.remove('clicked');
+      btn.innerHTML = '<span class="btn-icon">🎰</span> Chơi Ngay!';
+      btn.disabled = false;
+    }, 2000);
+  }
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const subjectKey = urlParams.get('subject');
+
+  if (subjectKey) {
+    const infoMap = { vatly:'ttvatly.html', hoahoc:'tthoahoc.html', sinhhoc:'ttsinhhoc.html', datkhi:'ttkhoahoctraidat.html' };
+    const quizMap = { vatly:'quiz_vatly.html', hoahoc:'quiz_hoahoc.html', sinhhoc:'quiz_sinhhoc.html', datkhi:'quiz_datkhi.html' };
+
+    document.getElementById('infoBtn').onclick     = () => { window.location.href = infoMap[subjectKey] || `${subjectKey}.html`; };
+    document.getElementById('exerciseBtn').onclick = () => { window.location.href = quizMap[subjectKey] || `quiz_${subjectKey}.html`; };
+  } else {
+    alert('Không tìm thấy môn học. Quay lại trang chủ.');
+    window.location.href = 'trangchu.html';
+  }
+
+  document.getElementById('gameBtn').addEventListener('click', startGame);
+</script>
+
+</body>
+</html>

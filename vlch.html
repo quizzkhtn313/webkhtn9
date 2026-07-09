@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🚗 Mô phỏng chuyển động thẳng biến đổi đều | Nâng cấp</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  user-select: none;
+}
+
+body {
+  min-height: 100vh;
+  background: radial-gradient(circle at 20% 30%, #0a0f2a, #030617);
+  font-family: 'Segoe UI', 'Poppins', system-ui, -apple-system, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 30px 20px;
+}
+
+/* container chính */
+.main-container {
+  max-width: 1400px;
+  width: 100%;
+  background: rgba(15, 25, 45, 0.55);
+  backdrop-filter: blur(12px);
+  border-radius: 2.5rem;
+  padding: 1.8rem;
+  box-shadow: 0 25px 45px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(0, 255, 255, 0.2);
+}
+
+h2 {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #aaffff, #4d9eff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  margin-bottom: 1rem;
+  letter-spacing: -0.5px;
+  text-shadow: 0 0 8px rgba(77, 158, 255, 0.3);
+}
+
+/* layout 2 cột */
+.dashboard {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.8rem;
+  margin-bottom: 2rem;
+}
+
+.control-panel {
+  flex: 1.2;
+  min-width: 280px;
+  background: rgba(10, 20, 35, 0.65);
+  backdrop-filter: blur(8px);
+  border-radius: 2rem;
+  padding: 1.5rem;
+  border: 1px solid rgba(0, 255, 255, 0.25);
+  transition: all 0.3s;
+}
+
+.control-panel:hover {
+  border-color: #0ff;
+  box-shadow: 0 0 18px rgba(0, 255, 255, 0.2);
+}
+
+.chart-panel {
+  flex: 1.8;
+  min-width: 480px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 2rem;
+  padding: 1rem;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.slider-group {
+  margin-bottom: 1.8rem;
+}
+
+.slider-group label {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+  color: #ccf4ff;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.5px;
+}
+
+.slider-group span {
+  color: #ffd966;
+  background: #00000055;
+  padding: 2px 10px;
+  border-radius: 30px;
+  font-family: monospace;
+  font-size: 1.1rem;
+}
+
+input[type="range"] {
+  width: 100%;
+  height: 6px;
+  -webkit-appearance: none;
+  background: linear-gradient(90deg, #0af, #f0f);
+  border-radius: 10px;
+  outline: none;
+  cursor: pointer;
+}
+
+input[type="range"]:focus {
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  border: 2px solid #0ff;
+  box-shadow: 0 0 8px cyan;
+  cursor: pointer;
+}
+
+.value-badge {
+  font-size: 1.2rem;
+  font-weight: bold;
+  background: #00000066;
+  padding: 4px 12px;
+  border-radius: 40px;
+  display: inline-block;
+  margin-top: 8px;
+}
+
+.info-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: space-between;
+  margin: 20px 0;
+  background: #00000033;
+  padding: 12px;
+  border-radius: 1.5rem;
+}
+
+.info-card {
+  text-align: center;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 1.2rem;
+  padding: 10px 15px;
+  flex: 1;
+  min-width: 80px;
+  backdrop-filter: blur(4px);
+}
+
+.info-card .label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: #8db5e0;
+}
+
+.info-card .value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  font-family: monospace;
+  color: #f0f9ff;
+}
+
+.btn-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 20px 0 10px;
+}
+
+.btn {
+  background: rgba(20, 40, 70, 0.8);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 2rem;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+  backdrop-filter: blur(5px);
+  transition: 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  border: 1px solid rgba(0, 255, 255, 0.3);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #0a5f9e, #0bcfc0);
+  box-shadow: 0 4px 12px rgba(0, 200, 255, 0.2);
+}
+
+.btn-warning {
+  background: linear-gradient(135deg, #b44600, #ff8c42);
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+  border-color: cyan;
+  box-shadow: 0 6px 16px rgba(0, 255, 255, 0.3);
+}
+
+.preset-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 15px 0;
+}
+
+.preset-btn {
+  background: #1e2a47;
+  font-size: 0.75rem;
+  padding: 5px 12px;
+}
+
+/* đường phố */
+.road-container {
+  margin-top: 25px;
+  background: #1a2a32;
+  border-radius: 2rem;
+  padding: 15px 20px;
+  position: relative;
+}
+
+.road {
+  width: 100%;
+  height: 90px;
+  background: #2e3b2c;
+  border-radius: 60px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 5px 8px #00000033, 0 8px 20px rgba(0,0,0,0.4);
+  border: 2px solid #f5c542;
+}
+
+.road-markings {
+  position: absolute;
+  top: 50%;
+  width: 100%;
+  height: 4px;
+  background: repeating-linear-gradient(90deg, #ffdd99, #ffdd99 40px, transparent 40px, transparent 80px);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.car {
+  position: absolute;
+  bottom: 12px;
+  font-size: 48px;
+  transition: left 0.05s linear, transform 0.2s;
+  filter: drop-shadow(0 4px 6px black);
+  z-index: 5;
+  pointer-events: none;
+}
+
+.warning {
+  color: #ffaa66;
+  background: #000000aa;
+  border-radius: 2rem;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  text-align: center;
+  margin-top: 12px;
+}
+
+canvas {
+  max-height: 220px;
+  width: 100%;
+  background: #0a111fcc;
+  border-radius: 1.2rem;
+  padding: 5px;
+}
+
+@media (max-width: 800px) {
+  .dashboard { flex-direction: column; }
+  .chart-panel { min-width: auto; }
+  .btn-group { justify-content: center; }
+}
+</style>
+</head>
+<body>
+
+<div class="main-container">
+  <h2>⚡ Mô phỏng chuyển động thẳng biến đổi đều ⚡</h2>
+
+  <div class="dashboard">
+    <!-- Bảng điều khiển -->
+    <div class="control-panel">
+      <div class="slider-group">
+        <label>🎚️ Gia tốc <span id="aValueDisplay">2.0</span> m/s²</label>
+        <input type="range" id="accelSlider" min="-8" max="8" step="0.1" value="2">
+      </div>
+      <div class="slider-group">
+        <label>🏁 Vận tốc đầu <span id="v0Display">5.0</span> m/s</label>
+        <input type="range" id="v0Slider" min="-15" max="20" step="0.5" value="5">
+      </div>
+
+      <div class="info-grid">
+        <div class="info-card"><div class="label">⏱️ Thời gian</div><div class="value" id="timeValue">0.00</div></div>
+        <div class="info-card"><div class="label">📏 Quãng đường</div><div class="value" id="distValue">0.0</div></div>
+        <div class="info-card"><div class="label">🚀 Vận tốc</div><div class="value" id="velValue">0.00</div></div>
+        <div class="info-card"><div class="label">🌀 Gia tốc</div><div class="value" id="accelNow">2.0</div></div>
+      </div>
+
+      <div class="btn-group">
+        <button class="btn btn-primary" id="playPauseBtn">▶ Play</button>
+        <button class="btn" id="stepBtn">⏩ Step +0.1s</button>
+        <button class="btn btn-warning" id="resetBtn">🔄 Reset</button>
+      </div>
+
+      <div class="preset-group">
+        <button class="btn preset-btn" data-a="9.8" data-v0="0">🌍 Rơi tự do (a=9.8)</button>
+        <button class="btn preset-btn" data-a="-5" data-v0="15">🛑 Phanh gấp (a=-5)</button>
+        <button class="btn preset-btn" data-a="3" data-v0="2">⚡ Tăng tốc mạnh</button>
+        <button class="btn preset-btn" data-a="-2" data-v0="-5">🔄 Lùi xe (v0 âm)</button>
+      </div>
+      <div class="warning" id="warningMsg">✅ Xe đang trong đường</div>
+    </div>
+
+    <!-- Đồ thị realtime -->
+    <div class="chart-panel">
+      <canvas id="chartVelocity" width="500" height="200" style="width:100%; height:200px"></canvas>
+      <canvas id="chartDistance" width="500" height="200" style="width:100%; height:200px; margin-top: 20px"></canvas>
+    </div>
+  </div>
+
+  <!-- Đường phố + xe -->
+  <div class="road-container">
+    <div class="road">
+      <div class="road-markings"></div>
+      <div class="car" id="carIcon">🚗</div>
+    </div>
+    <div id="boundMsg" style="text-align:center; margin-top:6px; font-size:12px; color:#aaa;"></div>
+  </div>
+</div>
+
+<script>
+  // ----- DOM elements -----
+  const accelSlider = document.getElementById('accelSlider');
+  const v0Slider = document.getElementById('v0Slider');
+  const aDisplay = document.getElementById('aValueDisplay');
+  const v0Display = document.getElementById('v0Display');
+  const timeSpan = document.getElementById('timeValue');
+  const distSpan = document.getElementById('distValue');
+  const velSpan = document.getElementById('velValue');
+  const accelNowSpan = document.getElementById('accelNow');
+  const playPauseBtn = document.getElementById('playPauseBtn');
+  const stepBtn = document.getElementById('stepBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const carDiv = document.getElementById('carIcon');
+  const warningDiv = document.getElementById('warningMsg');
+  const boundMsg = document.getElementById('boundMsg');
+
+  // ----- Mô phỏng -----
+  let t = 0;            // thời gian (s)
+  let running = false;
+  let intervalId = null;
+
+  // Dữ liệu đồ thị (tối đa 200 điểm)
+  let timeData = [];
+  let velData = [];
+  let distData = [];
+
+  // Khởi tạo Chart.js
+  const ctxV = document.getElementById('chartVelocity').getContext('2d');
+  const ctxD = document.getElementById('chartDistance').getContext('2d');
+
+  const chartVelocity = new Chart(ctxV, {
+    type: 'line',
+    data: { labels: [], datasets: [{ label: 'Vận tốc (m/s)', data: [], borderColor: '#0ff', backgroundColor: 'rgba(0,200,255,0.1)', borderWidth: 2, tension: 0.2, pointRadius: 0 }] },
+    options: { responsive: true, maintainAspectRatio: true, scales: { y: { title: { display: true, text: 'm/s', color: '#ccc' }, grid: { color: '#2a3a55' } }, x: { title: { display: true, text: 'Thời gian (s)', color: '#ccc' } } }, plugins: { legend: { labels: { color: '#fff' } } } }
+  });
+  const chartDistance = new Chart(ctxD, {
+    type: 'line',
+    data: { labels: [], datasets: [{ label: 'Quãng đường (m)', data: [], borderColor: '#ffaa44', backgroundColor: 'rgba(255,170,68,0.05)', borderWidth: 2, tension: 0.2, pointRadius: 0 }] },
+    options: { responsive: true, maintainAspectRatio: true, scales: { y: { title: { display: true, text: 'm', color: '#ccc' }, grid: { color: '#2a3a55' } }, x: { title: { display: true, text: 'Thời gian (s)', color: '#ccc' } } }, plugins: { legend: { labels: { color: '#fff' } } } }
+  });
+
+  // Hàm lấy a, v0 hiện tại
+  function getParams() {
+    return { a: parseFloat(accelSlider.value), v0: parseFloat(v0Slider.value) };
+  }
+
+  // Cập nhật hiển thị giá trị slider
+  function updateSlidersDisplay() {
+    let a = parseFloat(accelSlider.value);
+    let v0 = parseFloat(v0Slider.value);
+    aDisplay.textContent = a.toFixed(2);
+    v0Display.textContent = v0.toFixed(2);
+    accelNowSpan.textContent = a.toFixed(2);
+    // khi thay đổi thông số trong lúc dừng -> reset để tránh nhảy loạn
+    if (!running) {
+      // nếu không chạy thì reset lại mô phỏng (theo mong muốn, giữ nguyên t=0)
+      resetSimulation();
+    }
+  }
+
+  // Tính quãng đường, vận tốc tại thời điểm t (dựa vào a, v0 hiện tại)
+  function computePhysics(t_cur) {
+    let { a, v0 } = getParams();
+    let v = v0 + a * t_cur;
+    let s = v0 * t_cur + 0.5 * a * t_cur * t_cur;
+    return { v, s };
+  }
+
+  // Cập nhật giao diện thông số + xe
+  function updateDisplayAndCar() {
+    let { v, s } = computePhysics(t);
+    // Giới hạn hiển thị số thập phân
+    timeSpan.textContent = t.toFixed(2);
+    distSpan.textContent = s.toFixed(2);
+    velSpan.textContent = v.toFixed(2);
+    
+    // Xử lý vị trí xe trên đường (chiều dài đường thực tế 100% width, map từ s sang vị trí pixel tương đối)
+    const roadElement = document.querySelector('.road');
+    const roadWidth = roadElement.clientWidth;  // px
+    // Giả sử chiều dài đường tượng trưng cho 150 mét (có thể đi từ -30m đến 120m)
+    // Để xe không bay ra ngoài, đặt giới hạn -20m đến 130m, nếu vượt quá sẽ cảnh báo và dừng
+    let minX = -20, maxX = 130;
+    let posX = s;   // vị trí thực tế (m)
+    let leftPercent = ((posX - minX) / (maxX - minX)) * 100;
+    leftPercent = Math.min(100, Math.max(0, leftPercent));
+    
+    if (posX <= minX || posX >= maxX) {
+      warningDiv.innerHTML = '⚠️ Xe đã ra khỏi đường! Nhấn Reset để tiếp tục. ⚠️';
+      warningDiv.style.color = '#ff8888';
+      if (running) stopSimulation();
+      boundMsg.innerText = `🚧 Giới hạn đường: ${minX}m → ${maxX}m | Hiện tại: ${posX.toFixed(1)}m`;
+    } else {
+      warningDiv.innerHTML = '✅ Xe đang di chuyển trong đường an toàn';
+      warningDiv.style.color = '#aaffdd';
+      boundMsg.innerText = `🛣️ Giới hạn: ${minX}m → ${maxX}m | Vị trí: ${posX.toFixed(1)}m`;
+    }
+    
+    // Xoay xe dựa theo vận tốc (nếu v < 0 thì quay đầu)
+    if (v < 0) carDiv.style.transform = 'scaleX(-1)';
+    else carDiv.style.transform = 'scaleX(1)';
+    
+    // Đặt vị trí left theo phần trăm
+    carDiv.style.left = `calc(${leftPercent}% - 24px)`;
+  }
+
+  // Thêm điểm dữ liệu vào đồ thị (giới hạn 200 mốc)
+  function addChartData() {
+    let { v, s } = computePhysics(t);
+    timeData.push(t);
+    velData.push(v);
+    distData.push(s);
+    const MAX_POINTS = 200;
+    if (timeData.length > MAX_POINTS) {
+      timeData.shift();
+      velData.shift();
+      distData.shift();
+    }
+    // cập nhật chart
+    chartVelocity.data.labels = timeData.map(ti => ti.toFixed(1));
+    chartVelocity.data.datasets[0].data = velData;
+    chartDistance.data.labels = timeData.map(ti => ti.toFixed(1));
+    chartDistance.data.datasets[0].data = distData;
+    chartVelocity.update();
+    chartDistance.update();
+  }
+
+  // reset toàn bộ mô phỏng
+  function resetSimulation() {
+    let wasRunning = running;
+    if (wasRunning) stopSimulation();
+    t = 0;
+    // xóa dữ liệu đồ thị
+    timeData = [];
+    velData = [];
+    distData = [];
+    addChartData();  // thêm điểm t=0
+    updateDisplayAndCar();
+    if (wasRunning) startSimulation();
+  }
+
+  // step 0.1s
+  function stepSimulation() {
+    let newT = t + 0.1;
+    let { v, s } = computePhysics(newT);
+    let { a, v0 } = getParams();
+    let posX = s;
+    let minX = -20, maxX = 130;
+    if (posX < minX || posX > maxX) {
+      // Nếu step vượt biên thì dừng và cảnh báo, không cho tăng thời gian
+      warningDiv.innerHTML = '⚠️ Không thể bước tiếp vì xe ra khỏi đường! Reset để làm lại.';
+      warningDiv.style.color = '#ff8888';
+      if (running) stopSimulation();
+      return;
+    }
+    t = newT;
+    addChartData();
+    updateDisplayAndCar();
+  }
+
+  function startSimulation() {
+    if (intervalId) clearInterval(intervalId);
+    running = true;
+    intervalId = setInterval(() => {
+      if (!running) return;
+      stepSimulation();
+    }, 100);
+    playPauseBtn.innerHTML = '⏸ Pause';
+  }
+  
+  function stopSimulation() {
+    if (intervalId) {
+      clearInterval(intervalId);
+      intervalId = null;
+    }
+    running = false;
+    playPauseBtn.innerHTML = '▶ Play';
+  }
+  
+  function toggleSim() {
+    if (running) stopSimulation();
+    else startSimulation();
+  }
+  
+  // Event listeners
+  accelSlider.addEventListener('input', () => {
+    updateSlidersDisplay();
+    if (!running) {
+      resetSimulation();
+    } else {
+      // nếu đang chạy, cập nhật đồ thị lại từ đầu? Tốt nhất dừng và reset để tránh sai lệch vật lý
+      stopSimulation();
+      resetSimulation();
+      startSimulation();
+    }
+  });
+  v0Slider.addEventListener('input', () => {
+    updateSlidersDisplay();
+    if (!running) resetSimulation();
+    else {
+      stopSimulation();
+      resetSimulation();
+      startSimulation();
+    }
+  });
+  
+  playPauseBtn.addEventListener('click', toggleSim);
+  stepBtn.addEventListener('click', () => {
+    if (running) stopSimulation();
+    stepSimulation();
+  });
+  resetBtn.addEventListener('click', () => {
+    if (running) stopSimulation();
+    resetSimulation();
+  });
+  
+  // preset
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      let a = parseFloat(btn.dataset.a);
+      let v0 = parseFloat(btn.dataset.v0);
+      if (!isNaN(a)) accelSlider.value = a;
+      if (!isNaN(v0)) v0Slider.value = v0;
+      updateSlidersDisplay();
+      if (running) stopSimulation();
+      resetSimulation();
+    });
+  });
+  
+  // khởi tạo lần đầu
+  updateSlidersDisplay();
+  resetSimulation();
+  // đảm bảo xe ở vị trí ban đầu
+  window.addEventListener('resize', () => updateDisplayAndCar());
+</script>
+</body>
+</html>

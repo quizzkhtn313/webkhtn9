@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Đăng nhập – Creative Quiz</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cyan: #67e8f9;
+      --purple: #c026d3;
+      --bg: #0b0b1f;
+      --card: rgba(15,23,42,0.85);
+      --border: rgba(103,232,249,0.25);
+      --border-hover: rgba(103,232,249,0.6);
+      --text: #e0f2fe;
+      --muted: #64748b;
+      --green: #4ade80;
+      --amber: #fbbf24;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      font-family: 'Outfit', sans-serif;
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    /* ── Animated background ── */
+    #bgCanvas {
+      position: fixed; inset: 0;
+      width: 100%; height: 100%;
+      z-index: 0; pointer-events: none;
+    }
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background: radial-gradient(circle 700px at 50% 50%,
+        rgba(103,232,249,0.12), transparent 65%);
+      pointer-events: none; z-index: 1;
+    }
+
+    /* ── Layout ── */
+    .wrap {
+      position: relative; z-index: 10;
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+    }
+
+    /* ── Card ── */
+    .card {
+      width: 100%; max-width: 460px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 0 40px rgba(103,232,249,0.1), 0 0 80px rgba(192,38,211,0.08);
+      overflow: hidden;
+      animation: cardIn 0.6s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    @keyframes cardIn {
+      from { opacity:0; transform: translateY(24px) scale(0.97); }
+      to   { opacity:1; transform: translateY(0) scale(1); }
+    }
+
+    /* ── Header ── */
+    .card-header {
+      padding: 32px 36px 24px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+    }
+    .logo {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 900;
+      background: linear-gradient(90deg, var(--cyan), #fff, var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+    .logo-sub {
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+
+    /* ── Tabs ── */
+    .tabs {
+      display: grid; grid-template-columns: 1fr 1fr;
+      background: rgba(0,0,0,0.3);
+      border-bottom: 1px solid var(--border);
+    }
+    .tab {
+      padding: 14px 10px;
+      text-align: center;
+      font-size: 13px; font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.25s;
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+      border-bottom: 2px solid transparent;
+      position: relative;
+    }
+    .tab svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .tab:hover { color: var(--cyan); background: rgba(103,232,249,0.04); }
+    .tab.active {
+      color: var(--cyan);
+      border-bottom-color: var(--cyan);
+      background: rgba(103,232,249,0.06);
+    }
+    .tab.active-teacher.active {
+      color: var(--purple);
+      border-bottom-color: var(--purple);
+      background: rgba(192,38,211,0.06);
+    }
+
+    /* ── Body ── */
+    .card-body { padding: 28px 36px 32px; }
+
+    /* ── Demo hint ── */
+    .demo-hint {
+      background: rgba(103,232,249,0.06);
+      border: 1px solid rgba(103,232,249,0.15);
+      border-radius: 10px;
+      padding: 11px 14px;
+      margin-bottom: 22px;
+      font-size: 12px;
+      color: #94a3b8;
+      line-height: 1.7;
+      transition: all 0.3s;
+    }
+    .demo-hint strong { color: var(--cyan); font-weight: 600; }
+    .demo-hint.teacher-mode strong { color: var(--purple); }
+    .demo-hint.teacher-mode { border-color: rgba(192,38,211,0.2); background: rgba(192,38,211,0.05); }
+    .demo-hint .fill-btn {
+      display: inline-block; margin-top: 6px;
+      background: rgba(103,232,249,0.12); border: 1px solid rgba(103,232,249,0.25);
+      color: var(--cyan); font-size: 11px; font-weight: 600;
+      padding: 3px 10px; border-radius: 6px; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .demo-hint.teacher-mode .fill-btn {
+      background: rgba(192,38,211,0.12); border-color: rgba(192,38,211,0.25);
+      color: #d946ef;
+    }
+    .demo-hint .fill-btn:hover { opacity: 0.8; }
+
+    /* ── Error / Success alerts ── */
+    .alert {
+      padding: 11px 15px; border-radius: 10px;
+      font-size: 13px; font-weight: 500;
+      margin-bottom: 18px;
+      display: none; align-items: center; gap: 8px;
+      animation: alertIn 0.25s ease;
+    }
+    @keyframes alertIn { from { opacity:0; transform:translateY(-4px); } }
+    .alert.show { display: flex; }
+    .alert.error   { background: rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.3); color: #fca5a5; }
+    .alert.success { background: rgba(74,222,128,0.1);  border:1px solid rgba(74,222,128,0.3);  color: var(--green); }
+
+    /* ── Inputs ── */
+    .field { margin-bottom: 18px; }
+    .field label {
+      display: block; font-size: 11px; font-weight: 600;
+      color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase;
+      margin-bottom: 7px;
+    }
+    .input-wrap { position: relative; }
+    .input-wrap svg {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      width: 16px; height: 16px; color: var(--muted); pointer-events: none;
+      transition: color 0.2s;
+    }
+    .input-wrap input {
+      width: 100%;
+      background: rgba(15,23,42,0.8);
+      border: 1px solid rgba(103,232,249,0.15);
+      border-radius: 10px;
+      padding: 13px 14px 13px 42px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px; font-weight: 400;
+      color: var(--text);
+      outline: none;
+      transition: all 0.2s;
+    }
+    .input-wrap input::placeholder { color: #334155; }
+    .input-wrap input:focus {
+      border-color: rgba(103,232,249,0.5);
+      box-shadow: 0 0 0 3px rgba(103,232,249,0.08);
+      background: rgba(15,23,42,0.95);
+    }
+    .input-wrap input:focus + svg,
+    .input-wrap:focus-within svg { color: var(--cyan); }
+    .teacher-mode .input-wrap input:focus {
+      border-color: rgba(192,38,211,0.5);
+      box-shadow: 0 0 0 3px rgba(192,38,211,0.08);
+    }
+    .teacher-mode .input-wrap:focus-within svg { color: var(--purple); }
+
+    /* toggle password */
+    .eye-btn {
+      position: absolute; right: 13px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer; padding: 2px;
+      color: var(--muted); transition: color 0.2s;
+    }
+    .eye-btn:hover { color: var(--cyan); }
+    .eye-btn svg { width: 17px; height: 17px; }
+
+    /* ── Submit btn ── */
+    .submit-btn {
+      width: 100%; padding: 14px;
+      background: linear-gradient(135deg, #0891b2, #06b6d4 40%, #67e8f9);
+      color: #021c24;
+      border: none; border-radius: 12px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px; font-weight: 700;
+      cursor: pointer; margin-top: 6px;
+      transition: all 0.25s;
+      box-shadow: 0 4px 20px rgba(103,232,249,0.25);
+      position: relative; overflow: hidden;
+      letter-spacing: 0.5px;
+    }
+    .submit-btn::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: rgba(255,255,255,0);
+      transition: background 0.2s;
+    }
+    .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(103,232,249,0.35); }
+    .submit-btn:active { transform: translateY(0); }
+    .submit-btn.loading { opacity: 0.7; cursor: not-allowed; }
+    .submit-btn.teacher-style {
+      background: linear-gradient(135deg, #7c3aed, #9333ea 40%, #c026d3);
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(192,38,211,0.3);
+    }
+    .submit-btn.teacher-style:hover { box-shadow: 0 8px 28px rgba(192,38,211,0.45); }
+
+    /* ── Links ── */
+    .footer-links {
+      margin-top: 22px;
+      display: flex; flex-direction: column; gap: 8px;
+      align-items: center;
+    }
+    .footer-links a {
+      font-size: 13.5px; text-decoration: none;
+      color: var(--muted); transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--text); }
+    .footer-links a.register { color: var(--green); font-weight: 600; }
+    .footer-links a.register:hover { color: #86efac; }
+
+    /* ── Spinner ── */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      display: inline-block; width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: currentColor;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle; margin-right: 6px;
+    }
+
+    /* ── Success overlay ── */
+    .success-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 16px;
+      background: rgba(11,11,31,0.95);
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.4s;
+    }
+    .success-overlay.show { opacity: 1; pointer-events: all; }
+    .success-icon {
+      font-size: 64px;
+      animation: popIn 0.5s cubic-bezier(0.16,1.5,0.4,1) both;
+    }
+    @keyframes popIn { from { transform: scale(0); opacity:0; } }
+    .success-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.4rem; font-weight: 700;
+      background: linear-gradient(90deg, var(--cyan), var(--purple));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .success-sub { font-size: 14px; color: var(--muted); }
+    .redirect-bar {
+      width: 200px; height: 3px;
+      background: rgba(103,232,249,0.15);
+      border-radius: 2px; overflow: hidden;
+    }
+    .redirect-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--cyan), var(--purple));
+      border-radius: 2px;
+      animation: fill 1.2s linear forwards;
+    }
+    @keyframes fill { from { width:0; } to { width:100%; } }
+  </style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+
+<!-- Success overlay -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-icon" id="successIcon">🎉</div>
+  <div class="success-title" id="successTitle">Đăng nhập thành công!</div>
+  <div class="success-sub" id="successSub">Đang chuyển trang...</div>
+  <div class="redirect-bar"><div class="redirect-fill"></div></div>
+</div>
+
+<div class="wrap">
+  <div class="card" id="loginCard">
+
+    <!-- Header -->
+    <div class="card-header">
+      <div class="logo">Creative Quiz</div>
+      <div class="logo-sub">Học tập · Khoa học · Tự nhiên</div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <div class="tab active" id="tabStudent">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 14l9-5-9-5-9 5 9 5z"/><path d="M12 14l6.16-3.42a12.08 12.08 0 010 6.84L12 21l-6.16-3.58a12.08 12.08 0 010-6.84L12 14z"/></svg>
+        Học sinh
+      </div>
+      <div class="tab" id="tabTeacher">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+        Giáo viên
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="card-body" id="cardBody">
+
+      <!-- Demo hint -->
+      <div class="demo-hint" id="demoHint">
+        <strong>Tài khoản demo học sinh:</strong> <code>hocsinh</code> / <code>123456</code><br>
+        <span class="fill-btn" id="fillDemoBtn">Điền tự động ↗</span>
+      </div>
+
+      <!-- Alert -->
+      <div class="alert error" id="alertBox">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span id="alertText">Lỗi</span>
+      </div>
+
+      <!-- Form -->
+      <form id="loginForm" autocomplete="off">
+        <div class="field">
+          <label>Tên đăng nhập</label>
+          <div class="input-wrap">
+            <input type="text" id="username" placeholder="Nhập username..." autocomplete="username" />
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Mật khẩu</label>
+          <div class="input-wrap">
+            <input type="password" id="password" placeholder="Nhập mật khẩu..." autocomplete="current-password" />
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <button type="button" class="eye-btn" id="eyeBtn" title="Hiện/ẩn mật khẩu">
+              <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">
+          <span id="btnText">Đăng nhập</span>
+        </button>
+      </form>
+
+      <div class="footer-links">
+        <a href="trangchu.html">← Quay lại trang chủ</a>
+        <a href="register.html" class="register">Chưa có tài khoản? Đăng ký ngay</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════
+//  DEMO ACCOUNTS  (xóa hoặc thay bằng dữ liệu thật)
+// ════════════════════════════════════════════════════
+const DEMO_ACCOUNTS = {
+  hocsinh: { password: '123456',  role: 'student', displayName: 'Học Sinh Demo' },
+  giaovien: { password: 'gv2024', role: 'teacher', displayName: 'Giáo Viên Demo' },
+};
+
+// Seed demo accounts vào localStorage nếu chưa có
+(function seedAccounts() {
+  let users = {};
+  try { users = JSON.parse(localStorage.getItem('users')) || {}; } catch(e) {}
+  Object.entries(DEMO_ACCOUNTS).forEach(([u, data]) => {
+    if (!users[u]) users[u] = data;
+  });
+  localStorage.setItem('users', JSON.stringify(users));
+})();
+
+// ════ STATE ══════════════════════════════════════════
+let currentRole = 'student';
+let pwVisible = false;
+
+// ════ ELEMENTS ═══════════════════════════════════════
+const tabStudent  = document.getElementById('tabStudent');
+const tabTeacher  = document.getElementById('tabTeacher');
+const cardBody    = document.getElementById('cardBody');
+const demoHint    = document.getElementById('demoHint');
+const fillDemoBtn = document.getElementById('fillDemoBtn');
+const alertBox    = document.getElementById('alertBox');
+const alertText   = document.getElementById('alertText');
+const form        = document.getElementById('loginForm');
+const usernameEl  = document.getElementById('username');
+const passwordEl  = document.getElementById('password');
+const submitBtn   = document.getElementById('submitBtn');
+const btnText     = document.getElementById('btnText');
+const eyeBtn      = document.getElementById('eyeBtn');
+const eyeIcon     = document.getElementById('eyeIcon');
+const overlay     = document.getElementById('successOverlay');
+
+// ════ TABS ═══════════════════════════════════════════
+function switchTab(role) {
+  currentRole = role;
+  const isTeacher = role === 'teacher';
+
+  tabStudent.classList.toggle('active', !isTeacher);
+  tabTeacher.classList.toggle('active', isTeacher);
+  tabTeacher.classList.toggle('active-teacher', isTeacher);
+
+  // Card body teacher mode
+  cardBody.classList.toggle('teacher-mode', isTeacher);
+
+  // Submit button style
+  submitBtn.classList.toggle('teacher-style', isTeacher);
+
+  // Demo hint update
+  if (isTeacher) {
+    demoHint.classList.add('teacher-mode');
+    demoHint.innerHTML = `
+      <strong>Tài khoản demo giáo viên:</strong> <code>giaovien</code> / <code>gv2024</code><br>
+      <span class="fill-btn" id="fillDemoBtn">Điền tự động ↗</span>`;
+  } else {
+    demoHint.classList.remove('teacher-mode');
+    demoHint.innerHTML = `
+      <strong>Tài khoản demo học sinh:</strong> <code>hocsinh</code> / <code>123456</code><br>
+      <span class="fill-btn" id="fillDemoBtn">Điền tự động ↗</span>`;
+  }
+
+  // Re-bind fill button
+  document.getElementById('fillDemoBtn').addEventListener('click', fillDemo);
+
+  hideAlert();
+  usernameEl.value = '';
+  passwordEl.value = '';
+}
+
+tabStudent.addEventListener('click', () => switchTab('student'));
+tabTeacher.addEventListener('click', () => switchTab('teacher'));
+
+// ════ FILL DEMO ══════════════════════════════════════
+function fillDemo() {
+  if (currentRole === 'teacher') {
+    usernameEl.value = 'giaovien';
+    passwordEl.value = 'gv2024';
+  } else {
+    usernameEl.value = 'hocsinh';
+    passwordEl.value = '123456';
+  }
+  usernameEl.dispatchEvent(new Event('input'));
+  passwordEl.dispatchEvent(new Event('input'));
+}
+fillDemoBtn.addEventListener('click', fillDemo);
+
+// ════ TOGGLE PASSWORD ════════════════════════════════
+eyeBtn.addEventListener('click', () => {
+  pwVisible = !pwVisible;
+  passwordEl.type = pwVisible ? 'text' : 'password';
+  eyeIcon.innerHTML = pwVisible
+    ? `<path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`
+    : `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
+});
+
+// ════ ALERT ══════════════════════════════════════════
+function showAlert(msg) {
+  alertText.textContent = msg;
+  alertBox.classList.add('show');
+}
+function hideAlert() {
+  alertBox.classList.remove('show');
+}
+
+// ════ LOGIN SUBMIT ════════════════════════════════════
+form.addEventListener('submit', function(e) {
+  e.preventDefault();
+  hideAlert();
+
+  const username = usernameEl.value.trim();
+  const password = passwordEl.value.trim();
+
+  if (!username || !password) {
+    showAlert('Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu!');
+    return;
+  }
+
+  // Load users
+  let users = {};
+  try { users = JSON.parse(localStorage.getItem('users')) || {}; } catch(e) {}
+
+  // Validate
+  if (!users[username]) {
+    showAlert('Tên đăng nhập không tồn tại!');
+    usernameEl.focus();
+    return;
+  }
+  if (users[username].password !== password) {
+    showAlert('Mật khẩu không chính xác!');
+    passwordEl.value = '';
+    passwordEl.focus();
+    return;
+  }
+
+  const userRole = users[username].role || 'student';
+
+  // Role mismatch
+  if (currentRole === 'teacher' && userRole !== 'teacher') {
+    showAlert('Tài khoản này không phải giáo viên. Chuyển sang tab Học sinh!');
+    return;
+  }
+  if (currentRole === 'student' && userRole === 'teacher') {
+    showAlert('Giáo viên vui lòng chọn tab Giáo viên để đăng nhập!');
+    return;
+  }
+
+  // ── SUCCESS ──────────────────────────────────────
+  // Lưu session
+  localStorage.setItem('currentUser', username);
+  localStorage.setItem('currentRole', userRole);
+  localStorage.setItem('currentDisplayName', users[username].displayName || username);
+
+  // Nếu là giáo viên: đảm bảo sd-teacher được set
+  // để giaovien.html's init() nhận ra và BỎ QUA setup screen
+  if (userRole === 'teacher') {
+    // Chỉ seed nếu chưa có (giáo viên chưa từng setup)
+    const sdTeacher = window.storage ? null : localStorage.getItem('sd-teacher-local');
+    if (!localStorage.getItem('sd-teacher-seeded-' + username)) {
+      // Dùng localStorage local để flag; storage thật sẽ do giaovien.html tự tạo nếu rỗng
+      localStorage.setItem('sd-teacher-seeded-' + username, '1');
+    }
+  }
+
+  // Loading state
+  btnText.innerHTML = '<span class="spinner"></span>Đang xác thực...';
+  submitBtn.disabled = true;
+  submitBtn.classList.add('loading');
+
+  // Hiện success overlay
+  setTimeout(() => {
+    const isTeacher = userRole === 'teacher';
+    document.getElementById('successIcon').textContent  = isTeacher ? '👩‍🏫' : '🎉';
+    document.getElementById('successTitle').textContent = `Xin chào, ${users[username].displayName || username}!`;
+    document.getElementById('successSub').textContent   = isTeacher
+      ? 'Đang mở bảng điều khiển giáo viên...'
+      : 'Đang chuyển về trang chủ...';
+    overlay.classList.add('show');
+
+    // Redirect sau 1.3s
+    setTimeout(() => {
+      if (isTeacher) {
+        window.location.href = 'traitim.html';   // ← trang giáo viên (traitim2.html nếu muốn)
+      } else {
+        window.location.href = 'trangchu.html';
+      }
+    }, 1300);
+  }, 700);
+});
+
+// Enter key
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && (document.activeElement === usernameEl || document.activeElement === passwordEl)) {
+    form.dispatchEvent(new Event('submit'));
+  }
+});
+
+// ════ PARTICLE BACKGROUND ════════════════════════════
+const canvas = document.getElementById('bgCanvas');
+const ctx = canvas.getContext('2d');
+let W = canvas.width  = window.innerWidth;
+let H = canvas.height = window.innerHeight;
+
+window.addEventListener('resize', () => {
+  W = canvas.width  = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+});
+
+class Star {
+  constructor() { this.reset(); }
+  reset() {
+    this.x  = Math.random() * W;
+    this.y  = Math.random() * H;
+    this.r  = Math.random() * 1.5 + 0.3;
+    this.vx = (Math.random() - 0.5) * 0.3;
+    this.vy = (Math.random() - 0.5) * 0.3;
+    this.a  = Math.random() * 0.6 + 0.1;
+  }
+  update() {
+    this.x += this.vx; this.y += this.vy;
+    if (this.x < 0 || this.x > W) this.vx *= -1;
+    if (this.y < 0 || this.y > H) this.vy *= -1;
+  }
+  draw() {
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(103,232,249,${this.a})`;
+    ctx.fill();
+  }
+}
+
+const stars = Array.from({ length: 80 }, () => new Star());
+
+function animate() {
+  ctx.fillStyle = 'rgba(11,11,31,0.18)';
+  ctx.fillRect(0, 0, W, H);
+  stars.forEach(s => { s.update(); s.draw(); });
+  requestAnimationFrame(animate);
+}
+animate();
+</script>
+</body>
+</html>

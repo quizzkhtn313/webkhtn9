@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SciDesk — Giáo Viên KHTN</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#04080f;--bg2:#080f1a;--bg3:#0d1726;--bg4:#111e30;
+  --border:rgba(56,189,248,0.08);--border2:rgba(56,189,248,0.18);--border3:rgba(56,189,248,0.32);
+  --accent:#38bdf8;--accent2:#0ea5e9;--glow:rgba(56,189,248,0.15);
+  --green:#4ade80;--amber:#fbbf24;--red:#f87171;--purple:#a78bfa;
+  --text:#e2f0ff;--text2:#7ba8c8;--text3:#3a6080;
+  --font:'Outfit',sans-serif;--mono:'DM Mono',monospace;--r:10px;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;display:flex;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(56,189,248,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(56,189,248,0.025) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+ 
+/* ── SETUP SCREEN ── */
+#setupScreen{
+  position:fixed;inset:0;z-index:200;
+  background:var(--bg);
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:0;
+}
+#setupScreen::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(56,189,248,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(56,189,248,0.025) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;}
+.setup-box{
+  background:var(--bg2);border:1px solid var(--border2);border-radius:18px;
+  padding:40px 44px;width:480px;max-width:95vw;position:relative;z-index:1;
+  animation:fadeUp 0.5s ease;
+}
+.setup-logo{font-size:22px;font-weight:800;letter-spacing:-0.5px;margin-bottom:6px;}
+.setup-logo em{font-style:normal;color:var(--accent);}
+.setup-tag{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:1px;margin-bottom:28px;}
+.setup-title{font-size:20px;font-weight:700;margin-bottom:6px;}
+.setup-sub{font-size:13px;color:var(--text2);margin-bottom:28px;line-height:1.6;}
+.setup-step{display:none;}
+.setup-step.active{display:block;}
+ 
+.fg{display:flex;flex-direction:column;gap:5px;margin-bottom:14px;}
+.fg label{font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;}
+.fc{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 13px;color:var(--text);font-family:var(--font);font-size:13px;outline:none;width:100%;transition:border-color 0.15s;}
+.fc:focus{border-color:var(--accent);}
+.fc::placeholder{color:var(--text3);}
+select.fc{cursor:pointer;}
+ 
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 20px;border-radius:8px;font-family:var(--font);font-size:13px;font-weight:500;cursor:pointer;transition:all 0.15s;border:none;outline:none;width:100%;}
+.btn-primary{background:var(--accent);color:var(--bg);font-weight:700;}
+.btn-primary:hover{background:#7dd3fc;box-shadow:0 0 24px rgba(56,189,248,0.3);}
+.btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--text2);}
+.btn-ghost:hover{background:var(--bg3);color:var(--text);}
+.btn-ai{background:linear-gradient(135deg,#7c3aed,#4f46e5);color:white;font-weight:600;}
+.btn-ai:hover{opacity:0.88;box-shadow:0 0 20px rgba(124,58,237,0.35);}
+.btn-sm{padding:7px 14px;font-size:12px;width:auto;}
+.btn-xs{padding:5px 10px;font-size:11px;width:auto;}
+ 
+/* Code display */
+.code-box{
+  background:var(--bg3);border:1px solid var(--border2);border-radius:10px;
+  padding:18px 22px;text-align:center;margin:18px 0;
+  position:relative;
+}
+.code-label{font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
+.code-val{font-family:var(--mono);font-size:36px;font-weight:500;color:var(--accent);letter-spacing:6px;}
+.code-copy{position:absolute;top:10px;right:10px;background:var(--bg4);border:1px solid var(--border);color:var(--text3);padding:4px 10px;border-radius:6px;font-family:var(--mono);font-size:10px;cursor:pointer;transition:all 0.15s;}
+.code-copy:hover{color:var(--accent);border-color:var(--accent);}
+.code-hint{font-size:11px;color:var(--text3);line-height:1.6;margin-top:4px;}
+ 
+/* ── SIDEBAR ── */
+.sidebar{width:220px;min-height:100vh;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;left:0;top:0;z-index:20;}
+.logo{padding:22px 20px 16px;border-bottom:1px solid var(--border);}
+.logo-mark{font-size:17px;font-weight:800;letter-spacing:-0.5px;}
+.logo-mark em{font-style:normal;color:var(--accent);}
+.logo-tag{font-family:var(--mono);font-size:9px;color:var(--text3);margin-top:3px;letter-spacing:1px;}
+.nav{padding:12px 10px;flex:1;}
+.nav-sec{font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;padding:10px 10px 6px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;cursor:pointer;font-size:13px;color:var(--text2);transition:all 0.15s;margin-bottom:1px;position:relative;}
+.nav-item:hover{background:var(--bg3);color:var(--text);}
+.nav-item.active{background:rgba(56,189,248,0.1);color:var(--accent);border:1px solid rgba(56,189,248,0.15);}
+.nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:2px;height:60%;background:var(--accent);border-radius:1px;}
+.nav-icon{font-size:14px;width:18px;text-align:center;}
+.nav-badge{margin-left:auto;background:var(--accent);color:var(--bg);font-size:9px;font-weight:700;padding:2px 6px;border-radius:999px;font-family:var(--mono);}
+.sb-footer{padding:12px;border-top:1px solid var(--border);}
+.teacher-pill{display:flex;align-items:center;gap:10px;padding:10px;border-radius:8px;background:var(--bg3);border:1px solid var(--border);}
+.t-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#0369a1);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;flex-shrink:0;}
+.t-name{font-size:12px;font-weight:600;}
+.t-role{font-size:10px;color:var(--text3);font-family:var(--mono);}
+.class-chip{background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.2);border-radius:6px;padding:3px 8px;font-family:var(--mono);font-size:9px;color:var(--accent);margin-top:4px;display:inline-block;}
+ 
+/* ── MAIN ── */
+.main{margin-left:220px;flex:1;display:flex;flex-direction:column;position:relative;z-index:1;}
+.topbar{height:56px;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 22px;gap:14px;background:rgba(4,8,15,0.85);backdrop-filter:blur(12px);position:sticky;top:0;z-index:10;}
+.tb-title{font-size:14px;font-weight:600;}
+.tb-sub{font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:2px;}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.code-badge{background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.2);border-radius:8px;padding:5px 12px;font-family:var(--mono);font-size:12px;color:var(--accent);cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:6px;}
+.code-badge:hover{background:rgba(56,189,248,0.14);border-color:var(--border3);}
+.code-badge span{font-size:10px;color:var(--text3);}
+.content{padding:20px 22px;flex:1;}
+ 
+/* ── STATS ── */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;}
+.scard{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:16px;position:relative;overflow:hidden;cursor:default;transition:border-color 0.2s;}
+.scard:hover{border-color:var(--border2);}
+.scard-glow{position:absolute;top:-20px;right:-20px;width:70px;height:70px;border-radius:50%;opacity:0.1;filter:blur(18px);}
+.scard.c1 .scard-glow{background:var(--accent);}
+.scard.c2 .scard-glow{background:var(--green);}
+.scard.c3 .scard-glow{background:var(--amber);}
+.scard.c4 .scard-glow{background:var(--purple);}
+.scard-label{font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;}
+.scard-val{font-size:24px;font-weight:800;letter-spacing:-1px;}
+.scard.c1 .scard-val{color:var(--accent);}
+.scard.c2 .scard-val{color:var(--green);}
+.scard.c3 .scard-val{color:var(--amber);}
+.scard.c4 .scard-val{color:var(--purple);}
+.scard-sub{font-size:10px;color:var(--text3);margin-top:4px;}
+ 
+/* ── LAYOUT ── */
+.grid-main{display:grid;grid-template-columns:1.45fr 1fr;gap:14px;margin-bottom:14px;}
+.col-right{display:flex;flex-direction:column;gap:14px;}
+ 
+/* ── CARD ── */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
+.card-h{padding:13px 17px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+.card-title{font-size:13px;font-weight:600;}
+.card-meta{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--text3);}
+.card-b{padding:13px 17px;}
+ 
+/* ── ASSIGNMENT ITEM ── */
+.aitem{display:flex;align-items:flex-start;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:padding-left 0.15s;}
+.aitem:last-child{border-bottom:none;}
+.aitem:hover{padding-left:4px;}
+.aitem-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:5px;}
+.aitem-info{flex:1;min-width:0;}
+.aitem-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.aitem-sub{font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:2px;}
+.aitem-right{flex-shrink:0;text-align:right;}
+.pbar{height:3px;background:var(--bg3);border-radius:99px;overflow:hidden;margin-top:6px;}
+.pfill{height:100%;border-radius:99px;transition:width 0.6s ease;}
+ 
+/* ── STUDENT ITEM ── */
+.sitem{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);transition:all 0.15s;}
+.sitem:last-child{border-bottom:none;}
+.sitem:hover{padding-left:3px;}
+.savatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+.sname{font-size:12.5px;font-weight:500;}
+.scls{font-size:9px;color:var(--text3);font-family:var(--mono);}
+.sscore{margin-left:auto;font-family:var(--mono);font-size:12px;font-weight:600;}
+.sjoin{margin-left:auto;font-family:var(--mono);font-size:9px;color:var(--text3);}
+ 
+/* ── TAGS ── */
+.tag{display:inline-block;font-family:var(--mono);font-size:9px;padding:2px 7px;border-radius:999px;}
+.tag-g{background:rgba(74,222,128,0.1);color:var(--green);}
+.tag-a{background:rgba(251,191,36,0.1);color:var(--amber);}
+.tag-r{background:rgba(248,113,113,0.1);color:var(--red);}
+.tag-b{background:rgba(56,189,248,0.1);color:var(--accent);}
+.subj{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-family:var(--mono);padding:2px 8px;border-radius:999px;}
+.subj-math{background:rgba(56,189,248,0.1);color:var(--accent);border:1px solid rgba(56,189,248,0.2);}
+.subj-phys{background:rgba(251,191,36,0.1);color:var(--amber);border:1px solid rgba(251,191,36,0.2);}
+.subj-chem{background:rgba(74,222,128,0.1);color:var(--green);border:1px solid rgba(74,222,128,0.2);}
+.subj-bio{background:rgba(167,139,250,0.1);color:var(--purple);border:1px solid rgba(167,139,250,0.2);}
+ 
+/* ── FEED ── */
+.feed-item{padding:8px 0;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:10px;}
+.feed-item:last-child{border-bottom:none;}
+.feed-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:5px;}
+.feed-text{font-size:11.5px;color:var(--text2);line-height:1.5;}
+.feed-time{font-family:var(--mono);font-size:9px;color:var(--text3);margin-top:2px;}
+ 
+/* ── MODAL ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:50;opacity:0;pointer-events:none;transition:opacity 0.2s;}
+.overlay.open{opacity:1;pointer-events:all;}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:14px;width:560px;max-width:95vw;max-height:90vh;overflow-y:auto;padding:24px;transform:scale(0.94) translateY(12px);transition:transform 0.25s cubic-bezier(0.34,1.56,0.64,1);}
+.overlay.open .modal{transform:scale(1) translateY(0);}
+.modal-title{font-size:16px;font-weight:700;margin-bottom:18px;display:flex;align-items:center;gap:8px;}
+.modal-close{margin-left:auto;background:var(--bg3);border:1px solid var(--border);color:var(--text2);width:26px;height:26px;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all 0.15s;}
+.modal-close:hover{background:var(--bg4);color:var(--text);}
+ 
+/* AI panel */
+.ai-panel{background:linear-gradient(135deg,rgba(124,58,237,0.08),rgba(79,70,229,0.06));border:1px solid rgba(124,58,237,0.2);border-radius:10px;padding:13px;margin-bottom:13px;}
+.ai-panel-title{font-size:11.5px;font-weight:600;color:#a78bfa;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.ai-result{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:11px;font-size:11.5px;line-height:1.7;color:var(--text2);min-height:50px;display:none;white-space:pre-wrap;font-family:var(--mono);max-height:160px;overflow-y:auto;}
+.ai-result.show{display:block;}
+.ai-loading{display:none;align-items:center;gap:8px;font-size:11.5px;color:var(--purple);}
+.ai-loading.show{display:flex;}
+.dot-pulse{display:flex;gap:4px;}
+.dot-pulse span{width:5px;height:5px;border-radius:50%;background:var(--purple);animation:pulse 1.2s infinite;}
+.dot-pulse span:nth-child(2){animation-delay:0.2s;}
+.dot-pulse span:nth-child(3){animation-delay:0.4s;}
+@keyframes pulse{0%,80%,100%{opacity:0.2;transform:scale(0.8)}40%{opacity:1;transform:scale(1)}}
+ 
+/* Toast */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--bg2);border:1px solid var(--border3);border-radius:10px;padding:13px 17px;display:flex;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(0,0,0,0.5);z-index:100;transform:translateY(70px);opacity:0;transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);min-width:260px;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast-title{font-size:13px;font-weight:600;}
+.toast-sub{font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:2px;}
+ 
+/* Progress */
+.prog-row{margin-bottom:12px;}
+.prog-row:last-child{margin-bottom:0;}
+.prog-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}
+.pbar-bg{height:3px;background:var(--bg3);border-radius:99px;overflow:hidden;}
+.pbar-fill{height:100%;border-radius:99px;transition:width 0.6s ease;}
+ 
+/* Empty state */
+.empty{text-align:center;padding:26px 16px;color:var(--text3);font-size:12px;line-height:1.8;}
+.empty-icon{font-size:28px;margin-bottom:8px;}
+ 
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.au{animation:fadeUp 0.4s ease forwards;}
+.au1{animation-delay:0.05s;opacity:0;}
+.au2{animation-delay:0.1s;opacity:0;}
+.au3{animation-delay:0.15s;opacity:0;}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px;}
+ 
+/* invite modal */
+.invite-box{background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:20px;text-align:center;}
+.invite-code{font-family:var(--mono);font-size:42px;font-weight:500;color:var(--accent);letter-spacing:8px;margin:12px 0;}
+.invite-note{font-size:12px;color:var(--text2);line-height:1.7;}
+.invite-link{font-family:var(--mono);font-size:10px;color:var(--text3);word-break:break-all;margin-top:8px;background:var(--bg4);padding:8px 12px;border-radius:6px;}
+ 
+.divider{display:flex;align-items:center;gap:10px;margin:16px 0;color:var(--text3);font-size:11px;}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border);}
+</style>
+</head>
+<body>
+ 
+<!-- ══ SETUP SCREEN ══════════════════════════════════ -->
+<div id="setupScreen">
+  <div class="setup-box">
+    <div class="setup-logo">Sci<em>Desk</em></div>
+    <div class="setup-tag">// KHTN TEACHER PORTAL v2</div>
+ 
+    <!-- Step 1: Profile -->
+    <div class="setup-step active" id="step1">
+      <div class="setup-title">Chào mừng giáo viên! 👋</div>
+      <div class="setup-sub">Hãy thiết lập tài khoản của bạn để bắt đầu quản lý lớp học.</div>
+      <div class="fg"><label>Họ và tên giáo viên</label><input class="fc" id="sName" placeholder="VD: Nguyễn Thị Thảo"/></div>
+      <div class="fg"><label>Email trường</label><input class="fc" id="sEmail" placeholder="VD: thao.nguyen@school.edu.vn"/></div>
+      <div class="fg"><label>Môn giảng dạy chính</label>
+        <select class="fc" id="sSubject">
+          <option value="Toán">✈️Khoa học trái đất</option>
+          <option value="Vật Lý">⚡ Vật Lý</option>
+          <option value="Hóa Học">⚗ Hóa Học</option>
+          <option value="Sinh Học">🧬 Sinh Học</option>
+          <option value="KHTN">🔭 Khoa học Tự nhiên (tổng hợp)</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" onclick="goStep2()">Tiếp theo →</button>
+    </div>
+ 
+    <!-- Step 2: Create class -->
+    <div class="setup-step" id="step2">
+      <div class="setup-title">Tạo lớp học đầu tiên 🏫</div>
+      <div class="setup-sub">Lớp học sẽ có mã riêng để học sinh tham gia từ web Creative Quiz.</div>
+      <div class="fg"><label>Tên lớp học</label><input class="fc" id="sClass" placeholder="VD: 10A1, Lớp Toán Nâng Cao..."/></div>
+      <div class="fg"><label>Năm học</label>
+        <select class="fc" id="sYear"><option>2024–2025</option><option>2025–2026</option></select>
+      </div>
+      <div class="fg"><label>Khối lớp</label>
+        <select class="fc" id="sGrade">
+          <option>Lớp 7</option><option>Lớp 8</option><option>Lớp 9</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" onclick="createClass()">🏫 Tạo lớp &amp; nhận mã</button>
+      <div style="margin-top:10px;"></div>
+      <button class="btn btn-ghost" onclick="goStep1()">← Quay lại</button>
+    </div>
+ 
+    <!-- Step 3: Show code -->
+    <div class="setup-step" id="step3">
+      <div class="setup-title">Lớp đã sẵn sàng! 🎉</div>
+      <div class="setup-sub">Chia sẻ mã này cho học sinh. Các em vào <strong>Creative Quiz</strong> và nhập mã để tham gia lớp của bạn.</div>
+      <div class="code-box">
+        <div class="code-label">Mã lớp học</div>
+        <div class="code-val" id="displayCode">──────</div>
+        <button class="code-copy" onclick="copyCode()">📋 Sao chép</button>
+        <div class="code-hint">Học sinh nhập mã này vào trang Creative Quiz để vào lớp</div>
+      </div>
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:16px;">
+        <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:6px;">LINK THAM GIA NHANH</div>
+        <div id="joinLink" style="font-size:11px;color:var(--accent);word-break:break-all;font-family:var(--mono);"></div>
+      </div>
+      <button class="btn btn-primary" onclick="enterDashboard()">Vào Dashboard →</button>
+    </div>
+  </div>
+</div>
+ 
+<!-- ══ SIDEBAR ══════════════════════════════════════ -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">Sci<em>Desk</em></div>
+    <div class="logo-tag">// KHTN TEACHER PORTAL</div>
+  </div>
+  <nav class="nav">
+    <div class="nav-sec">Chính</div>
+    <div class="nav-item active"><span class="nav-icon">⊞</span> Dashboard</div>
+    <div class="nav-item" onclick="openModal()"><span class="nav-icon">📋</span> Giao bài <span class="nav-badge" id="navBadge">0</span></div>
+    <div class="nav-item" onclick="openInviteModal()"><span class="nav-icon">👥</span> Học sinh</div>
+    <div class="nav-item"><span class="nav-icon">📊</span> Kết quả</div>
+    <div class="nav-sec">Lớp học</div>
+    <div class="nav-item" id="navClassName"><span class="nav-icon">🏫</span> <span id="navClass">—</span></div>
+    <div class="nav-item" onclick="openInviteModal()"><span class="nav-icon">🔗</span> Mã tham gia</div>
+    <div class="nav-item"><span class="nav-icon">⚙️</span> Cài đặt</div>
+  </nav>
+  <div class="sb-footer">
+    <div class="teacher-pill">
+      <div class="t-avatar" id="sbAvatar">?</div>
+      <div>
+        <div class="t-name" id="sbName">—</div>
+        <div class="t-role" id="sbRole">—</div>
+        <div class="class-chip" id="sbCode">——</div>
+      </div>
+    </div>
+  </div>
+</aside>
+ 
+<!-- ══ MAIN ══════════════════════════════════════════ -->
+<div class="main">
+  <header class="topbar">
+    <div>
+      <div class="tb-title" id="tbTitle">Dashboard</div>
+      <div class="tb-sub" id="tbDate">—</div>
+    </div>
+    <div class="tb-right">
+      <div class="code-badge" onclick="openInviteModal()">
+        <span>Mã lớp:</span>
+        <strong id="tbCode">——</strong>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="openModal()">＋ Giao bài mới</button>
+    </div>
+  </header>
+ 
+  <div class="content">
+    <div class="stats au au1">
+      <div class="scard c1"><div class="scard-glow"></div><div class="scard-label">BÀI ĐANG MỞ</div><div class="scard-val" id="stOpen">0</div><div class="scard-sub">đang giao</div></div>
+      <div class="scard c2"><div class="scard-glow"></div><div class="scard-label">HỌC SINH TRONG LỚP</div><div class="scard-val" id="stStudents">0</div><div class="scard-sub" id="stStudentsSub">chờ tham gia</div></div>
+      <div class="scard c3"><div class="scard-glow"></div><div class="scard-label">TỶ LỆ NỘP BÀI</div><div class="scard-val" id="stPct">—</div><div class="scard-sub" id="stPctSub">chưa có dữ liệu</div></div>
+      <div class="scard c4"><div class="scard-glow"></div><div class="scard-label">ĐIỂM TB LỚP</div><div class="scard-val" id="stAvg">—</div><div class="scard-sub">tổng hợp</div></div>
+    </div>
+ 
+    <div class="grid-main au au2">
+      <!-- Assignments -->
+      <div class="card">
+        <div class="card-h">
+          <span>📋</span>
+          <span class="card-title">Bài tập đang giao</span>
+          <span class="card-meta" id="assignCount">0 bài</span>
+        </div>
+        <div class="card-b" id="assignList">
+          <div class="empty"><div class="empty-icon">📭</div>Chưa có bài tập nào.<br>Bấm "+ Giao bài mới" để bắt đầu!</div>
+        </div>
+      </div>
+ 
+      <div class="col-right">
+        <!-- Students -->
+        <div class="card">
+          <div class="card-h">
+            <span>👥</span>
+            <span class="card-title">Học sinh trong lớp</span>
+            <span class="card-meta" id="studentCount">0 hs</span>
+          </div>
+          <div class="card-b" id="studentList">
+            <div class="empty"><div class="empty-icon">🔗</div>Chưa có học sinh.<br>Chia sẻ mã lớp để học sinh tham gia!</div>
+          </div>
+        </div>
+        <!-- Activity -->
+        <div class="card">
+          <div class="card-h"><span>⚡</span><span class="card-title">Hoạt động</span></div>
+          <div class="card-b" id="actFeed">
+            <div class="empty" style="padding:14px 0;">Chưa có hoạt động nào</div>
+          </div>
+        </div>
+      </div>
+    </div>
+ 
+    <!-- Progress -->
+    <div class="card au au3">
+      <div class="card-h"><span>📊</span><span class="card-title">Tỷ lệ nộp theo môn</span><span class="card-meta" id="progMeta">—</span></div>
+      <div class="card-b" id="progBlock">
+        <div class="empty" style="padding:14px 0;">Giao bài để xem thống kê</div>
+      </div>
+    </div>
+  </div>
+</div>
+ 
+<!-- ══ INVITE MODAL ══════════════════════════════════ -->
+<div class="overlay" id="inviteOverlay">
+  <div class="modal">
+    <div class="modal-title">🔗 Mời học sinh vào lớp <button class="modal-close" onclick="closeInvite()">✕</button></div>
+    <div class="invite-box">
+      <div style="font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:2px;">MÃ THAM GIA LỚP</div>
+      <div class="invite-code" id="inviteCode">——</div>
+      <button class="btn btn-primary btn-sm" onclick="copyCode()" style="width:auto;margin:0 auto 12px;">📋 Sao chép mã</button>
+      <div class="invite-note">Học sinh vào <strong style="color:var(--accent)">Creative Quiz</strong> → nhập mã này để tham gia lớp <strong id="inviteClassName">—</strong></div>
+      <div class="invite-link" id="inviteLink2">—</div>
+    </div>
+    <div class="divider">Học sinh đã tham gia</div>
+    <div id="inviteStudentList">
+      <div class="empty" style="padding:12px 0;"><div class="empty-icon">👀</div>Chờ học sinh nhập mã để vào lớp...</div>
+    </div>
+  </div>
+</div>
+ 
+<!-- ══ ASSIGN MODAL ══════════════════════════════════ -->
+<div class="overlay" id="assignOverlay">
+  <div class="modal">
+    <div class="modal-title">📝 Giao bài tập mới <button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="ai-panel">
+      <div class="ai-panel-title">✦ Soạn đề bằng AI</div>
+      <div style="display:flex;gap:8px;margin-bottom:8px;">
+        <input class="fc" id="aiPrompt" placeholder='VD: "5 câu hỏi phản ứng hóa học lớp 10"' style="flex:1;"/>
+        <button class="btn btn-ai btn-xs" onclick="generateWithAI()" id="btnAI">✦ Tạo</button>
+      </div>
+      <div class="ai-loading" id="aiLoading"><div class="dot-pulse"><span></span><span></span><span></span></div><span>AI đang soạn...</span></div>
+      <div class="ai-result" id="aiResult"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+      <div class="fg"><label>Tiêu đề</label><input class="fc" id="fTitle" placeholder="Tên bài tập..."/></div>
+      <div class="fg"><label>Môn học</label>
+        <select class="fc" id="fSubject">
+          <option value="Toán">∫ Toán</option><option value="Vật Lý">⚡ Vật Lý</option>
+          <option value="Hóa Học">⚗ Hóa Học</option><option value="Sinh Học">🧬 Sinh Học</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+      <div class="fg"><label>Giao cho lớp</label>
+        <select class="fc" id="fClass"><option id="fClassOpt">—</option></select>
+      </div>
+      <div class="fg"><label>Hạn nộp</label><input class="fc" type="date" id="fDue"/></div>
+    </div>
+    <div class="fg" style="margin-bottom:14px;"><label>Nội dung / yêu cầu</label><textarea class="fc" id="fDesc" placeholder="Mô tả bài tập, câu hỏi..." style="min-height:80px;resize:vertical;"></textarea></div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-primary btn-sm" onclick="submitAssignment()">🚀 Giao bài</button>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal()">Hủy</button>
+    </div>
+  </div>
+</div>
+ 
+<!-- ══ TOAST ══════════════════════════════════════════ -->
+<div class="toast" id="toast">
+  <span id="toastIcon" style="font-size:18px;">✅</span>
+  <div><div class="toast-title" id="toastTitle">—</div><div class="toast-sub" id="toastSub">—</div></div>
+</div>
+ 
+<script>
+// ════ STATE ════════════════════════════════════════════
+let teacher = null;   // { name, email, subject }
+let classroom = null; // { name, code, grade, year }
+let assignments = [];
+let students = [];    // học sinh đã join
+let activities = [];
+ 
+// ════ STORAGE KEYS ════════════════════════════════════
+const K = {
+  teacher:     'sd-teacher',
+  classroom:   'sd-classroom',
+  assignments: 'sd-assignments',
+  students:    'sd-students',     // shared: học sinh ghi vào đây khi join
+  activities:  'sd-activities',
+};
+ 
+// ════ STORAGE HELPERS ══════════════════════════════════
+async function save(key, val, shared=false) {
+  try { await window.storage.set(key, JSON.stringify(val), shared); } catch(e){}
+}
+async function load(key, shared=false) {
+  try {
+    const r = await window.storage.get(key, shared);
+    return r ? JSON.parse(r.value) : null;
+  } catch(e){ return null; }
+}
+ 
+// ════ CODE GENERATOR ═══════════════════════════════════
+function genCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let c = '';
+  for (let i=0;i<6;i++) c += chars[Math.floor(Math.random()*chars.length)];
+  return c;
+}
+ 
+// ════ SETUP STEPS ═════════════════════════════════════
+function goStep1(){ setStep('step1'); }
+function goStep2(){
+  const name = document.getElementById('sName').value.trim();
+  if (!name){ document.getElementById('sName').focus(); return; }
+  setStep('step2');
+}
+function setStep(id){
+  ['step1','step2','step3'].forEach(s => {
+    document.getElementById(s).classList.toggle('active', s===id);
+  });
+}
+ 
+async function createClass(){
+  const cls = document.getElementById('sClass').value.trim();
+  if (!cls){ document.getElementById('sClass').focus(); return; }
+  const code = genCode();
+  teacher = {
+    name: document.getElementById('sName').value.trim(),
+    email: document.getElementById('sEmail').value.trim(),
+    subject: document.getElementById('sSubject').value,
+  };
+  classroom = {
+    name: cls,
+    code,
+    grade: document.getElementById('sGrade').value,
+    year: document.getElementById('sYear').value,
+  };
+  await save(K.teacher, teacher);
+  await save(K.classroom, classroom);
+  // Publish class info shared so students can find it
+  await save('class-'+code, { name: cls, grade: classroom.grade, teacher: teacher.name }, true);
+ 
+  document.getElementById('displayCode').textContent = code;
+  document.getElementById('joinLink').textContent =
+    `https://quizzkhtn313.github.io/CREATIVEQUIZZ/trangchu.html?join=${code}`;
+  setStep('step3');
+}
+ 
+async function enterDashboard(){
+  document.getElementById('setupScreen').style.opacity='0';
+  document.getElementById('setupScreen').style.transition='opacity 0.4s';
+  setTimeout(()=>{ document.getElementById('setupScreen').style.display='none'; },400);
+  applyTeacherUI();
+  await loadDashboardData();
+  render();
+  // Poll for new students every 8s
+  setInterval(pollStudents, 8000);
+  // Simulate activity every 25s
+  setInterval(simulateActivity, 25000);
+}
+ 
+// ════ APPLY TEACHER UI ═════════════════════════════════
+function applyTeacherUI(){
+  if (!teacher || !classroom) return;
+  const init = teacher.name.split(' ').slice(-2).map(w=>w[0]).join('').toUpperCase();
+  document.getElementById('sbAvatar').textContent = init;
+  document.getElementById('sbName').textContent = teacher.name;
+  document.getElementById('sbRole').textContent = teacher.subject;
+  document.getElementById('sbCode').textContent = classroom.code;
+  document.getElementById('navClass').textContent = classroom.name;
+  document.getElementById('tbTitle').textContent = `Dashboard — ${classroom.name}`;
+  document.getElementById('tbCode').textContent = classroom.code;
+  document.getElementById('inviteCode').textContent = classroom.code;
+  document.getElementById('inviteClassName').textContent = classroom.name;
+  document.getElementById('inviteLink2').textContent =
+    `https://quizzkhtn313.github.io/CREATIVEQUIZZ/trangchu.html?join=${classroom.code}`;
+  document.getElementById('fClassOpt').textContent = classroom.name;
+  document.getElementById('fClassOpt').value = classroom.name;
+  // Date
+  const d = new Date();
+  document.getElementById('tbDate').textContent =
+    d.toLocaleDateString('vi-VN',{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric'});
+}
+ 
+// ════ LOAD DATA ════════════════════════════════════════
+async function loadDashboardData(){
+  assignments = await load(K.assignments) || [];
+  activities  = await load(K.activities)  || [];
+  // Load students from SHARED storage (students write here)
+  if (classroom) {
+    const shared = await load('students-'+classroom.code, true);
+    students = shared || [];
+  }
+}
+ 
+// ════ POLL NEW STUDENTS ════════════════════════════════
+async function pollStudents(){
+  if (!classroom) return;
+  const shared = await load('students-'+classroom.code, true);
+  if (!shared) return;
+  const before = students.length;
+  students = shared;
+  if (students.length > before){
+    const newS = students.slice(before);
+    newS.forEach(s => {
+      activities.unshift({ text:`${s.name} đã tham gia lớp ${classroom.name}`, color:'var(--purple)', ts:Date.now() });
+    });
+    await save(K.activities, activities.slice(0,30));
+    render();
+    showToast('👋', `${newS[0].name} vừa vào lớp!`, `Hiện có ${students.length} học sinh`);
+  }
+}
+ 
+// ════ SIMULATE ACTIVITY ════════════════════════════════
+function simulateActivity(){
+  if (!assignments.length || !students.length) return;
+  const a = assignments[Math.floor(Math.random()*assignments.length)];
+  const idx = assignments.findIndex(x=>x.id===a.id);
+  if (assignments[idx].submitted >= assignments[idx].total) return;
+  assignments[idx].submitted = Math.min(a.submitted+1, a.total);
+  const s = students[Math.floor(Math.random()*students.length)];
+  activities.unshift({text:`${s.name} đã nộp bài "${a.title}"`,color:'var(--green)',ts:Date.now()});
+  if (activities.length>30) activities.pop();
+  save(K.assignments, assignments);
+  save(K.activities, activities.slice(0,30));
+  render();
+}
+ 
+// ════ RENDER ═══════════════════════════════════════════
+function render(){
+  renderStats();
+  renderAssignments();
+  renderStudents();
+  renderActivity();
+  renderProgress();
+}
+ 
+function renderStats(){
+  const active = assignments.filter(a=>a.status!=='done');
+  document.getElementById('stOpen').textContent = active.length;
+  document.getElementById('navBadge').textContent = active.length;
+  document.getElementById('stStudents').textContent = students.length;
+  document.getElementById('stStudentsSub').textContent = students.length ? `trong lớp ${classroom?.name||''}` : 'chờ tham gia';
+  let sub=0,tot=0;
+  assignments.forEach(a=>{sub+=a.submitted;tot+=a.total;});
+  if (tot>0){
+    const pct=Math.round(sub/tot*100);
+    document.getElementById('stPct').textContent=pct+'%';
+    document.getElementById('stPctSub').textContent=`${sub}/${tot} lượt nộp`;
+  }
+  if (students.length){
+    const avg=(students.reduce((s,x)=>s+(x.score||0),0)/students.length).toFixed(1);
+    document.getElementById('stAvg').textContent=avg;
+  }
+}
+ 
+function renderAssignments(){
+  document.getElementById('assignCount').textContent=assignments.length+' bài';
+  const el=document.getElementById('assignList');
+  if (!assignments.length){
+    el.innerHTML='<div class="empty"><div class="empty-icon">📭</div>Chưa có bài tập nào.<br>Bấm "+ Giao bài mới"!</div>';return;
+  }
+  const subjCls=s=>({Toán:'subj-math','Vật Lý':'subj-phys','Hóa Học':'subj-chem','Sinh Học':'subj-bio'}[s]||'subj-math');
+  const subjIcon=s=>({Toán:'∫','Vật Lý':'⚡','Hóa Học':'⚗','Sinh Học':'🧬'}[s]||'🔭');
+  const dueTag=d=>{const dt=new Date(d),diff=Math.ceil((dt-new Date())/86400000);
+    if(diff<0)return`<span class="tag tag-r">Quá hạn</span>`;
+    if(diff<=1)return`<span class="tag tag-a">Hôm nay</span>`;
+    return`<span class="tag tag-g">${diff} ngày nữa</span>`;
+  };
+  const dotColor=a=>{const p=a.submitted/a.total;return p>=0.9?'var(--green)':p>=0.5?'var(--amber)':'var(--red)';};
+  el.innerHTML=[...assignments].reverse().map(a=>{
+    const pct=Math.round(a.submitted/a.total*100)||0;
+    const fillCls=pct>=80?'background:var(--green)':pct>=50?'background:var(--accent)':'background:var(--amber)';
+    return`<div class="aitem">
+      <div class="aitem-dot" style="background:${dotColor(a)}"></div>
+      <div class="aitem-info">
+        <div class="aitem-name">${a.title}</div>
+        <div class="aitem-sub"><span class="subj ${subjCls(a.subject)}">${subjIcon(a.subject)} ${a.subject}</span> &nbsp; ${a.cls} &nbsp; ${a.submitted}/${a.total} đã nộp</div>
+        <div class="pbar"><div class="pfill" style="${fillCls};width:${pct}%"></div></div>
+      </div>
+      <div class="aitem-right">${dueTag(a.due)}<div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:4px">${pct}%</div></div>
+    </div>`;
+  }).join('');
+}
+ 
+function renderStudents(){
+  const el=document.getElementById('studentList');
+  document.getElementById('studentCount').textContent=students.length+' hs';
+  if (!students.length){
+    el.innerHTML='<div class="empty"><div class="empty-icon">🔗</div>Chưa có học sinh.<br>Chia sẻ mã <strong style="color:var(--accent)">'+(classroom?.code||'——')+'</strong> để học sinh tham gia!</div>';
+    return;
+  }
+  const avatarColors=[
+    {c:'#38bdf8',bg:'rgba(56,189,248,0.12)'},{c:'#4ade80',bg:'rgba(74,222,128,0.12)'},
+    {c:'#fbbf24',bg:'rgba(251,191,36,0.12)'},{c:'#a78bfa',bg:'rgba(167,139,250,0.12)'},
+    {c:'#f87171',bg:'rgba(248,113,113,0.12)'},
+  ];
+  el.innerHTML=students.map((s,i)=>{
+    const {c,bg}=avatarColors[i%avatarColors.length];
+    const init=s.name.split(' ').slice(-2).map(w=>w[0]).join('');
+    const scoreColor=s.score>=8?'var(--green)':s.score>=6.5?'var(--amber)':'var(--red)';
+    return`<div class="sitem">
+      <div class="savatar" style="background:${bg};color:${c}">${init}</div>
+      <div><div class="sname">${s.name}</div><div class="scls">Tham gia ${timeAgo(s.joinedAt||Date.now())}</div></div>
+      ${s.score!=null?`<div class="sscore" style="color:${scoreColor}">${s.score}</div>`:'<div class="sjoin">chưa có điểm</div>'}
+    </div>`;
+  }).join('');
+ 
+  // Update invite modal student list too
+  const el2=document.getElementById('inviteStudentList');
+  if (!students.length){
+    el2.innerHTML='<div class="empty" style="padding:12px 0;"><div class="empty-icon">👀</div>Chờ học sinh nhập mã vào lớp...</div>';
+  } else {
+    el2.innerHTML=students.map(s=>`
+      <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);">
+        <span style="font-size:13px">${s.name}</span>
+        <span style="font-family:var(--mono);font-size:9px;color:var(--text3);margin-left:auto">${timeAgo(s.joinedAt||Date.now())}</span>
+      </div>`).join('');
+  }
+}
+ 
+function renderActivity(){
+  const el=document.getElementById('actFeed');
+  if (!activities.length){el.innerHTML='<div class="empty" style="padding:12px 0;">Chưa có hoạt động</div>';return;}
+  el.innerHTML=activities.slice(0,6).map(a=>`
+    <div class="feed-item">
+      <div class="feed-dot" style="background:${a.color}"></div>
+      <div><div class="feed-text">${a.text}</div><div class="feed-time">${timeAgo(a.ts)}</div></div>
+    </div>`).join('');
+}
+ 
+function renderProgress(){
+  if (!assignments.length){return;}
+  const byS={};
+  assignments.forEach(a=>{
+    if(!byS[a.subject])byS[a.subject]={sub:0,tot:0};
+    byS[a.subject].sub+=a.submitted;byS[a.subject].tot+=a.total;
+  });
+  const entries=Object.entries(byS);
+  document.getElementById('progMeta').textContent=entries.length+' môn';
+  const subjCls=s=>({Toán:'subj-math','Vật Lý':'subj-phys','Hóa Học':'subj-chem','Sinh Học':'subj-bio'}[s]||'subj-math');
+  const subjIcon=s=>({Toán:'∫','Vật Lý':'⚡','Hóa Học':'⚗','Sinh Học':'🧬'}[s]||'🔭');
+  document.getElementById('progBlock').innerHTML=entries.map(([subj,d])=>{
+    const pct=Math.round(d.sub/d.tot*100);
+    const fc=pct>=90?'var(--green)':pct>=60?'var(--accent)':'var(--amber)';
+    return`<div class="prog-row">
+      <div class="prog-head">
+        <span style="font-size:12.5px"><span class="subj ${subjCls(subj)}">${subjIcon(subj)} ${subj}</span></span>
+        <span style="font-family:var(--mono);font-size:10px;color:var(--text3)">${d.sub}/${d.tot} — ${pct}%</span>
+      </div>
+      <div class="pbar-bg"><div class="pbar-fill" style="background:${fc};width:${pct}%"></div></div>
+    </div>`;
+  }).join('');
+}
+ 
+// ════ MODAL ════════════════════════════════════════════
+function openModal(){
+  document.getElementById('assignOverlay').classList.add('open');
+  const d=new Date();d.setDate(d.getDate()+7);
+  document.getElementById('fDue').value=d.toISOString().split('T')[0];
+  document.getElementById('aiResult').classList.remove('show');
+  document.getElementById('aiResult').textContent='';
+  document.getElementById('aiPrompt').value='';
+}
+function closeModal(){document.getElementById('assignOverlay').classList.remove('open');}
+function openInviteModal(){document.getElementById('inviteOverlay').classList.add('open');renderStudents();}
+function closeInvite(){document.getElementById('inviteOverlay').classList.remove('open');}
+document.getElementById('assignOverlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
+document.getElementById('inviteOverlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeInvite();});
+ 
+// ════ AI GENERATE ══════════════════════════════════════
+async function generateWithAI(){
+  const prompt=document.getElementById('aiPrompt').value.trim();
+  if(!prompt){document.getElementById('aiPrompt').focus();return;}
+  const subj=document.getElementById('fSubject').value;
+  const btn=document.getElementById('btnAI');
+  btn.disabled=true;btn.textContent='...';
+  document.getElementById('aiLoading').classList.add('show');
+  document.getElementById('aiResult').classList.remove('show');
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',max_tokens:1000,
+        system:`Bạn là trợ lý soạn bài tập môn ${subj} cho giáo viên THPT Việt Nam. Soạn bài tập ngắn gọn, rõ ràng, phù hợp chương trình phổ thông. Trả lời bằng tiếng Việt, chỉ ghi nội dung bài tập, không lời dẫn.`,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    const data=await res.json();
+    const text=data.content?.map(c=>c.text||'').join('')||'Lỗi. Thử lại.';
+    document.getElementById('aiResult').textContent=text;
+    document.getElementById('aiResult').classList.add('show');
+    document.getElementById('fDesc').value=text;
+    if(!document.getElementById('fTitle').value) document.getElementById('fTitle').value=prompt.slice(0,60);
+    showToast('✦','AI đã soạn xong!','Nội dung đã được điền vào form');
+  }catch(e){
+    document.getElementById('aiResult').textContent='Lỗi kết nối. Thử lại.';
+    document.getElementById('aiResult').classList.add('show');
+  }finally{
+    btn.disabled=false;btn.textContent='✦ Tạo';
+    document.getElementById('aiLoading').classList.remove('show');
+  }
+}
+ 
+// ════ SUBMIT ASSIGNMENT ════════════════════════════════
+async function submitAssignment(){
+  const title=document.getElementById('fTitle').value.trim();
+  if(!title){document.getElementById('fTitle').focus();return;}
+  const cls=document.getElementById('fClass').value;
+  const total=students.length||1;
+  const a={
+    id:Date.now(),title,
+    subject:document.getElementById('fSubject').value,
+    cls,due:document.getElementById('fDue').value,
+    desc:document.getElementById('fDesc').value,
+    submitted:0,total,status:'active',createdAt:Date.now()
+  };
+  assignments.push(a);
+  activities.unshift({text:`Đã giao bài "${title}" cho lớp ${cls}`,color:'var(--accent)',ts:Date.now()});
+ 
+  // Publish assignment to shared storage so students can read
+  await save('assignments-'+classroom.code, assignments, true);
+  await save(K.assignments, assignments);
+  await save(K.activities, activities.slice(0,30));
+ 
+  render();closeModal();
+  document.getElementById('fTitle').value='';document.getElementById('fDesc').value='';
+  showToast('🚀','Đã giao bài!',`${students.length} học sinh sẽ thấy trong Creative Quiz`);
+}
+ 
+// ════ COPY CODE ════════════════════════════════════════
+function copyCode(){
+  navigator.clipboard.writeText(classroom?.code||'').then(()=>showToast('📋','Đã sao chép mã!','Gửi cho học sinh để họ tham gia'));
+}
+ 
+// ════ TOAST ════════════════════════════════════════════
+let toastTimer;
+function showToast(icon,title,sub){
+  clearTimeout(toastTimer);
+  document.getElementById('toastIcon').textContent=icon;
+  document.getElementById('toastTitle').textContent=title;
+  document.getElementById('toastSub').textContent=sub;
+  const t=document.getElementById('toast');
+  t.classList.add('show');
+  toastTimer=setTimeout(()=>t.classList.remove('show'),3800);
+}
+ 
+// ════ TIME AGO ═════════════════════════════════════════
+function timeAgo(ts){
+  const d=(Date.now()-ts)/1000;
+  if(d<60)return'vừa xong';if(d<3600)return`${Math.round(d/60)} phút trước`;
+  if(d<86400)return`${Math.round(d/3600)} giờ trước`;return`${Math.round(d/86400)} ngày trước`;
+}
+ 
+// ════ INIT ═════════════════════════════════════════════
+async function init(){
+  teacher   = await load(K.teacher);
+  classroom = await load(K.classroom);
+  if (teacher && classroom){
+    // Already set up — skip setup screen
+    document.getElementById('setupScreen').style.display='none';
+    applyTeacherUI();
+    await loadDashboardData();
+    render();
+    setInterval(pollStudents, 8000);
+    setInterval(simulateActivity, 25000);
+  }
+  // else: setup screen is already visible
+}
+ 
+init();
+</script>
+</body>
+</html>

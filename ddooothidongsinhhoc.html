@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>🌳 Game Trồng Cây Sinh Động - Phiên Bản Siêu Đẹp + Ảnh Thực Tế</title>
+<style>
+/* ===== BACKGROUND SIÊU ĐẸP ===== */
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    overflow-y: auto;           /* SỬA LỖI: cho phép cuộn nhẹ nếu cần, không còn bị cắt khi không F11 */
+    background: linear-gradient(#87CEEB 0%, #E0F7FA 40%, #81C784 100%);
+    min-height: 100vh;          /* SỬA LỖI: cây luôn hiện mà không cần F11 */
+    position: relative;
+    padding-bottom: 60px;       /* chỗ trống dưới cùng để cây và panel đều hiện */
+}
+
+/* Mặt trời có tia sáng */
+.sun {
+    position: absolute;
+    top: 80px;
+    right: 120px;
+    width: 140px;
+    height: 140px;
+    background: radial-gradient(circle, #FFEB3B 30%, #FFC107 70%);
+    border-radius: 50%;
+    box-shadow: 0 0 80px #FFEB3B,
+                0 0 160px rgba(255, 193, 7, 0.6);
+    animation: sunPulse 6s infinite alternate;
+    z-index: 2;
+}
+.sun::before {
+    content: '';
+    position: absolute;
+    top: -40px; left: 50%;
+    width: 20px; height: 180px;
+    background: linear-gradient(transparent, rgba(255,235,59,0.4));
+    transform: translateX(-50%) rotate(0deg);
+    animation: rayRotate 20s linear infinite;
+}
+.sun::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: -40px;
+    width: 220px; height: 20px;
+    background: linear-gradient(to right, transparent, rgba(255,235,59,0.35), transparent);
+    transform: translateY(-50%);
+}
+
+@keyframes sunPulse { from { transform: scale(1); } to { transform: scale(1.08); } }
+@keyframes rayRotate { from { transform: translateX(-50%) rotate(0deg); } to { transform: translateX(-50%) rotate(360deg); } }
+
+/* Nhiều mây bay với tốc độ khác nhau */
+.cloud {
+    position: absolute;
+    background: #fff;
+    border-radius: 50px;
+    box-shadow: 30px 15px 0 #fff, 60px 5px 0 #fff, 90px 20px 0 #fff;
+    opacity: 0.95;
+    z-index: 1;
+}
+.cloud1 { width: 180px; height: 65px; top: 80px; animation: moveCloud1 65s linear infinite; }
+.cloud2 { width: 140px; height: 50px; top: 140px; animation: moveCloud2 45s linear infinite; }
+.cloud3 { width: 210px; height: 70px; top: 50px; animation: moveCloud3 80s linear infinite; }
+.cloud4 { width: 120px; height: 45px; top: 190px; animation: moveCloud4 55s linear infinite; }
+
+@keyframes moveCloud1 { from { left: -250px; } to { left: 110%; } }
+@keyframes moveCloud2 { from { left: -180px; } to { left: 110%; } }
+@keyframes moveCloud3 { from { left: -300px; } to { left: 110%; } }
+@keyframes moveCloud4 { from { left: -150px; } to { left: 110%; } }
+
+/* Đồi xa */
+.hill {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 180px;
+    background: linear-gradient(#66A06A, #4A8C4A);
+    border-radius: 50% 50% 0 0;
+    z-index: 3;
+}
+.hill2 { height: 140px; background: #5E9A5E; transform: scaleX(0.8) translateX(30%); opacity: 0.85; }
+
+/* Cỏ nền */
+.grass {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 90px;
+    background: linear-gradient(#4CAF50, #2E7D32);
+    z-index: 4;
+    overflow: hidden;
+}
+.grass::before {
+    content: '🌿 🌱 🌿 🌱 🌿 🌱 🌿 🌱 🌿';
+    position: absolute;
+    bottom: 8px;
+    width: 200%;
+    font-size: 28px;
+    animation: grassWave 4s linear infinite;
+    opacity: 0.7;
+}
+
+/* ===== PANEL THIẾT KẾ CAO CẤP ===== */
+.panel {
+    position: relative;
+    z-index: 10;
+    width: 480px;
+    margin: 25px auto;
+    padding: 30px;
+    border-radius: 30px;
+    background: rgba(255,255,255,0.28);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 25px 60px rgba(0,0,0,0.35),
+                inset 0 0 40px rgba(255,255,255,0.4);
+    color: #1B3A2F;
+    border: 1px solid rgba(255,255,255,0.5);
+}
+
+.panel h2 {
+    text-align: center;
+    font-size: 28px;
+    margin: 0 0 25px;
+    text-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    color: #1B3A2F;
+}
+
+/* Icon bên cạnh label */
+.label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    margin: 14px 0 6px;
+}
+
+/* Slider đẹp như game */
+input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 12px;
+    border-radius: 999px;
+    background: linear-gradient(to right, #81C784, #2E7D32);
+    outline: none;
+    box-shadow: inset 0 3px 8px rgba(0,0,0,0.2);
+}
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 32px;
+    height: 32px;
+    background: #fff url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22><text y=%2218%22 font-size=%2218%22>🌱</text></svg>') center/22px no-repeat;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(46,125,50,0.5);
+    border: 3px solid #2E7D32;
+}
+
+/* Select đẹp */
+select {
+    width: 100%;
+    padding: 12px 15px;
+    border-radius: 15px;
+    border: none;
+    background: rgba(255,255,255,0.9);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+    font-size: 16px;
+    transition: all 0.3s;
+}
+select:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(46,125,50,0.3); }
+
+/* Health Bar siêu đẹp */
+.health-bar {
+    height: 28px;
+    background: #E0E0E0;
+    border-radius: 999px;
+    overflow: hidden;
+    box-shadow: inset 0 4px 12px rgba(0,0,0,0.25);
+    margin: 18px 0 10px;
+}
+.health {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, #66BB6A, #43A047);
+    transition: width 0.8s cubic-bezier(0.34,1.56,0.64,1);
+    position: relative;
+}
+.health::after {
+    content: '🌿';
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 18px;
+    animation: leafBob 1.2s infinite alternate;
+}
+
+/* Tree Area - đưa lên trên một chút để luôn hiện mà không cần F11 */
+.tree-area {
+    position: relative;
+    height: 460px;
+    margin: 40px auto 20px;   /* tăng khoảng cách, đưa cây lên cao hơn */
+    width: 300px;
+    z-index: 5;
+}
+
+/* Bóng cây mềm mại */
+.shadow {
+    position: absolute;
+    bottom: 35px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 220px;
+    height: 48px;
+    background: radial-gradient(ellipse at center, rgba(0,0,0,0.35) 20%, transparent 70%);
+    border-radius: 50%;
+    z-index: 4;
+}
+
+/* Animation chung */
+.swing { animation: sway 3.5s ease-in-out infinite alternate; transform-origin: bottom center; }
+@keyframes sway { from { transform: rotate(-3.5deg); } to { transform: rotate(3.5deg); } }
+
+.leaf { animation: leafBob 2.8s ease-in-out infinite alternate; }
+@keyframes leafBob { from { transform: rotate(-8deg); } to { transform: rotate(8deg); } }
+
+.flower { animation: bloom 1.8s ease-in-out infinite alternate; }
+@keyframes bloom { from { transform: scale(0.85) rotate(-5deg); } to { transform: scale(1.15) rotate(5deg); } }
+
+/* Bướm bay khi cây khỏe */
+.butterfly {
+    position: absolute;
+    font-size: 28px;
+    animation: fly 6s linear infinite;
+    z-index: 6;
+    opacity: 0;
+    transition: opacity 0.6s;
+}
+@keyframes fly {
+    0%   { transform: translate(0,0) rotate(0deg); }
+    25%  { transform: translate(80px,-60px) rotate(30deg); }
+    50%  { transform: translate(160px,20px) rotate(-20deg); }
+    75%  { transform: translate(90px,-80px) rotate(40deg); }
+    100% { transform: translate(200px,30px) rotate(0deg); }
+}
+
+/* Status */
+.status {
+    text-align: center;
+    font-size: 19px;
+    font-weight: 700;
+    padding: 10px;
+    border-radius: 15px;
+    margin-top: 8px;
+    transition: all 0.4s;
+}
+
+/* Nút hành động */
+.action-btn {
+    background: #43A047;
+    color: white;
+    border: none;
+    padding: 12px 22px;
+    margin: 8px 4px;
+    border-radius: 999px;
+    font-weight: 600;
+    box-shadow: 0 6px 15px rgba(67,160,71,0.4);
+    cursor: pointer;
+    transition: 0.3s;
+}
+.action-btn:hover { transform: translateY(-4px); box-shadow: 0 12px 25px rgba(67,160,71,0.5); }
+
+/* ==================== MODAL XEM ẢNH THỰC TẾ (mới thêm) ==================== */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.88);
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(12px);
+}
+.modal-content {
+    background: #fff;
+    margin: 0;
+    padding: 25px 30px;
+    border-radius: 28px;
+    width: 92%;
+    max-width: 720px;
+    max-height: 92vh;
+    overflow-y: auto;
+    box-shadow: 0 30px 90px rgba(0,0,0,0.6);
+    position: relative;
+    text-align: center;
+}
+.modal-content img {
+    width: 100%;
+    border-radius: 20px;
+    box-shadow: 0 15px 45px rgba(0,0,0,0.35);
+    margin-top: 15px;
+}
+.close {
+    position: absolute;
+    right: 25px;
+    top: 15px;
+    font-size: 42px;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+    line-height: 1;
+}
+.close:hover { color: #e74c3c; transform: scale(1.2); }
+</style>
+</head>
+<body>
+
+<div class="sun"></div>
+<div class="cloud cloud1"></div>
+<div class="cloud cloud2"></div>
+<div class="cloud cloud3"></div>
+<div class="cloud cloud4"></div>
+
+<div class="hill"></div>
+<div class="hill hill2"></div>
+<div class="grass"></div>
+
+<div class="panel">
+    <h2>🌳 CÂY XANH CỦA BẠN</h2>
+
+    <div class="label">📅 Ngày phát triển <span id="dayValue">0</span></div>
+    <input type="range" min="0" max="120" value="0" id="days" oninput="updateAll()">
+
+    <div class="label">💧 Nước</div>
+    <select id="water" onchange="updateAll()">
+        <option value="good">Vừa đủ 💧</option>
+        <option value="low">Thiếu nước</option>
+        <option value="high">Ngập úng</option>
+    </select>
+
+    <div class="label">☀️ Ánh sáng</div>
+    <select id="light" onchange="updateAll()">
+        <option value="good">Vừa phải ☀️</option>
+        <option value="low">Thiếu sáng</option>
+        <option value="high">Quá gắt</option>
+    </select>
+
+    <div class="label">🐛 Thuốc trừ sâu</div>
+    <select id="pesticide" onchange="updateAll()">
+        <option value="none">Không dùng</option>
+        <option value="low">Ít</option>
+        <option value="high">Nhiều</option>
+    </select>
+
+    <div class="label">🌡️ Nhiệt độ</div>
+    <input type="range" min="10" max="38" value="25" id="temp" oninput="updateAll()">
+
+    <div class="label">🌱 Đất</div>
+    <select id="soil" onchange="updateAll()">
+        <option value="good">Phù sa màu mỡ</option>
+        <option value="medium">Đất thường</option>
+        <option value="bad">Đất nghèo</option>
+    </select>
+
+    <div class="health-bar"><div id="health" class="health"></div></div>
+
+    <div id="status" class="status">Cây đang lớn mạnh 🌱</div>
+
+    <div style="text-align:center; margin-top:15px;">
+        <button class="action-btn" onclick="waterPlant()">💦 Tưới nước</button>
+        <button class="action-btn" onclick="fertilize()">🌱 Bón phân</button>
+        <button class="action-btn" onclick="nextDay()">📅 +1 Ngày</button>
+        <button class="action-btn" id="realBtn" onclick="showRealImage()" style="display:none; background:#3498db;">📸 Xem hình ảnh thực tế</button>
+    </div>
+</div>
+
+<!-- Cây được giữ nguyên vị trí nhưng đã điều chỉnh margin + body để luôn hiện mà không cần F11 -->
+<div class="tree-area" id="treeArea"></div>
+<div class="shadow"></div>
+
+<div id="butterflies"></div>
+
+<!-- ==================== MODAL ẢNH THỰC TẾ (mới thêm) ==================== -->
+<div id="realImageModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">×</span>
+        <h3 style="color:#1B3A2F; margin:10px 0 15px;">📸 Cây ngày <span id="modalDay">0</span></h3>
+        <img id="realTreeImg" src="" alt="Cây thực tế">
+        <p id="modalStage" style="font-size:20px; font-weight:700; margin:18px 0 5px; color:#2E7D32;"></p>
+    </div>
+</div>
+
+<script>
+// ========== CÂY SIÊU ĐẸP BẰNG SVG (giữ nguyên 100%) ==========
+const treeSVGs = {
+    seed: `<svg width="220" height="380" viewBox="0 0 220 380">
+        <ellipse cx="110" cy="340" rx="38" ry="18" fill="#5D4037"/>
+        <rect x="104" y="290" width="12" height="55" fill="#6D4C41" rx="6"/>
+        <path d="M90 270 Q110 240 130 270" fill="#81C784"/>
+        <circle cx="105" cy="255" r="18" fill="#66BB6A"/>
+    </svg>`,
+
+    sprout: `<svg width="240" height="380" class="swing" viewBox="0 0 240 380">
+        <rect x="115" y="260" width="14" height="95" fill="#6D4C41" rx="7"/>
+        <ellipse cx="122" cy="245" rx="45" ry="32" fill="#81C784"/>
+        <ellipse cx="85" cy="235" rx="28" ry="22" fill="#66BB6A" class="leaf"/>
+        <ellipse cx="165" cy="228" rx="26" ry="24" fill="#66BB6A" class="leaf"/>
+    </svg>`,
+
+    young: `<svg width="260" height="400" class="swing" viewBox="0 0 260 400">
+        <rect x="122" y="210" width="18" height="145" fill="#5D4037" rx="9"/>
+        <path d="M125 260 Q80 220 65 245" fill="none" stroke="#5D4037" stroke-width="14" stroke-linecap="round"/>
+        <path d="M135 255 Q185 215 205 235" fill="none" stroke="#5D4037" stroke-width="13" stroke-linecap="round"/>
+        <ellipse cx="75" cy="195" rx="42" ry="28" fill="#4CAF50" class="leaf"/>
+        <ellipse cx="155" cy="175" rx="52" ry="35" fill="#43A047" class="leaf"/>
+        <ellipse cx="205" cy="210" rx="38" ry="26" fill="#66BB6A" class="leaf"/>
+    </svg>`,
+
+    mature: `<svg width="280" height="410" class="swing" viewBox="0 0 280 410">
+        <rect x="125" y="190" width="26" height="170" fill="#5D4037" rx="13"/>
+        <path d="M130 260 Q65 195 45 225" fill="none" stroke="#5D4037" stroke-width="18" stroke-linecap="round"/>
+        <path d="M150 245 Q210 175 235 200" fill="none" stroke="#5D4037" stroke-width="16" stroke-linecap="round"/>
+        <path d="M130 290 Q85 260 70 290" fill="none" stroke="#5D4037" stroke-width="12" stroke-linecap="round"/>
+        <ellipse cx="125" cy="165" rx="72" ry="52" fill="#4CAF50"/>
+        <ellipse cx="72" cy="185" rx="48" ry="38" fill="#43A047" class="leaf"/>
+        <ellipse cx="185" cy="178" rx="55" ry="41" fill="#43A047" class="leaf"/>
+        <ellipse cx="105" cy="125" rx="58" ry="39" fill="#66BB6A" class="leaf"/>
+        <ellipse cx="165" cy="130" rx="45" ry="32" fill="#66BB6A" class="leaf"/>
+    </svg>`,
+
+    flower: `<svg width="280" height="410" class="swing" viewBox="0 0 280 410">
+        <rect x="125" y="190" width="26" height="170" fill="#5D4037" rx="13"/>
+        <path d="M130 260 Q65 195 45 225" fill="none" stroke="#5D4037" stroke-width="18" stroke-linecap="round"/>
+        <path d="M150 245 Q210 175 235 200" fill="none" stroke="#5D4037" stroke-width="16" stroke-linecap="round"/>
+        <ellipse cx="125" cy="165" rx="72" ry="52" fill="#4CAF50"/>
+        <ellipse cx="72" cy="185" rx="48" ry="38" fill="#43A047" class="leaf"/>
+        <ellipse cx="185" cy="178" rx="55" ry="41" fill="#43A047" class="leaf"/>
+        <g class="flower">
+            <circle cx="125" cy="118" r="19" fill="#FF4081"/>
+            <circle cx="105" cy="102" r="14" fill="#FF80AB"/>
+            <circle cx="145" cy="102" r="14" fill="#FF80AB"/>
+            <circle cx="102" cy="130" r="13" fill="#FF80AB"/>
+            <circle cx="148" cy="130" r="13" fill="#FF80AB"/>
+            <circle cx="125" cy="112" r="8" fill="#FFEB3B"/>
+        </g>
+        <g class="flower" style="transform:translate(48px,-8px) scale(0.75)">
+            <circle cx="125" cy="118" r="19" fill="#FF4081"/>
+            <circle cx="105" cy="102" r="14" fill="#FF80AB"/>
+            <circle cx="145" cy="102" r="14" fill="#FF80AB"/>
+        </g>
+    </svg>`,
+
+    dead: `<svg width="260" height="390" viewBox="0 0 260 390">
+        <rect x="120" y="210" width="22" height="155" fill="#8D6E63"/>
+        <path d="M125 260 Q70 220 55 255" fill="none" stroke="#8D6E63" stroke-width="16" stroke-linecap="round"/>
+        <path d="M140 245 Q195 200 215 235" fill="none" stroke="#8D6E63" stroke-width="14" stroke-linecap="round"/>
+        <ellipse cx="88" cy="195" rx="38" ry="24" fill="#A1887F" opacity="0.7"/>
+        <ellipse cx="175" cy="185" rx="32" ry="19" fill="#A1887F" opacity="0.7"/>
+    </svg>`
+};
+
+function getStage(days, health) {
+    if (health <= 5) return "dead";
+    if (days < 8) return "seed";
+    if (days < 22) return "sprout";
+    if (days < 45) return "young";
+    if (days < 85) return "mature";
+    return health > 75 ? "flower" : "mature";
+}
+
+function drawTree(stage) {
+    document.getElementById("treeArea").innerHTML = treeSVGs[stage];
+}
+
+// ========== ẢNH THỰC TẾ (mới thêm) ==========
+const realImages = {
+    seed:   "https://suckhoedoisong.qltns.mediacdn.vn/324455921873985536/2022/6/28/1-16563993660121950446698.jpg",
+    sprout: "https://images.unsplash.com/photo-1587502536900-baf0c55a17e9?auto=format&fit=crop&w=900&q=80",
+    young:  "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=900&q=80",
+    mature: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=900&q=80",
+    flower: "https://images.unsplash.com/photo-1497436072909-60f360e1d4b1?auto=format&fit=crop&w=900&q=80",
+    dead:   "https://images.unsplash.com/photo-1587502537745-84b86da1204f?auto=format&fit=crop&w=900&q=80"
+};
+
+// ========== LOGIC NÂNG CAO (giữ nguyên) ==========
+let bonus = 0;
+
+function calculateHealth() {
+    let water = document.getElementById("water").value;
+    let light = document.getElementById("light").value;
+    let pesticide = document.getElementById("pesticide").value;
+    let temp = parseInt(document.getElementById("temp").value);
+    let soil = document.getElementById("soil").value;
+
+    let health = 100 + bonus;
+
+    if (water === "low") health -= 22;
+    if (water === "high") health -= 28;
+    if (light === "low") health -= 18;
+    if (light === "high") health -= 25;
+    if (pesticide === "low") health -= 12;
+    if (pesticide === "high") health -= 32;
+    if (temp < 18 || temp > 32) health -= 20;
+    if (soil === "medium") health -= 8;
+    if (soil === "bad") health -= 18;
+
+    return Math.max(0, Math.min(100, health));
+}
+
+function updateAll() {
+    let days = parseInt(document.getElementById("days").value);
+    let health = calculateHealth();
+
+    document.getElementById("dayValue").textContent = days;
+
+    let stage = getStage(days, health);
+    drawTree(stage);
+
+    const bar = document.getElementById("health");
+    bar.style.width = health + "%";
+
+    if (health > 78) {
+        bar.style.background = "linear-gradient(90deg, #66BB6A, #2E7D32)";
+        document.getElementById("status").innerHTML = "Cây khỏe mạnh &amp; sum suê 🌳✨";
+        document.getElementById("status").style.background = "#C8E6C9";
+        showButterflies();
+    } else if (health > 45) {
+        bar.style.background = "linear-gradient(90deg, #FFCA28, #FF9800)";
+        document.getElementById("status").innerHTML = "Cây hơi yếu ⚠️";
+        document.getElementById("status").style.background = "#FFF3E0";
+        hideButterflies();
+    } else {
+        bar.style.background = "linear-gradient(90deg, #EF5350, #C62828)";
+        document.getElementById("status").innerHTML = "Cây đang héo úa ☠️";
+        document.getElementById("status").style.background = "#FFEBEE";
+        hideButterflies();
+    }
+
+    // Hiện nút xem ảnh thực tế khi ngày >= 10
+    document.getElementById("realBtn").style.display = (days >= 10) ? "inline-block" : "none";
+}
+
+// Hiệu ứng bướm (giữ nguyên)
+function showButterflies() {
+    const container = document.getElementById("butterflies");
+    container.innerHTML = `
+        <div class="butterfly" style="left:35%; top:280px;">🦋</div>
+        <div class="butterfly" style="left:52%; top:310px; animation-delay:1.2s;">🦋</div>
+        <div class="butterfly" style="left:68%; top:265px; animation-delay:2.8s;">🦋</div>
+    `;
+    setTimeout(() => {
+        const flies = document.querySelectorAll('.butterfly');
+        flies.forEach(f => f.style.opacity = '1');
+    }, 100);
+}
+function hideButterflies() {
+    document.getElementById("butterflies").innerHTML = '';
+}
+
+// Hành động đặc biệt (giữ nguyên)
+function waterPlant() {
+    bonus = Math.min(25, bonus + 18);
+    document.getElementById("status").innerHTML = "Đã tưới nước! 💦";
+    setTimeout(() => updateAll(), 600);
+}
+function fertilize() {
+    bonus = Math.min(30, bonus + 22);
+    document.getElementById("status").innerHTML = "Đã bón phân! 🌱";
+    setTimeout(() => updateAll(), 600);
+}
+function nextDay() {
+    let daysSlider = document.getElementById("days");
+    let newVal = Math.min(120, parseInt(daysSlider.value) + 1);
+    daysSlider.value = newVal;
+    bonus = Math.max(0, bonus - 3);
+    updateAll();
+}
+
+// ==================== CHỨC NĂNG XEM ẢNH THỰC TẾ (mới thêm) ====================
+function showRealImage() {
+    const days = parseInt(document.getElementById("days").value);
+    const health = calculateHealth();
+    const stage = getStage(days, health);
+
+    document.getElementById("modalDay").textContent = days;
+    document.getElementById("realTreeImg").src = realImages[stage];
+
+    const stageNames = {
+        seed: "🌱 Hạt giống",
+        sprout: "🌿 Cây mầm non",
+        young: "🌳 Cây non",
+        mature: "🌲 Cây trưởng thành",
+        flower: "🌸 Cây ra hoa đẹp",
+        dead: "☠️ Cây đã chết"
+    };
+    document.getElementById("modalStage").textContent = stageNames[stage];
+
+    document.getElementById("realImageModal").style.display = "flex";
+}
+
+function closeModal() {
+    document.getElementById("realImageModal").style.display = "none";
+}
+
+window.onclick = function(event) {
+    if (event.target.id === "realImageModal") closeModal();
+};
+
+// Khởi chạy
+updateAll();
+</script>
+
+</body>
+</html>

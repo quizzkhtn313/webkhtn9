@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>宇宙星河·物理宝典 | 初中物理7–9年级终极汇总</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', 'Segoe UI', 'Orbitron', system-ui, -apple-system, 'Quicksand', sans-serif;
+      background: radial-gradient(ellipse at 20% 30%, #0a0f2a, #03050b);
+      color: #eef4ff;
+      padding: 2rem 1rem;
+      scroll-behavior: smooth;
+    }
+
+    /* 星河粒子背景 (纯CSS星光效果) */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      background-image: 
+        radial-gradient(2px 2px at 15% 40%, #fff, rgba(0,0,0,0)),
+        radial-gradient(3px 3px at 72% 18%, #f9f3c1, rgba(0,0,0,0)),
+        radial-gradient(1px 1px at 95% 70%, #b2ebf2, rgba(0,0,0,0)),
+        radial-gradient(4px 4px at 8% 85%, #ffd8a9, rgba(0,0,0,0)),
+        radial-gradient(2px 2px at 50% 95%, #d9b4ff, rgba(0,0,0,0)),
+        radial-gradient(3px 3px at 35% 55%, #7fffd4, rgba(0,0,0,0));
+      background-repeat: no-repeat;
+      background-size: 250px 250px, 300px 300px, 200px 200px, 400px 400px, 350px 350px, 280px 280px;
+      opacity: 0.6;
+      animation: starMove 140s linear infinite;
+      z-index: 0;
+    }
+
+    @keyframes starMove {
+      0% { background-position: 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%; }
+      100% { background-position: 300% 200%, 250% 180%, 400% 300%, 200% 150%, 500% 250%, 150% 350%; }
+    }
+
+    .container {
+      max-width: 1300px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+      backdrop-filter: blur(2px);
+    }
+
+    /* 玻璃宇宙卡片 */
+    header {
+      background: rgba(10, 20, 40, 0.55);
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(120, 180, 255, 0.4);
+      border-radius: 3rem;
+      text-align: center;
+      padding: 2.5rem 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 25px rgba(0, 200, 255, 0.3);
+      transition: 0.4s;
+    }
+
+    header h1 {
+      font-size: 3.2rem;
+      background: linear-gradient(135deg, #fff, #b3e5ff, #c084fc, #6ee7b7);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: 2px;
+      text-shadow: 0 0 12px #00a6ff40;
+      font-weight: 700;
+    }
+
+    header p {
+      font-size: 1.2rem;
+      color: #c4e0ff;
+      margin-top: 0.7rem;
+      font-weight: 500;
+    }
+
+    /* 星际导航 */
+    nav {
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(20px);
+      border-radius: 60px;
+      padding: 0.8rem 1.8rem;
+      margin-bottom: 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.8rem 1.8rem;
+      border: 1px solid rgba(0, 255, 255, 0.4);
+      position: sticky;
+      top: 15px;
+      z-index: 99;
+    }
+
+    nav a {
+      color: #d2eaff;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 1.05rem;
+      padding: 0.4rem 0;
+      transition: 0.2s;
+      border-bottom: 2px solid transparent;
+      letter-spacing: 1px;
+    }
+
+    nav a:hover {
+      color: #ffd966;
+      border-bottom-color: #00ffff;
+      text-shadow: 0 0 6px cyan;
+    }
+
+    /* 内容区域 - 星云卡片 */
+    .section {
+      background: rgba(6, 12, 28, 0.72);
+      backdrop-filter: blur(8px);
+      border-radius: 2.5rem;
+      padding: 2rem 2rem;
+      margin-bottom: 2.5rem;
+      border: 1px solid rgba(72, 187, 255, 0.3);
+      box-shadow: 0 25px 35px -12px rgba(0, 0, 0, 0.5);
+      transition: transform 0.2s ease, box-shadow 0.2s;
+    }
+
+    .section:hover {
+      transform: translateY(-5px);
+      border-color: #7c3aed80;
+      box-shadow: 0 30px 45px -12px #000000cc, 0 0 14px #2dd4bf60;
+    }
+
+    h2 {
+      font-size: 2.3rem;
+      background: linear-gradient(120deg, #b8f2ff, #d9b4ff, #a5f3c3);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 1.2rem;
+      border-left: 6px solid #2dd4bf;
+      padding-left: 20px;
+      letter-spacing: -0.5px;
+    }
+
+    h3 {
+      font-size: 1.7rem;
+      margin: 1.6rem 0 0.8rem 0;
+      color: #bbe4ff;
+      display: inline-block;
+      border-bottom: 2px dashed #2dd4bf80;
+    }
+
+    ul, .glossary-list {
+      background: rgba(20, 30, 55, 0.6);
+      border-radius: 1.5rem;
+      padding: 1.2rem 1.8rem;
+      margin: 1rem 0;
+      list-style-type: none;
+      border-left: 5px solid #7e57c2;
+    }
+
+    li {
+      margin: 0.75rem 0;
+      padding-left: 1.5rem;
+      position: relative;
+      font-size: 1.03rem;
+      line-height: 1.45;
+    }
+
+    li::before {
+      content: "✨";
+      position: absolute;
+      left: 0;
+      color: #ffe69b;
+      font-size: 1rem;
+    }
+
+    .formula {
+      background: linear-gradient(145deg, #0f1a2f, #030617);
+      color: #b9f3ff;
+      font-weight: bold;
+      padding: 1rem;
+      border-radius: 2rem;
+      text-align: center;
+      margin: 1.2rem 0;
+      font-size: 1.1rem;
+      font-family: monospace;
+      border: 1px solid #2dd4bf;
+      box-shadow: 0 0 8px cyan;
+    }
+
+    .highlight {
+      background: rgba(255, 215, 120, 0.12);
+      backdrop-filter: blur(4px);
+      padding: 1rem 1.3rem;
+      border-radius: 1.5rem;
+      border-left: 6px solid #facc15;
+      margin: 1.4rem 0;
+      font-weight: 500;
+    }
+
+    .definition {
+      background: rgba(0, 200, 200, 0.08);
+      padding: 1rem 1.4rem;
+      border-radius: 1.5rem;
+      border-left: 6px solid #34d399;
+      margin: 1.2rem 0;
+      font-size: 1.05rem;
+    }
+
+    .cosmic-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.2rem;
+      margin: 1rem 0;
+    }
+
+    .card-mini {
+      background: #0b142cb3;
+      border-radius: 1.5rem;
+      padding: 0.8rem 1.2rem;
+      flex: 1 1 210px;
+      border: 1px solid #3792ff40;
+      transition: 0.2s;
+    }
+
+    .card-mini strong {
+      color: #facc15;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1.8rem;
+      background: rgba(0, 0, 0, 0.65);
+      border-radius: 3rem;
+      margin-top: 1.5rem;
+      font-size: 0.9rem;
+      backdrop-filter: blur(8px);
+    }
+
+    @media (max-width: 780px) {
+      h2 { font-size: 1.8rem; }
+      h3 { font-size: 1.4rem; }
+      header h1 { font-size: 2rem; }
+      .section { padding: 1.3rem; }
+      nav a { font-size: 0.85rem; }
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #03050b;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #4f46e5;
+      border-radius: 20px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>⚡ VẬT LÝ VŨ TRỤ 🌌</h1>
+    <p>Kiến thức lớp 7–9 · Siêu dữ liệu · Tra cứu nhanh cho quiz & ôn thi vào 10</p>
+    <p style="font-size:0.9rem;">⭐ 600+ khái niệm · Từ cơ học đến thuyết tương đối ⭐</p>
+  </header>
+
+  <nav>
+    <a href="#amhoc">🔊 ÂM HỌC</a>
+    <a href="#quanghoc">🔆 QUANG HỌC</a>
+    <a href="#dienhoc">⚡ ĐIỆN HỌC</a>
+    <a href="#cohoc">⚙️ CƠ HỌC</a>
+    <a href="#nhiet-hoc">🔥 NHIỆT HỌC</a>
+    <a href="#vat-ly-hien-dai">🌠 VL HIỆN ĐẠI</a>
+  </nav>
+
+  <!-- I. ÂM HỌC MỞ RỘNG -->
+  <div class="section" id="amhoc">
+    <h2>🔊 I. ÂM HỌC – SÓNG CƠ HỌC</h2>
+    <div class="definition">📖 <strong>Sóng âm</strong> là dao động cơ học lan truyền trong môi trường vật chất. Tai người nghe được tần số 20 Hz – 20.000 Hz (siêu âm >20kHz, hạ âm <20Hz).</div>
+    <h3>1️⃣ Nguồn âm & truyền âm</h3>
+    <ul>
+      <li>Mọi nguồn âm đều là vật dao động (dây đàn, mặt trống, thanh quản).</li>
+      <li>Âm truyền được trong chất rắn (nhanh nhất), lỏng, khí (chậm nhất) – không truyền trong chân không.</li>
+      <li>Tốc độ âm trong không khí ≈ 340 m/s (ở 25°C), trong nước ≈ 1500 m/s, trong thép ≈ 6100 m/s.</li>
+    </ul>
+    <h3>2️⃣ Đặc trưng sinh lý & vật lý</h3>
+    <ul>
+      <li><strong>Độ cao</strong> (bổng – trầm) phụ thuộc tần số (Hz). Tần số càng lớn âm càng cao.</li>
+      <li><strong>Độ to</strong> phụ thuộc biên độ dao động (mức cường độ âm – dB).</li>
+      <li><strong>Âm sắc</strong> giúp phân biệt các nguồn âm (đàn piano khác guitar) – do dạng đồ thị dao động.</li>
+    </ul>
+    <div class="formula">🔊 Vận tốc truyền âm: v = λ·f (λ: bước sóng, f: tần số). Mức cường độ âm L(dB) = 10·log(I/I₀).</div>
+    <div class="highlight">💡 <strong>Ứng dụng:</strong> Siêu âm chẩn đoán hình ảnh, sóng âm dội lại (sonar), chống ồn bằng cách hấp thụ và cách âm.</div>
+  </div>
+
+  <!-- II. QUANG HỌC – CHI TIẾT THẤU KÍNH + GƯƠNG -->
+  <div class="section" id="quanghoc">
+    <h2>🔆 II. QUANG HỌC – ÁNH SÁNG VÀ CÁC DỤNG CỤ</h2>
+    <div class="definition">✨ Ánh sáng truyền theo đường thẳng trong môi trường đồng tính. Định luật phản xạ: góc tới i = góc phản xạ i'.</div>
+    <h3>1️⃣ Gương phẳng – Gương cầu</h3>
+    <ul>
+      <li><strong>Gương phẳng:</strong> Ảnh ảo, đối xứng qua gương, kích thước bằng vật.</li>
+      <li><strong>Gương cầu lồi:</strong> Ảnh ảo, nhỏ hơn vật, vùng nhìn rộng (gương chiếu hậu).</li>
+      <li><strong>Gương cầu lõm:</strong> Vật trong tiêu cự cho ảnh ảo lớn hơn (kính trang điểm), vật ngoài tiêu cự cho ảnh thật ngược chiều.</li>
+    </ul>
+    <h3>2️⃣ Thấu kính hội tụ & phân kỳ (QUAN TRỌNG)</h3>
+    <ul>
+      <li><strong>Thấu kính hội tụ (TKHT):</strong> rìa mỏng, tâm dày. Hội tụ chùm sáng song song tại tiêu điểm ảnh F'.</li>
+      <li><strong>Thấu kính phân kỳ (TKPK):</strong> rìa dày, tâm mỏng. Chùm tia ló phân kì, kéo dài qua tiêu điểm ảnh ảo.</li>
+    </ul>
+    <div class="formula">📐 Công thức thấu kính: 1/f = 1/d + 1/d' (f: tiêu cự, d: khoảng cách vật, d': khoảng cách ảnh). Số phóng đại k = -d'/d = h'/h.</div>
+    <h3>3️⃣ Quy tắc ảnh qua thấu kính hội tụ</h3>
+    <ul>
+      <li>Vật ở ∞ → ảnh tại F' (tiêu điểm ảnh).</li>
+      <li>Vật ngoài 2F → ảnh thật, nhỏ hơn, ngược chiều, nằm giữa F và 2F.</li>
+      <li>Vật tại 2F → ảnh thật, bằng vật, ngược chiều tại 2F'.</li>
+      <li>Vật trong F (d<f) → ảnh ảo, cùng chiều, lớn hơn vật (kính lúp).</li>
+      <li>Vật tại F: không tạo ảnh (chùm tia ló song song).</li>
+    </ul>
+    <div class="highlight">🔎 Mắt – Kính lúp: Thể thủy tinh thay đổi tiêu cự để điều tiết. Mắt cận đeo TKPK, mắt lão đeo TKHT. Kính lúp có f vài cm, số bội giác G = 25/f (cm).</div>
+  </div>
+
+  <!-- III. ĐIỆN HỌC (MỞ RỘNG MẠCH ĐIỆN, ĐIỆN TRỞ, CÔNG SUẤT) -->
+  <div class="section" id="dienhoc">
+    <h2>⚡ III. ĐIỆN HỌC – DÒNG ĐIỆN & MẠCH ĐIỆN</h2>
+    <div class="definition">🧲 Dòng điện là dòng chuyển dời có hướng của các hạt mang điện (electron trong kim loại, ion trong dung dịch).</div>
+    <h3>1️⃣ Các đại lượng cơ bản</h3>
+    <ul>
+      <li><strong>Cường độ dòng điện (I)</strong>: I = q/t (A). Đo bằng ampe kế mắc nối tiếp.</li>
+      <li><strong>Hiệu điện thế (U)</strong>: U = A/q (V). Đo bằng vôn kế mắc song song.</li>
+      <li><strong>Điện trở (R)</strong>: R = ρ·ℓ/S (Ω). Điện trở suất ρ phụ thuộc vật liệu.</li>
+    </ul>
+    <div class="formula">⚡ Định luật Ôm: I = U / R.  Điện trở tương đương: nối tiếp R<sub>tđ</sub> = R₁+R₂+...; song song 1/R<sub>tđ</sub> = 1/R₁+1/R₂+...</div>
+    <h3>2️⃣ Công suất – Điện năng – Nhiệt lượng</h3>
+    <ul>
+      <li><strong>Công suất điện:</strong> P = U·I = I²R = U²/R (W).</li>
+      <li><strong>Điện năng tiêu thụ:</strong> A = P·t = U·I·t (J). Thực tế dùng kWh (1 kWh = 3,6·10⁶ J).</li>
+      <li><strong>Định luật Jun-Lenxo:</strong> Q = I²·R·t (nhiệt lượng tỏa ra trên dây dẫn).</li>
+    </ul>
+    <h3>3️⃣ An toàn điện & từ trường</h3>
+    <ul>
+      <li>Dòng điện qua cơ thể > 10mA gây nguy hiểm. Cầu chì, aptomat bảo vệ quá tải.</li>
+      <li>Nam châm điện: cuộn dây có lõi sắt non hút sắt thép (cần cẩu điện, rơle).</li>
+      <li>Quy tắc bàn tay phải: xác định chiều đường sức từ của ống dây.</li>
+    </ul>
+    <div class="highlight">🔌 Mạch điện trong nhà: mắc song song các thiết bị để U không đổi. Dây pha (nóng) màu đỏ/nâu, dây trung tính (nguội) màu xanh.</div>
+  </div>
+
+  <!-- IV. CƠ HỌC (MỞ RỘNG ĐỘNG LỰC HỌC, ÁP SUẤT, CÔNG) -->
+  <div class="section" id="cohoc">
+    <h2>⚙️ IV. CƠ HỌC – CHUYỂN ĐỘNG & TƯƠNG TÁC</h2>
+    <div class="definition">📐 Cơ học nghiên cứu chuyển động của vật chất dưới tác dụng của lực. Các định luật Newton là nền tảng.</div>
+    <h3>1️⃣ Chuyển động – Vận tốc</h3>
+    <ul>
+      <li>Chuyển động đều: v = s/t. Chuyển động không đều: v<sub>tb</sub> = s/t.</li>
+      <li>Đổi đơn vị: 1 m/s = 3,6 km/h.</li>
+      <li>Chuyển động cơ học có tính tương đối phụ thuộc vật mốc.</li>
+    </ul>
+    <div class="formula">📈 Gia tốc: a = Δv/Δt (m/s²). Trong chuyển động thẳng biến đổi đều: v = v₀ + a·t, s = v₀t + ½a·t².</div>
+    <h3>2️⃣ Lực – Áp suất</h3>
+    <ul>
+      <li>Lực là đại lượng vectơ, làm biến dạng hoặc thay đổi chuyển động. Đơn vị Newton (N).</li>
+      <li><strong>Áp suất:</strong> p = F/S (Pa). Áp suất chất lỏng: p = ρ·g·h. Áp suất khí quyển ≈ 101325 Pa.</li>
+      <li>Định luật Pascal: Áp suất tác dụng lên chất lỏng truyền nguyên vẹn theo mọi hướng (máy thủy lực).</li>
+    </ul>
+    <h3>3️⃣ Lực ma sát</h3>
+    <ul>
+      <li>Ma sát trượt > ma sát lăn > ma sát nghỉ (ma sát nghỉ cực đại).</li>
+      <li>Lợi ích: phanh xe, viết bảng, đi lại. Tác hại: mòn máy móc → dùng ổ bi, dầu nhờn.</li>
+    </ul>
+    <h3>4️⃣ Công – Công suất – Đòn bẩy</h3>
+    <ul>
+      <li><strong>Công cơ học:</strong> A = F·s·cosα (J). Không có công khi lực vuông góc chuyển dời.</li>
+      <li><strong>Công suất:</strong> P = A/t (W).</li>
+      <li><strong>Đòn bẩy:</strong> F₁·d₁ = F₂·d₂. Mặt phẳng nghiêng: lợi về lực, thiệt về đường đi.</li>
+      <li><strong>Định luật bảo toàn công:</strong> Không một máy cơ đơn giản nào cho lợi về công.</li>
+    </ul>
+    <div class="highlight">🏋️ Trọng lực: P = m·g (g ≈ 9,8 m/s²). Công thức tính trọng lượng riêng d = 10·D (N/m³).</div>
+  </div>
+
+  <!-- V. NHIỆT HỌC MỚI BỔ SUNG DÀY ĐẶC -->
+  <div class="section" id="nhiet-hoc">
+    <h2>🔥 V. NHIỆT HỌC – NĂNG LƯỢNG NHIỆT & SỰ CHUYỂN THỂ</h2>
+    <div class="definition">🌡️ Nhiệt học nghiên cứu các hiện tượng liên quan đến nhiệt độ, nội năng và sự truyền nhiệt.</div>
+    <h3>1️⃣ Nhiệt độ & Thang đo</h3>
+    <ul>
+      <li>Nhiệt độ là số đo mức độ nóng lạnh. Đơn vị °C, K (kelvin). Quan hệ: T(K) = t(°C) + 273.</li>
+      <li>Thang nhiệt độ Celsius: 0°C (nước đá tan), 100°C (nước sôi ở áp suất 1 atm).</li>
+    </ul>
+    <h3>2️⃣ Nội năng & Sự truyền nhiệt</h3>
+    <ul>
+      <li>Nội năng là tổng động năng + thế năng của phân tử. Có thể thay đổi bằng cách thực hiện công hoặc truyền nhiệt.</li>
+      <li>Các hình thức truyền nhiệt: <strong>Dẫn nhiệt</strong> (chất rắn), <strong>Đối lưu</strong> (chất lỏng, khí), <strong>Bức xạ nhiệt</strong> (không cần môi trường).</li>
+      <li>Vật đen hấp thụ bức xạ tốt (mặt Trời), bề mặt sáng phản xạ tốt.</li>
+    </ul>
+    <div class="formula">🔥 Nhiệt lượng: Q = m·c·Δt (c: nhiệt dung riêng, J/kg·K). Phương trình cân bằng nhiệt: Q<sub>tỏa</sub> = Q<sub>thu</sub>.</div>
+    <h3>3️⃣ Sự chuyển thể</h3>
+    <ul>
+      <li>Nóng chảy – Đông đặc: Nhiệt độ không đổi trong suốt quá trình. Nhiệt nóng chảy riêng: Q = λ·m.</li>
+      <li>Bay hơi – Ngưng tụ: xảy ra ở mọi nhiệt độ, phụ thuộc diện tích, gió, nhiệt độ. Sôi là bay hơi trong lòng chất lỏng.</li>
+      <li>Nhiệt hóa hơi: Q = L·m (L: ẩn nhiệt hóa hơi).</li>
+    </ul>
+    <div class="highlight">💧 Nước có nhiệt dung riêng lớn (4200 J/kg·K) → điều hòa khí hậu. Nguyên lý hoạt động của tủ lạnh, máy điều hòa dựa vào sự bay hơi và ngưng tụ của môi chất lạnh.</div>
+  </div>
+
+  <!-- VI. VẬT LÝ HIỆN ĐẠI & MỞ RỘNG KIẾN THỨC NÂNG CAO -->
+  <div class="section" id="vat-ly-hien-dai">
+    <h2>🌠 VI. VẬT LÝ HIỆN ĐẠI & ỨNG DỤNG</h2>
+    <div class="definition">🚀 Thế giới vi mô (nguyên tử, hạt nhân) và vĩ mô (vũ trụ) được khám phá bởi vật lý hiện đại.</div>
+    <h3>1️⃣ Cấu tạo nguyên tử – Phóng xạ</h3>
+    <ul>
+      <li>Nguyên tử gồm hạt nhân (p, n) và electron. Hạt nhân có kích thước rất nhỏ (10⁻¹⁵ m).</li>
+      <li>Phóng xạ: phân rã tự nhiên của hạt nhân không bền (α, β⁻, β⁺, γ). Ứng dụng trong y học (xạ trị), khảo cổ (đồng vị C14).</li>
+      <li>Phản ứng hạt nhân: phân hạch (nhà máy điện hạt nhân) và nhiệt hạch (mặt trời).</li>
+    </ul>
+    <h3>2️⃣ Thuyết tương đối hẹp (Einstein)</h3>
+    <ul>
+      <li>Không có vận tốc tuyệt đối. Tốc độ ánh sáng trong chân không c = 3·10⁸ m/s là giới hạn tối đa.</li>
+      <li>Công thức năng lượng – khối lượng: E = m·c². Một lượng nhỏ khối lượng có thể chuyển thành năng lượng khổng lồ.</li>
+    </ul>
+    <h3>3️⃣ Vật lý lượng tử sơ cấp</h3>
+    <ul>
+      <li>Ánh sáng có lưỡng tính sóng – hạt (photon). Hiệu ứng quang điện: electron bật ra khi chiếu ánh sáng tần số đủ lớn.</li>
+      <li>Nguyên lý bất định Heisenberg: không thể đồng thời xác định chính xác vị trí và động lượng của hạt.</li>
+    </ul>
+    <div class="formula">💥 Công thức Einstein: ΔE = Δm·c², trong đó c = 3·10⁸ m/s, Δm là độ hụt khối.</div>
+    <div class="highlight">🛰️ Vật lý thiên văn: Lỗ đen, sao neutron, vụ nổ Big Bang khai sinh vũ trụ cách đây 13,8 tỉ năm. Sóng hấp dẫn do sự kiện va chạm hố đen – khám phá thế kỷ.</div>
+  </div>
+
+  <footer>
+    🌟 TỔNG HỢP KIẾN THỨC VẬT LÝ 7-9 CHUẨN CHƯƠNG TRÌNH MỚI + BỔ SUNG NÂNG CAO (NHIỆT HỌC, HIỆN ĐẠI) 🌟 <br/>
+    📖 Tra cứu nhanh dành cho Quiz, ôn thi vào 10 & yêu thích khám phá quy luật tự nhiên. Vật lý là chìa khóa mở ra vũ trụ!
+  </footer>
+</div>
+</body>
+</html>

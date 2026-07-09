@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Đăng ký</title>
+<style>
+  body { font-family: Arial; background: #ecfeff; display:flex; justify-content:center; align-items:center; height:100vh; }
+  .box { background:#fff; padding:30px; border-radius:15px; width:320px; box-shadow:0 0 15px #0002; }
+  input { width:100%; padding:10px; margin:10px 0; border-radius:8px; border:1px solid #bbb; }
+  button { width:100%; padding:12px; margin-top:10px; background:#0891b2; color:white; border:none; border-radius:8px; cursor:pointer }
+  button:hover { opacity:0.8; }
+  a { color:#0891b2; text-decoration:none; }
+</style>
+</head>
+<body>
+
+<div class="box">
+  <h2>Đăng ký</h2>
+
+  <input id="regUser" type="text" placeholder="Tên đăng nhập">
+  <input id="regPass" type="password" placeholder="Mật khẩu">
+
+  <button onclick="register()">Đăng ký</button>
+
+  <p>Đã có tài khoản? <a href="login.html">Đăng nhập</a></p>
+</div>
+
+<script>
+// REGISTER
+function register() {
+  const user = regUser.value.trim();
+  const pass = regPass.value.trim();
+
+  if (user.length < 3) return alert("Tên đăng nhập phải ≥ 3 ký tự");
+  if (pass.length < 3) return alert("Mật khẩu phải ≥ 3 ký tự");
+
+  let data = JSON.parse(localStorage.getItem("users")) || {};
+
+  if (data[user]) return alert("Tên này đã tồn tại!");
+
+  // lưu user mới
+  data[user] = {
+    password: pass,
+    level: 1,
+    score: 0
+  };
+
+  localStorage.setItem("users", JSON.stringify(data));
+
+  alert("Đăng ký thành công! Hãy đăng nhập.");
+  window.location.href = "login.html";
+}
+</script>
+
+</body>
+</html>

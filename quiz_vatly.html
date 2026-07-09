@@ -1,0 +1,1390 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bài tập Vật lý - Hệ thống động</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        /* ========== RESET & BASE ========== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', 'Roboto', sans-serif;
+            background: #0b1a2a;
+            color: #e8f0f8;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1a2a33; }
+        ::-webkit-scrollbar-thumb { background: #3d6a8a; border-radius: 10px; }
+
+        .app {
+            max-width: 1440px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 30px;
+        }
+        .main-content { display: flex; flex-direction: column; gap: 30px; }
+
+        /* ========== HEADER ========== */
+        .header {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(12px);
+            border-radius: 24px;
+            padding: 20px 28px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 18px 30px;
+        }
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: #fff;
+        }
+        .header-title i { color: #3b82f6; font-size: 28px; }
+        .header-controls {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 40px;
+            padding: 6px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            flex: 1 1 200px;
+            min-width: 140px;
+            transition: 0.25s;
+        }
+        .search-box:focus-within {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+        .search-box i { color: #8aa3b5; font-size: 16px; margin-right: 10px; }
+        .search-box input {
+            background: transparent;
+            border: none;
+            padding: 10px 0;
+            color: #e8f0f8;
+            font-size: 15px;
+            outline: none;
+            width: 100%;
+        }
+        .search-box input::placeholder { color: #6a8499; }
+        .filter-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .filter-group select {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 30px;
+            padding: 8px 16px;
+            color: #e8f0f8;
+            font-size: 14px;
+            cursor: pointer;
+            outline: none;
+            transition: 0.2s;
+            min-width: 120px;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238aa3b5' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+        }
+        .filter-group select:focus { border-color: #3b82f6; }
+        .filter-group select option { background: #1e2f3a; color: #e8f0f8; }
+
+        /* ========== DASHBOARD ========== */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(8px);
+            border-radius: 20px;
+            padding: 20px 24px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+        .dash-item { display: flex; flex-direction: column; }
+        .dash-item .label {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #8aa3b5;
+        }
+        .dash-item .value {
+            font-size: 24px;
+            font-weight: 700;
+            margin-top: 2px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .dash-item .value i { font-size: 20px; color: #ffd166; }
+        .progress-dash {
+            grid-column: 1 / -1;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px 20px;
+            margin-top: 4px;
+        }
+        .progress-dash .bar-wrap {
+            flex: 1;
+            min-width: 120px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        .progress-dash .bar-wrap .bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #3b82f6, #60a5fa);
+            border-radius: 20px;
+            transition: width 0.8s ease;
+        }
+        .progress-dash .stats {
+            display: flex;
+            gap: 18px;
+            font-size: 15px;
+            color: #b0c8d9;
+        }
+        .progress-dash .stats strong { color: #e8f0f8; }
+
+        /* ========== QUIZ LIST (Accordion) ========== */
+        .quiz-section { display: flex; flex-direction: column; gap: 16px; }
+        .chapter-accordion {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(8px);
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+            transition: 0.3s;
+        }
+        .chapter-accordion:hover { border-color: rgba(255, 255, 255, 0.08); }
+        .chapter-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 22px;
+            cursor: pointer;
+            transition: 0.2s;
+            user-select: none;
+        }
+        .chapter-header:hover { background: rgba(255, 255, 255, 0.03); }
+        .chapter-header .arrow {
+            transition: transform 0.3s;
+            font-size: 14px;
+            color: #8aa3b5;
+        }
+        .chapter-header.open .arrow { transform: rotate(90deg); }
+        .chapter-header .title {
+            font-size: 18px;
+            font-weight: 600;
+            flex: 1;
+        }
+        .chapter-header .badge-progress {
+            font-size: 14px;
+            color: #b0c8d9;
+            background: rgba(255, 255, 255, 0.06);
+            padding: 2px 14px;
+            border-radius: 30px;
+        }
+        .chapter-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            padding: 0 22px;
+        }
+        .chapter-body.open {
+            max-height: 5000px;
+            padding: 0 22px 20px 22px;
+        }
+        .chapter-progress {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+        .chapter-progress .bar-wrap {
+            flex: 1;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.07);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        .chapter-progress .bar-wrap .bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #3b82f6, #60a5fa);
+            border-radius: 20px;
+            transition: width 0.7s ease;
+        }
+        .chapter-progress .info {
+            font-size: 14px;
+            color: #b0c8d9;
+            white-space: nowrap;
+        }
+        .quiz-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        /* ========== QUIZ CARD ========== */
+        .quiz-card {
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 16px;
+            padding: 16px 18px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            transition: transform 0.2s, box-shadow 0.25s, background 0.25s;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            position: relative;
+        }
+        .quiz-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+            background: rgba(255, 255, 255, 0.07);
+        }
+        .quiz-card .top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        .quiz-card .top .name {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        .quiz-card .top .name i { font-size: 20px; color: #3b82f6; }
+        .quiz-card .badge {
+            font-size: 11px;
+            padding: 2px 12px;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.06);
+            color: #b0c8d9;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .badge.completed { background: #3b82f6; color: #0f2027; }
+        .badge.in-progress { background: #ffd166; color: #0f2027; }
+        .badge.locked { background: #4a5a66; color: #b0c8d9; }
+        .badge.high-score { background: #f7971e; color: #0f2027; }
+        .quiz-card .meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px 16px;
+            font-size: 14px;
+            color: #b0c8d9;
+        }
+        .quiz-card .meta span { display: flex; align-items: center; gap: 4px; }
+        .quiz-card .meta i { font-size: 14px; color: #6a8499; }
+        .quiz-card .bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 6px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .quiz-card .bottom .score { font-size: 14px; color: #b0c8d9; }
+        .quiz-card .bottom .score strong { color: #ffd166; }
+        .btn-start {
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+            border: none;
+            border-radius: 40px;
+            padding: 8px 20px;
+            font-weight: 700;
+            color: #0f2027;
+            cursor: pointer;
+            font-size: 14px;
+            transition: transform 0.2s, box-shadow 0.25s;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-start:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+        }
+        .btn-start:active:not(:disabled) { transform: scale(0.95); }
+        .btn-start:disabled {
+            background: #3d5a6d;
+            color: #8aa3b5;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+        .btn-start.locked {
+            background: #3d5a6d;
+            color: #8aa3b5;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* ========== SIDEBAR ========== */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        .side-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(8px);
+            border-radius: 20px;
+            padding: 20px 22px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+        }
+        .side-card h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #3b82f6;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .side-card h3 i { font-size: 18px; }
+        .profile-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 12px;
+        }
+        .profile-row .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: #0f2027;
+        }
+        .profile-row .info .name { font-size: 18px; font-weight: 600; }
+        .profile-row .info .sub { font-size: 14px; color: #b0c8d9; }
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px 16px;
+            margin-top: 6px;
+        }
+        .stat-grid .stat {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+        }
+        .stat-grid .stat i { width: 20px; color: #ffd166; }
+        .stat-grid .stat .val { font-weight: 600; color: #e8f0f8; }
+        .recent-list {
+            list-style: none;
+            margin-top: 4px;
+        }
+        .recent-list li {
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            font-size: 15px;
+            display: flex;
+            justify-content: space-between;
+            color: #b0c8d9;
+        }
+        .recent-list li:last-child { border-bottom: none; }
+        .recent-list li .qname { color: #e8f0f8; }
+
+        /* ========== QUICK PRACTICE ========== */
+        .quick-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+        }
+        .quick-item {
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 14px;
+            padding: 14px 12px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            transition: 0.2s;
+            cursor: pointer;
+        }
+        .quick-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-3px);
+        }
+        .quick-item i {
+            font-size: 26px;
+            color: #ffd166;
+            display: block;
+            margin-bottom: 6px;
+        }
+        .quick-item .label { font-size: 14px; font-weight: 500; }
+
+        /* ========== ACHIEVEMENTS ========== */
+        .achievement-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 4px;
+        }
+        .ach-badge {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 40px;
+            padding: 6px 16px 6px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            border: 1px solid rgba(255, 215, 0, 0.15);
+        }
+        .ach-badge i { color: #ffd200; font-size: 18px; }
+        .ach-badge.locked {
+            opacity: 0.4;
+            border-color: rgba(255, 255, 255, 0.05);
+        }
+        .ach-badge.locked i { color: #6a8499; }
+
+        /* ========== QUIZ OVERLAY (Modal) ========== */
+        .quiz-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .quiz-overlay.active { display: flex; }
+        .quiz-modal {
+            background: #1a2a33;
+            border-radius: 24px;
+            max-width: 800px;
+            width: 100%;
+            padding: 30px 35px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .quiz-modal .close-btn {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: #b0c8d9;
+            font-size: 28px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .quiz-modal .close-btn:hover { color: #fff; transform: rotate(90deg); }
+        .quiz-modal h2 {
+            font-size: 24px;
+            margin-bottom: 6px;
+            color: #3b82f6;
+        }
+        .quiz-modal .quiz-meta {
+            color: #b0c8d9;
+            font-size: 15px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            padding-bottom: 12px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .quiz-modal .quiz-meta span i { margin-right: 4px; color: #ffd166; }
+        .question-block {
+            margin-bottom: 24px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 14px;
+            padding: 16px 18px;
+            border-left: 3px solid #3b82f6;
+        }
+        .question-block .q-text {
+            font-size: 17px;
+            font-weight: 500;
+            margin-bottom: 12px;
+        }
+        .question-block .options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .question-block .options label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 15px;
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 10px;
+            transition: 0.15s;
+        }
+        .question-block .options label:hover { background: rgba(255, 255, 255, 0.04); }
+        .question-block .options input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #3b82f6;
+            cursor: pointer;
+        }
+        .quiz-submit {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 12px;
+            padding-top: 18px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .btn-submit {
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+            border: none;
+            border-radius: 40px;
+            padding: 12px 36px;
+            font-weight: 700;
+            color: #0f2027;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.25s;
+            box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
+        }
+        .btn-submit:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 28px rgba(59, 130, 246, 0.5);
+        }
+        .btn-submit:active { transform: scale(0.95); }
+        .btn-cancel {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 40px;
+            padding: 12px 28px;
+            font-weight: 600;
+            color: #b0c8d9;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-cancel:hover { background: rgba(255, 255, 255, 0.1); }
+
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 1024px) {
+            .app { grid-template-columns: 1fr; }
+            .sidebar {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+                gap: 20px;
+            }
+        }
+        @media (max-width: 640px) {
+            body { padding: 12px; }
+            .header {
+                padding: 16px 18px;
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .header-title { font-size: 22px; }
+            .header-controls { flex-direction: column; align-items: stretch; }
+            .filter-group { flex-wrap: wrap; }
+            .filter-group select { flex: 1; min-width: 100px; }
+            .dashboard {
+                grid-template-columns: 1fr 1fr;
+                padding: 16px;
+            }
+            .dash-item .value { font-size: 20px; }
+            .quiz-grid { grid-template-columns: 1fr; }
+            .chapter-header { flex-wrap: wrap; }
+            .chapter-header .badge-progress { font-size: 12px; }
+            .quick-grid { grid-template-columns: 1fr 1fr; }
+            .quiz-modal { padding: 20px; }
+        }
+        .text-muted { color: #8aa3b5; }
+        .no-result {
+            padding: 30px 10px;
+            text-align: center;
+            color: #8aa3b5;
+            font-size: 16px;
+        }
+        .no-result i {
+            font-size: 40px;
+            display: block;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app" id="app">
+        <!-- ===== MAIN CONTENT ===== -->
+        <div class="main-content">
+            <!-- HEADER -->
+            <header class="header">
+                <div class="header-title">
+                    <i class="fas fa-atom"></i> Bài tập Vật lý
+                </div>
+                <div class="header-controls">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="Tìm kiếm bài tập..." />
+                    </div>
+                    <div class="filter-group">
+                        <select id="filterChapter"><option value="all">Tất cả chương</option></select>
+                        <select id="filterLevel"><option value="all">Tất cả mức độ</option></select>
+                        <select id="filterStatus"><option value="all">Tất cả trạng thái</option></select>
+                        <select id="filterSort">
+                            <option value="default">Sắp xếp mặc định</option>
+                            <option value="newest">Mới nhất</option>
+                            <option value="oldest">Cũ nhất</option>
+                            <option value="hardest">Khó nhất</option>
+                            <option value="easiest">Dễ nhất</option>
+                        </select>
+                    </div>
+                </div>
+            </header>
+
+            <!-- DASHBOARD -->
+            <section class="dashboard" id="dashboard"></section>
+
+            <!-- QUIZ LIST (Accordion) -->
+            <section class="quiz-section" id="quizSection"></section>
+
+            <!-- QUICK PRACTICE -->
+            <section class="side-card" style="border-radius:20px;">
+                <h3><i class="fas fa-bolt" style="color:#ffd166;"></i> Luyện tập nhanh</h3>
+                <div class="quick-grid" id="quickGrid">
+                    <div class="quick-item" data-action="random"><i class="fas fa-dice"></i><span class="label">Làm ngẫu nhiên</span></div>
+                    <div class="quick-item" data-action="wrong"><i class="fas fa-undo-alt"></i><span class="label">Ôn lại bài sai</span></div>
+                    <div class="quick-item" data-action="hard"><i class="fas fa-star"></i><span class="label">Bài khó</span></div>
+                    <div class="quick-item" data-action="mix"><i class="fas fa-layer-group"></i><span class="label">Đề tổng hợp</span></div>
+                    <div class="quick-item" data-action="timed"><i class="fas fa-clock"></i><span class="label">Thi thử 20 phút</span></div>
+                </div>
+            </section>
+
+            <!-- ACHIEVEMENTS -->
+            <section class="side-card" style="border-radius:20px;">
+                <h3><i class="fas fa-trophy" style="color:#ffd200;"></i> Thành tích</h3>
+                <div class="achievement-grid" id="achievementGrid"></div>
+            </section>
+        </div>
+
+        <!-- ===== SIDEBAR ===== -->
+        <aside class="sidebar" id="sidebar">
+            <div class="side-card">
+                <div class="profile-row">
+                    <div class="avatar" id="userAvatar">H</div>
+                    <div class="info">
+                        <div class="name" id="userName">Học sinh</div>
+                        <div class="sub" id="userClass">Lớp 8 · THCS</div>
+                    </div>
+                </div>
+                <div class="stat-grid">
+                    <div class="stat"><i class="fas fa-fire"></i> <span class="val" id="sideStreak">0</span> ngày</div>
+                    <div class="stat"><i class="fas fa-star"></i> <span class="val" id="sideXP">0</span> XP</div>
+                    <div class="stat"><i class="fas fa-trophy"></i> <span class="val" id="sideAvg">0</span> điểm</div>
+                    <div class="stat"><i class="fas fa-check-circle"></i> <span class="val" id="sideDone">0</span> bài</div>
+                </div>
+            </div>
+            <div class="side-card">
+                <h3><i class="fas fa-history"></i> Làm gần đây</h3>
+                <ul class="recent-list" id="recentList"></ul>
+            </div>
+        </aside>
+    </div>
+
+    <!-- ===== QUIZ OVERLAY (Modal) ===== -->
+    <div class="quiz-overlay" id="quizOverlay">
+        <div class="quiz-modal">
+            <button class="close-btn" id="closeQuizBtn">&times;</button>
+            <h2 id="quizModalTitle">Bài kiểm tra</h2>
+            <div class="quiz-meta" id="quizModalMeta">
+                <span><i class="fas fa-clock"></i> Thời gian: <span id="quizTime">15</span> phút</span>
+                <span><i class="fas fa-list-ul"></i> Số câu: <span id="quizTotalQuestions">0</span></span>
+            </div>
+            <div id="quizQuestionsContainer"></div>
+            <div class="quiz-submit">
+                <button class="btn-cancel" id="cancelQuizBtn">Hủy</button>
+                <button class="btn-submit" id="submitQuizBtn">Nộp bài</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ================================================================
+        //  0. HỆ THỐNG HỒ SƠ DÙNG CHUNG (studentProfile)
+        // ================================================================
+        const ProfileService = {
+            getProfile() {
+                let profile = null;
+                try {
+                    const raw = localStorage.getItem('studentProfile');
+                    if (raw) profile = JSON.parse(raw);
+                } catch(e) {}
+                if (!profile) {
+                    profile = {
+                        username: 'guest',
+                        displayName: 'Chưa đăng nhập',
+                        class: '',
+                        avatar: '?'
+                    };
+                }
+                return profile;
+            },
+            updateProfile(data) {
+                const current = this.getProfile();
+                const merged = { ...current, ...data };
+                localStorage.setItem('studentProfile', JSON.stringify(merged));
+            }
+        };
+
+        // ================================================================
+        //  1. QUIZ DATA – VẬT LÝ
+        // ================================================================
+        const QuizData = {
+            generateQuestions(title, count) {
+                const pool = [
+                    { question: 'Vận tốc được tính bằng công thức nào?', options: ['v = s/t', 'v = t/s', 'v = s*t', 'v = a*t'], answer: 0 },
+                    { question: 'Đơn vị của lực là gì?', options: ['Newton (N)', 'Joule (J)', 'Watt (W)', 'Pascal (Pa)'], answer: 0 },
+                    { question: 'Công suất được tính bằng công thức?', options: ['P = A/t', 'P = t/A', 'P = F/s', 'P = m*g'], answer: 0 },
+                    { question: 'Định luật II Newton được phát biểu?', options: ['F = m*a', 'F = m/v', 'F = m*s', 'F = a/m'], answer: 0 },
+                    { question: 'Áp suất được tính bằng?', options: ['p = F/S', 'p = S/F', 'p = F*S', 'p = m*g/S'], answer: 0 },
+                    { question: 'Đơn vị của công là?', options: ['Joule (J)', 'Newton (N)', 'Watt (W)', 'Pascal (Pa)'], answer: 0 },
+                    { question: 'Khi vật chuyển động thẳng đều, hợp lực tác dụng lên vật?', options: ['Bằng 0', 'Lớn hơn 0', 'Nhỏ hơn 0', 'Không xác định'], answer: 0 },
+                    { question: 'Công thức tính trọng lực?', options: ['P = m*g', 'P = m/v', 'P = g/m', 'P = m*a'], answer: 0 },
+                    { question: 'Chu kỳ dao động của con lắc đơn phụ thuộc vào?', options: ['Chiều dài dây', 'Khối lượng vật', 'Biên độ', 'Gia tốc trọng trường'], answer: 0 },
+                    { question: 'Sóng âm không truyền được trong?', options: ['Chân không', 'Không khí', 'Nước', 'Chất rắn'], answer: 0 },
+                    { question: 'Định luật bảo toàn cơ năng áp dụng khi?', options: ['Chỉ có lực thế tác dụng', 'Có ma sát', 'Có ngoại lực', 'Luôn đúng'], answer: 0 },
+                    { question: 'Hiện tượng khúc xạ ánh sáng là?', options: ['Thay đổi phương truyền khi qua mặt phân cách', 'Phản xạ lại', 'Hấp thụ', 'Tán sắc'], answer: 0 },
+                    { question: 'Điện trở của dây dẫn phụ thuộc vào?', options: ['Chiều dài, tiết diện, vật liệu', 'Chiều dài, vật liệu', 'Tiết diện, vật liệu', 'Chiều dài, tiết diện'], answer: 0 },
+                    { question: 'Công thức tính nhiệt lượng?', options: ['Q = m*c*Δt', 'Q = m*c/t', 'Q = c*Δt/m', 'Q = m*t/c'], answer: 0 },
+                    { question: 'Máy biến áp hoạt động dựa trên hiện tượng?', options: ['Cảm ứng điện từ', 'Tĩnh điện', 'Nhiệt điện', 'Quang điện'], answer: 0 }
+                ];
+                const shuffled = [...pool];
+                let seed = title.length * 31;
+                for (let i = shuffled.length - 1; i > 0; i--) {
+                    seed = (seed * 9301 + 49297) % 233280;
+                    const j = Math.floor(seed / 233280 * (i + 1));
+                    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                }
+                const result = [];
+                for (let i = 0; i < count; i++) {
+                    const idx = i % shuffled.length;
+                    const q = shuffled[idx];
+                    result.push({
+                        question: q.question,
+                        options: q.options.slice(),
+                        answer: q.answer
+                    });
+                }
+                return result;
+            },
+
+            getQuizzes() {
+                return [
+                    { id: 1, title: 'Cơ học', icon: '⚙️', chapter: 'Chương 1: Cơ học', level: 'Dễ', time: 15, questions: 10, order: 1, questionsData: this.generateQuestions('Cơ học', 10) },
+                    { id: 2, title: 'Định luật Newton', icon: '🍎', chapter: 'Chương 1: Cơ học', level: 'Trung bình', time: 20, questions: 15, order: 2, questionsData: this.generateQuestions('Định luật Newton', 15) },
+                    { id: 3, title: 'Công và năng lượng', icon: '⚡', chapter: 'Chương 1: Cơ học', level: 'Khó', time: 25, questions: 12, order: 3, questionsData: this.generateQuestions('Công và năng lượng', 12) },
+                    { id: 4, title: 'Điện học', icon: '💡', chapter: 'Chương 2: Điện học', level: 'Trung bình', time: 20, questions: 12, order: 1, questionsData: this.generateQuestions('Điện học', 12) },
+                    { id: 5, title: 'Mạch điện', icon: '🔌', chapter: 'Chương 2: Điện học', level: 'Khó', time: 25, questions: 14, order: 2, questionsData: this.generateQuestions('Mạch điện', 14) },
+                    { id: 6, title: 'Quang học', icon: '🔦', chapter: 'Chương 3: Quang học', level: 'Dễ', time: 15, questions: 10, order: 1, questionsData: this.generateQuestions('Quang học', 10) },
+                    { id: 7, title: 'Khúc xạ ánh sáng', icon: '🌈', chapter: 'Chương 3: Quang học', level: 'Trung bình', time: 22, questions: 16, order: 2, questionsData: this.generateQuestions('Khúc xạ ánh sáng', 16) },
+                    { id: 8, title: 'Nhiệt học', icon: '🌡️', chapter: 'Chương 4: Nhiệt học', level: 'Trung bình', time: 18, questions: 12, order: 1, questionsData: this.generateQuestions('Nhiệt học', 12) },
+                    { id: 9, title: 'Sóng cơ', icon: '🌊', chapter: 'Chương 4: Nhiệt học', level: 'Khó', time: 30, questions: 18, order: 2, questionsData: this.generateQuestions('Sóng cơ', 18) },
+                    { id: 10, title: 'Áp suất', icon: '📊', chapter: 'Chương 5: Áp suất và chất lỏng', level: 'Dễ', time: 15, questions: 10, order: 1, questionsData: this.generateQuestions('Áp suất', 10) },
+                    { id: 11, title: 'Chất lỏng', icon: '💧', chapter: 'Chương 5: Áp suất và chất lỏng', level: 'Trung bình', time: 20, questions: 14, order: 2, questionsData: this.generateQuestions('Chất lỏng', 14) },
+                    { id: 12, title: 'Tổng hợp Vật lý', icon: '🧪', chapter: 'Chương 5: Áp suất và chất lỏng', level: 'Trung bình', time: 20, questions: 15, order: 3, questionsData: this.generateQuestions('Tổng hợp Vật lý', 15) },
+                ];
+            }
+        };
+
+        // ================================================================
+        //  2. STORAGE SERVICE (dùng studentProfile)
+        // ================================================================
+        const StorageService = {
+            getProfile() { return ProfileService.getProfile(); },
+            updateProfile(data) { ProfileService.updateProfile(data); },
+            get(key, defaultVal) {
+                try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : defaultVal; } catch { return defaultVal; }
+            },
+            set(key, data) { localStorage.setItem(key, JSON.stringify(data)); },
+            keys: {
+                PROGRESS: 'phys_progress',
+                HISTORY: 'phys_history',
+                ACHIEVEMENTS: 'phys_achievements'
+            }
+        };
+
+        // ================================================================
+        //  3. PROGRESS SERVICE
+        // ================================================================
+        const ProgressService = {
+            getUser() { return StorageService.getProfile(); },
+            updateUser(fields) {
+                const current = this.getUser();
+                const merged = { ...current, ...fields };
+                StorageService.updateProfile(merged);
+            },
+            getProgress() { return StorageService.get(StorageService.keys.PROGRESS, {}); },
+            getProgressForQuiz(quizId) {
+                const all = this.getProgress();
+                return all[quizId] || null;
+            },
+            saveProgress(quizId, data) {
+                const all = this.getProgress();
+                all[quizId] = data;
+                StorageService.set(StorageService.keys.PROGRESS, all);
+            },
+            getHistory() { return StorageService.get(StorageService.keys.HISTORY, []); },
+            addHistory(entry) {
+                const history = this.getHistory();
+                history.push({ ...entry, date: new Date().toISOString() });
+                if (history.length > 100) history.shift();
+                StorageService.set(StorageService.keys.HISTORY, history);
+            },
+            getAchievements() { return StorageService.get(StorageService.keys.ACHIEVEMENTS, {}); },
+            saveAchievement(id, unlocked) {
+                const all = this.getAchievements();
+                all[id] = unlocked;
+                StorageService.set(StorageService.keys.ACHIEVEMENTS, all);
+            },
+            isQuizUnlocked(quizId) {
+                const quizzes = QuizData.getQuizzes();
+                const quiz = quizzes.find(q => q.id === quizId);
+                if (!quiz) return false;
+                const sameChapter = quizzes.filter(q => q.chapter === quiz.chapter).sort((a, b) => a.order - b.order);
+                const first = sameChapter[0];
+                if (first.id === quizId) return true;
+                const prev = sameChapter.find(q => q.order === quiz.order - 1);
+                if (!prev) return false;
+                const prog = this.getProgressForQuiz(prev.id);
+                return prog && prog.isCompleted === true;
+            },
+            getQuizStatus(quizId) {
+                const prog = this.getProgressForQuiz(quizId);
+                if (!prog) return 'locked';
+                if (prog.isCompleted) {
+                    if (prog.highestScore >= 9) return 'high-score';
+                    return 'completed';
+                }
+                return 'in-progress';
+            },
+            computeStats() {
+                const user = this.getUser();
+                const progress = this.getProgress();
+                const quizzes = QuizData.getQuizzes();
+                let xp = 0, totalCorrect = 0, totalWrong = 0, completedCount = 0;
+                const scores = [];
+                quizzes.forEach(q => {
+                    const p = progress[q.id];
+                    if (p) {
+                        if (p.highestScore) { xp += Math.round(p.highestScore * 10); scores.push(p.highestScore); }
+                        if (p.isCompleted) completedCount++;
+                        if (p.correctAnswers) totalCorrect += p.correctAnswers;
+                        if (p.wrongAnswers) totalWrong += p.wrongAnswers;
+                    }
+                });
+                const avg = scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
+                let streak = user.streak || 0;
+                const lastActive = user.lastActive ? new Date(user.lastActive) : null;
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                if (lastActive) {
+                    const diff = Math.floor((today - lastActive) / (1000 * 60 * 60 * 24));
+                    if (diff === 0) { /* giữ nguyên */ } else if (diff === 1) streak += 1;
+                    else streak = 0;
+                } else { streak = 0; }
+                this.updateUser({ xp, streak, totalCorrect, totalWrong, lastActive: today.toISOString() });
+                return { user: this.getUser(), xp, totalCorrect, totalWrong, completedCount, totalQuizzes: quizzes.length, averageScore: avg, streak };
+            },
+            getChapterProgress(chapterName) {
+                const quizzes = QuizData.getQuizzes().filter(q => q.chapter === chapterName);
+                const progress = this.getProgress();
+                let done = 0;
+                quizzes.forEach(q => { const p = progress[q.id]; if (p && p.isCompleted) done++; });
+                return { total: quizzes.length, done, percent: quizzes.length ? (done / quizzes.length) * 100 : 0 };
+            }
+        };
+
+        // ================================================================
+        //  4. ACHIEVEMENT SERVICE
+        // ================================================================
+        const AchievementService = {
+            definitions: [
+                { id: 'chap1_complete', name: 'Hoàn thành Chương 1', icon: '🏆', check: () => { const quizzes = QuizData.getQuizzes().filter(q => q.chapter === 'Chương 1: Cơ học'); const progress = ProgressService.getProgress(); let done = 0; quizzes.forEach(q => { if (progress[q.id] && progress[q.id].isCompleted) done++; }); return quizzes.length > 0 && done === quizzes.length; } },
+                { id: 'chap2_complete', name: 'Hoàn thành Chương 2', icon: '🏆', check: () => { const quizzes = QuizData.getQuizzes().filter(q => q.chapter === 'Chương 2: Điện học'); const progress = ProgressService.getProgress(); let done = 0; quizzes.forEach(q => { if (progress[q.id] && progress[q.id].isCompleted) done++; }); return quizzes.length > 0 && done === quizzes.length; } },
+                { id: '100_correct', name: '100 câu đúng', icon: '🎯', check: () => { const stats = ProgressService.computeStats(); return stats.totalCorrect >= 100; } },
+                { id: 'streak_30', name: 'Streak 30 ngày', icon: '🔥', check: () => { const stats = ProgressService.computeStats(); return stats.streak >= 30; } },
+                { id: 'quiz_master', name: 'Quiz Master', icon: '👑', check: () => { const progress = ProgressService.getProgress(); let count = 0; Object.values(progress).forEach(p => { if (p.isCompleted && p.highestScore >= 10) count++; }); return count >= 20; } },
+                { id: 'super_physicist', name: 'Nhà Vật lý siêu đẳng', icon: '⚛️', check: () => { const stats = ProgressService.computeStats(); return stats.completedCount >= 10; } }
+            ],
+            unlockAll() {
+                const achievements = ProgressService.getAchievements();
+                let changed = false;
+                this.definitions.forEach(def => {
+                    const unlocked = def.check();
+                    if (achievements[def.id] !== unlocked) {
+                        ProgressService.saveAchievement(def.id, unlocked);
+                        changed = true;
+                    }
+                });
+                return changed;
+            },
+            getAchievementsWithStatus() {
+                const raw = ProgressService.getAchievements();
+                return this.definitions.map(def => ({ ...def, unlocked: raw[def.id] || false }));
+            }
+        };
+
+        // ================================================================
+        //  5. QUIZ ENGINE (giống hệt Hóa học)
+        // ================================================================
+        const QuizEngine = {
+            currentQuizId: null,
+            questions: [],
+            userAnswers: [],
+            startTime: null,
+            overlay: null,
+            closeBtn: null,
+            cancelBtn: null,
+            submitBtn: null,
+            titleEl: null,
+            timeEl: null,
+            totalQEl: null,
+            container: null,
+
+            init() {
+                this.overlay = document.getElementById('quizOverlay');
+                this.closeBtn = document.getElementById('closeQuizBtn');
+                this.cancelBtn = document.getElementById('cancelQuizBtn');
+                this.submitBtn = document.getElementById('submitQuizBtn');
+                this.titleEl = document.getElementById('quizModalTitle');
+                this.timeEl = document.getElementById('quizTime');
+                this.totalQEl = document.getElementById('quizTotalQuestions');
+                this.container = document.getElementById('quizQuestionsContainer');
+                this.closeBtn.addEventListener('click', () => this.close());
+                this.cancelBtn.addEventListener('click', () => this.close());
+                this.submitBtn.addEventListener('click', () => this.submit());
+            },
+
+            open(quizId) {
+                if (!ProgressService.isQuizUnlocked(quizId)) {
+                    alert('Bài tập này chưa được mở. Hãy hoàn thành bài trước đó.');
+                    return;
+                }
+                const quizzes = QuizData.getQuizzes();
+                const quiz = quizzes.find(q => q.id === quizId);
+                if (!quiz) return;
+                this.currentQuizId = quizId;
+                this.questions = quiz.questionsData || [];
+                this.userAnswers = new Array(this.questions.length).fill(-1);
+                this.startTime = Date.now();
+                this.titleEl.textContent = quiz.title;
+                this.timeEl.textContent = quiz.time;
+                this.totalQEl.textContent = this.questions.length;
+                this.renderQuestions();
+                this.overlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            },
+
+            renderQuestions() {
+                if (!this.questions.length) {
+                    this.container.innerHTML = '<p class="text-muted">Không có câu hỏi.</p>';
+                    return;
+                }
+                let html = '';
+                this.questions.forEach((q, idx) => {
+                    html += `
+                        <div class="question-block">
+                            <div class="q-text"><strong>Câu ${idx+1}:</strong> ${q.question}</div>
+                            <div class="options">
+                                ${q.options.map((opt, oi) => `
+                                    <label>
+                                        <input type="radio" name="q${idx}" value="${oi}" ${this.userAnswers[idx] === oi ? 'checked' : ''}>
+                                        ${opt}
+                                    </label>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                });
+                this.container.innerHTML = html;
+                this.container.querySelectorAll('input[type="radio"]').forEach(input => {
+                    input.addEventListener('change', (e) => {
+                        const name = e.target.name;
+                        const idx = parseInt(name.substring(1));
+                        const val = parseInt(e.target.value);
+                        this.userAnswers[idx] = val;
+                    });
+                });
+            },
+
+            close() {
+                this.overlay.classList.remove('active');
+                document.body.style.overflow = '';
+                this.currentQuizId = null;
+                this.questions = [];
+                this.userAnswers = [];
+                this.startTime = null;
+            },
+
+            submit() {
+                if (this.currentQuizId === null) return;
+                const unanswered = this.userAnswers.some(a => a === -1);
+                if (unanswered && !confirm('Bạn chưa trả lời tất cả câu hỏi. Bạn có muốn nộp bài không?')) {
+                    return;
+                }
+                let correct = 0;
+                this.questions.forEach((q, idx) => {
+                    if (this.userAnswers[idx] === q.answer) correct++;
+                });
+                const total = this.questions.length;
+                const score = (correct / total) * 10;
+                const timeSpent = Math.round((Date.now() - this.startTime) / 60000);
+                this.saveResult(this.currentQuizId, score, correct, total - correct, timeSpent);
+                this.close();
+                UIRenderer.refreshAll();
+                alert(`Đã nộp bài! Điểm: ${score.toFixed(1)}`);
+            },
+
+            saveResult(quizId, score, correct, wrong, timeSpent) {
+                const existing = ProgressService.getProgressForQuiz(quizId) || {
+                    quizId,
+                    isCompleted: false,
+                    highestScore: 0,
+                    attempts: 0,
+                    correctAnswers: 0,
+                    wrongAnswers: 0,
+                    timeSpent: 0,
+                    completedAt: null,
+                    lastAttempt: null,
+                    isUnlocked: true
+                };
+                existing.attempts += 1;
+                existing.correctAnswers += correct;
+                existing.wrongAnswers += wrong;
+                existing.timeSpent += timeSpent;
+                existing.lastAttempt = new Date().toISOString();
+                if (score > existing.highestScore) {
+                    existing.highestScore = score;
+                }
+                if (score >= 5 && !existing.isCompleted) {
+                    existing.isCompleted = true;
+                    existing.completedAt = new Date().toISOString();
+                }
+                ProgressService.saveProgress(quizId, existing);
+                ProgressService.addHistory({ quizId, score, correct, wrong, timeSpent });
+                AchievementService.unlockAll();
+                const user = ProgressService.getUser();
+                ProgressService.updateUser({ lastActive: new Date().toISOString() });
+            }
+        };
+
+        // ================================================================
+        //  6. UI RENDERER (giống hệt Hóa học)
+        // ================================================================
+        const UIRenderer = {
+            dashboardEl: null,
+            quizSection: null,
+            recentList: null,
+            achievementGrid: null,
+            sideStreak: null,
+            sideXP: null,
+            sideAvg: null,
+            sideDone: null,
+            userName: null,
+            userClass: null,
+            userAvatar: null,
+            searchInput: null,
+            filterChapter: null,
+            filterLevel: null,
+            filterStatus: null,
+            filterSort: null,
+
+            init() {
+                this.dashboardEl = document.getElementById('dashboard');
+                this.quizSection = document.getElementById('quizSection');
+                this.recentList = document.getElementById('recentList');
+                this.achievementGrid = document.getElementById('achievementGrid');
+                this.sideStreak = document.getElementById('sideStreak');
+                this.sideXP = document.getElementById('sideXP');
+                this.sideAvg = document.getElementById('sideAvg');
+                this.sideDone = document.getElementById('sideDone');
+                this.userName = document.getElementById('userName');
+                this.userClass = document.getElementById('userClass');
+                this.userAvatar = document.getElementById('userAvatar');
+                this.searchInput = document.getElementById('searchInput');
+                this.filterChapter = document.getElementById('filterChapter');
+                this.filterLevel = document.getElementById('filterLevel');
+                this.filterStatus = document.getElementById('filterStatus');
+                this.filterSort = document.getElementById('filterSort');
+
+                this.searchInput.addEventListener('input', () => this.renderQuizList());
+                this.filterChapter.addEventListener('change', () => this.renderQuizList());
+                this.filterLevel.addEventListener('change', () => this.renderQuizList());
+                this.filterStatus.addEventListener('change', () => this.renderQuizList());
+                this.filterSort.addEventListener('change', () => this.renderQuizList());
+
+                document.getElementById('quickGrid').addEventListener('click', (e) => {
+                    const item = e.target.closest('.quick-item');
+                    if (item) alert(`Tính năng "${item.querySelector('.label').textContent}" sẽ sớm ra mắt!`);
+                });
+
+                QuizEngine.init();
+                this.refreshAll();
+            },
+
+            refreshAll() {
+                this.renderDashboard();
+                this.renderQuizList();
+                this.renderRecent();
+                this.renderAchievements();
+            },
+
+            renderDashboard() {
+                const stats = ProgressService.computeStats();
+                const total = stats.totalQuizzes;
+                const completed = stats.completedCount;
+                const percent = total ? Math.round((completed / total) * 100) : 0;
+                const avg = stats.averageScore || 0;
+                const streak = stats.streak || 0;
+                const xp = stats.xp || 0;
+
+                this.dashboardEl.innerHTML = `
+                    <div class="dash-item"><span class="label">Tiến độ học</span><div class="value">${completed} / ${total}</div></div>
+                    <div class="dash-item"><span class="label">Điểm trung bình</span><div class="value">${avg.toFixed(1)}</div></div>
+                    <div class="dash-item"><span class="label">🔥 Streak</span><div class="value"><i class="fas fa-fire"></i> ${streak}</div></div>
+                    <div class="dash-item"><span class="label">⭐ XP</span><div class="value"><i class="fas fa-star"></i> ${xp}</div></div>
+                    <div class="progress-dash">
+                        <div class="bar-wrap"><div class="bar" style="width:${percent}%;"></div></div>
+                        <div class="stats"><strong>${percent}%</strong> <span>hoàn thành</span></div>
+                    </div>
+                `;
+
+                this.sideStreak.textContent = streak;
+                this.sideXP.textContent = xp;
+                this.sideAvg.textContent = avg.toFixed(1);
+                this.sideDone.textContent = completed;
+
+                const profile = ProgressService.getUser();
+                this.userName.textContent = profile.displayName || profile.username || 'Chưa đăng nhập';
+                this.userClass.textContent = profile.class || 'Lớp chưa cập nhật';
+                this.userAvatar.textContent = profile.avatar || (profile.displayName ? profile.displayName.charAt(0) : '?');
+            },
+
+            renderQuizList() {
+                const quizzes = QuizData.getQuizzes();
+                const progress = ProgressService.getProgress();
+
+                const chapters = [...new Set(quizzes.map(q => q.chapter))];
+                const currentChapter = this.filterChapter.value;
+                this.filterChapter.innerHTML = `<option value="all">Tất cả chương</option>` +
+                    chapters.map(ch => `<option value="${ch}">${ch}</option>`).join('');
+                this.filterChapter.value = currentChapter;
+
+                let list = [...quizzes];
+                const search = this.searchInput.value.trim().toLowerCase();
+                if (search) list = list.filter(q => q.title.toLowerCase().includes(search));
+                if (this.filterChapter.value !== 'all') list = list.filter(q => q.chapter === this.filterChapter.value);
+                if (this.filterLevel.value !== 'all') list = list.filter(q => q.level === this.filterLevel.value);
+                if (this.filterStatus.value !== 'all') {
+                    list = list.filter(q => ProgressService.getQuizStatus(q.id) === this.filterStatus.value);
+                }
+
+                switch (this.filterSort.value) {
+                    case 'newest': list.sort((a, b) => b.id - a.id); break;
+                    case 'oldest': list.sort((a, b) => a.id - b.id); break;
+                    case 'hardest': { const lv = { 'Dễ': 1, 'Trung bình': 2, 'Khó': 3 }; list.sort((a, b) => (lv[b.level] || 0) - (lv[a.level] || 0)); break; }
+                    case 'easiest': { const lv = { 'Dễ': 1, 'Trung bình': 2, 'Khó': 3 }; list.sort((a, b) => (lv[a.level] || 0) - (lv[b.level] || 0)); break; }
+                    default: break;
+                }
+
+                const grouped = {};
+                list.forEach(q => {
+                    if (!grouped[q.chapter]) grouped[q.chapter] = [];
+                    grouped[q.chapter].push(q);
+                });
+                const keys = Object.keys(grouped);
+                if (!keys.length) {
+                    this.quizSection.innerHTML = `<div class="no-result"><i class="fas fa-search"></i>Không tìm thấy bài tập nào</div>`;
+                    return;
+                }
+
+                let html = '';
+                keys.forEach((chapter, idx) => {
+                    const qs = grouped[chapter];
+                    const chapProg = ProgressService.getChapterProgress(chapter);
+                    const percent = chapProg.percent || 0;
+                    const isOpen = idx === 0;
+                    html += `
+                        <div class="chapter-accordion">
+                            <div class="chapter-header ${isOpen ? 'open' : ''}" data-chapter="${chapter}">
+                                <span class="arrow"><i class="fas fa-chevron-right"></i></span>
+                                <span class="title">${chapter}</span>
+                                <span class="badge-progress">${chapProg.done}/${chapProg.total}</span>
+                            </div>
+                            <div class="chapter-body ${isOpen ? 'open' : ''}">
+                                <div class="chapter-progress">
+                                    <div class="bar-wrap"><div class="bar" style="width:${percent}%;"></div></div>
+                                    <span class="info">${Math.round(percent)}%</span>
+                                </div>
+                                <div class="quiz-grid">
+                                    ${qs.map(q => this.renderQuizCard(q)).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                this.quizSection.innerHTML = html;
+
+                document.querySelectorAll('.chapter-header').forEach(h => {
+                    h.addEventListener('click', function() {
+                        const body = this.nextElementSibling;
+                        const isOpen = body.classList.contains('open');
+                        document.querySelectorAll('.chapter-body').forEach(b => b.classList.remove('open'));
+                        document.querySelectorAll('.chapter-header').forEach(h2 => h2.classList.remove('open'));
+                        if (!isOpen) {
+                            body.classList.add('open');
+                            this.classList.add('open');
+                        }
+                    });
+                });
+
+                document.querySelectorAll('.btn-start').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        if (this.disabled) return;
+                        const quizId = parseInt(this.dataset.quizId);
+                        QuizEngine.open(quizId);
+                    });
+                });
+            },
+
+            renderQuizCard(q) {
+                const status = ProgressService.getQuizStatus(q.id);
+                const prog = ProgressService.getProgressForQuiz(q.id);
+                const highest = prog ? prog.highestScore : 0;
+                const unlocked = ProgressService.isQuizUnlocked(q.id);
+                const locked = !unlocked;
+                const statusBadge = {
+                    'completed': '<span class="badge completed">✅ Hoàn thành</span>',
+                    'in-progress': '<span class="badge in-progress">🟡 Đang làm</span>',
+                    'locked': '<span class="badge locked">🔒 Chưa mở</span>',
+                    'high-score': '<span class="badge high-score">⭐ Điểm cao</span>'
+                } [status] || '';
+
+                return `
+                    <div class="quiz-card">
+                        <div class="top">
+                            <div class="name"><span>${q.icon}</span> ${q.title}</div>
+                            ${statusBadge}
+                        </div>
+                        <div class="meta">
+                            <span><i class="fas fa-list-ul"></i> ${q.questions} câu</span>
+                            <span><i class="fas fa-clock"></i> ${q.time} phút</span>
+                            <span>${this.getLevelBadge(q.level)}</span>
+                        </div>
+                        <div class="bottom">
+                            <span class="score">Điểm cao nhất: <strong>${highest > 0 ? highest.toFixed(1) : '—'}</strong></span>
+                            <button class="btn-start ${locked ? 'locked' : ''}" data-quiz-id="${q.id}" ${locked ? 'disabled' : ''}>
+                                ${locked ? '🔒 Chưa mở' : 'Bắt đầu'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            },
+
+            getLevelBadge(level) {
+                const map = { 'Dễ': '🟢 Dễ', 'Trung bình': '🟡 Trung bình', 'Khó': '🔴 Khó' };
+                return map[level] || level;
+            },
+
+            renderRecent() {
+                const history = ProgressService.getHistory();
+                const sorted = history.sort((a, b) => new Date(b.date) - new Date(a.date));
+                const recent = sorted.slice(0, 5);
+                const quizzes = QuizData.getQuizzes();
+                if (!recent.length) {
+                    this.recentList.innerHTML = '<li style="color:#6a8499; justify-content:center;">Chưa có bài nào</li>';
+                    return;
+                }
+                this.recentList.innerHTML = recent.map(entry => {
+                    const q = quizzes.find(q => q.id === entry.quizId);
+                    return `<li><span class="qname">${q ? q.icon : '📘'} ${q ? q.title : 'Unknown'}</span> <span>${entry.score.toFixed(1)}</span></li>`;
+                }).join('');
+            },
+
+            renderAchievements() {
+                const achievements = AchievementService.getAchievementsWithStatus();
+                if (!achievements.length) {
+                    this.achievementGrid.innerHTML = '<span class="text-muted">Chưa có thành tích</span>';
+                    return;
+                }
+                this.achievementGrid.innerHTML = achievements.map(ach =>
+                    `<div class="ach-badge ${ach.unlocked ? '' : 'locked'}">
+                        <i class="fas ${ach.unlocked ? 'fa-trophy' : 'fa-lock'}"></i>
+                        ${ach.name}
+                    </div>`
+                ).join('');
+            }
+        };
+
+        // ================================================================
+        //  7. KHỞI TẠO
+        // ================================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            const existingProfile = ProfileService.getProfile();
+            if (existingProfile && existingProfile.username && existingProfile.username !== 'guest') {
+                // đã có profile hợp lệ
+            } else {
+                try {
+                    const oldUser = localStorage.getItem('chem_user');
+                    if (oldUser) {
+                        const parsed = JSON.parse(oldUser);
+                        if (parsed && parsed.name) {
+                            const newProfile = {
+                                username: parsed.name.toLowerCase().replace(/\s+/g, '') || 'guest',
+                                displayName: parsed.name || 'Học sinh',
+                                class: parsed.class || '',
+                                avatar: parsed.avatar || parsed.name.charAt(0) || '?'
+                            };
+                            ProfileService.updateProfile(newProfile);
+                            localStorage.removeItem('chem_user');
+                        }
+                    }
+                } catch(e) {}
+            }
+
+            AchievementService.unlockAll();
+            UIRenderer.init();
+            window.__app = { QuizData, ProgressService, AchievementService, QuizEngine, UIRenderer, ProfileService };
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Creative Quiz — Trang chủ</title>
+  <link rel="stylesheet" href="csss.css" />
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  <style>
+    /* ==================== TOÀN BỘ CSS CŨ CỦA BẠN (GIỮ NGUYÊN 100%) ==================== */
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      margin-top: 8px;
+      overflow: hidden;
+      position: relative;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #60a5fa, #3b82f6);
+      border-radius: 4px;
+      transition: width 0.3s ease;
+      position: relative;
+    }
+    .progress-fill::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      animation: shimmer 2s infinite;
+    }
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    .progress-text {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-top: 4px;
+      text-align: center;
+    }
+    .level-icon {
+      font-size: 20px;
+    }
+    
+    .sidebar {
+      transition: all 0.3s ease;
+    }
+
+    /* ===== CSS CHO NÚT CHAT VÀ CHATBOX ===== */
+    .chat-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1000;
+      animation: pulse 2s infinite;
+    }
+    .chat-btn:hover {
+      transform: scale(1.1) rotate(5deg);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+      background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    }
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7); }
+      70% { box-shadow: 0 0 0 20px rgba(102, 126, 234, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0); }
+    }
+
+    .shop-btn {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+      border: none;
+      color: #ff6b6b;
+      font-size: 24px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1000;
+      animation: sparkle 2s infinite;
+      font-weight: bold;
+    }
+    .shop-btn:hover {
+      transform: scale(1.1) rotate(-5deg);
+      box-shadow: 0 6px 20px rgba(255, 215, 0, 0.6), 0 0 15px rgba(255, 215, 0, 0.5);
+      background: linear-gradient(135deg, #ffed4e 0%, #ffd700 100%);
+    }
+    @keyframes sparkle {
+      0%, 100% { box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4); }
+      50% { box-shadow: 0 4px 12px rgba(255, 215, 0, 0.6), 0 0 20px rgba(255, 215, 0, 0.3); }
+    }
+
+    .chatbox {
+      position: fixed;
+      bottom: 90px;
+      right: 20px;
+      width: 350px;
+      height: 500px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      transform: translateY(100%) scale(0.9);
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      z-index: 999;
+      display: none;
+    }
+    .chatbox.show {
+      display: block;
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+
+    .chat-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 16px;
+      text-align: center;
+      font-weight: bold;
+      position: relative;
+    }
+    .chat-header h4 {
+      margin: 0;
+      font-size: 18px;
+    }
+    .close-chat {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+    }
+    .close-chat:hover { opacity: 1; }
+
+    .messages {
+      height: 320px;
+      overflow-y: auto;
+      padding: 16px;
+      background: #f8fafc;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .message {
+      max-width: 80%;
+      padding: 10px 14px;
+      border-radius: 18px;
+      animation: slideIn 0.3s ease-out;
+      word-wrap: break-word;
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .message.user {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      align-self: flex-end;
+      margin-left: auto;
+    }
+    .message.ai {
+      background: white;
+      color: #334155;
+      border: 1px solid #e2e8f0;
+      align-self: flex-start;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    .message.ai.typing::after {
+      content: '...';
+      animation: typing 1.5s infinite;
+    }
+    @keyframes typing {
+      0%, 60% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    .chat-input {
+      display: flex;
+      padding: 16px;
+      background: white;
+      gap: 8px;
+      border-top: 1px solid #e2e8f0;
+    }
+    .chat-input input {
+      flex: 1;
+      padding: 12px 16px;
+      border: 1px solid #e2e8f0;
+      border-radius: 24px;
+      outline: none;
+      font-size: 14px;
+    }
+    .chat-input input:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    .chat-send {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .chat-send:hover { transform: scale(1.05); }
+    .chat-send:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ==================== CSS MỚI NEON + THEO CHUỘT (CHỈ THÊM) ==================== */
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+
+    body {
+      background: #0b0b1f;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Spotlight theo chuột */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle 900px at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(103,232,249,0.18), transparent 65%);
+      pointer-events: none;
+      z-index: 1;
+      mix-blend-mode: screen;
+    }
+
+    /* Canvas particle */
+    #bgCanvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Custom cursor neon */
+    .neon-cursor {
+      position: fixed;
+      width: 38px; height: 38px;
+      border: 2px solid #67e8f9;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 99999;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 25px #67e8f9, 0 0 55px #c026d3;
+      mix-blend-mode: difference;
+      display: none;
+    }
+    .neon-cursor::after {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 10px; height: 10px;
+      background: #fff;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 15px #67e8f9;
+    }
+    @media (min-width: 768px) { .neon-cursor { display: block; } }
+
+    /* Title neon breathing */
+/* ==================== TIÊU ĐỀ SIÊU ĐẸP NHƯ ẢNH CỦA BẠN + NEON THEO CHUỘT ==================== */
+.container {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    padding: 20px 20px 90px;
+    }
+
+.container h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 6.8rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    color: #ffffff;
+    margin-bottom: 18px;
+    background: linear-gradient(90deg, #67e8f9, #ffffff, #c026d3);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 
+        0 0 30px rgba(103, 232, 249, 0.9),
+        0 0 60px rgba(192, 38, 211, 0.7),
+        0 0 100px rgba(103, 232, 249, 0.5);
+    animation: titleGlow 4s ease-in-out infinite alternate;
+}
+
+@keyframes titleGlow {
+    from { text-shadow: 0 0 30px #67e8f9, 0 0 60px #c026d3; }
+    to   { text-shadow: 0 0 50px #67e8f9, 0 0 90px #c026d3, 0 0 140px #a855f7; }
+}
+
+.container .lead {
+    font-size: 1.45rem;
+    color: #e0f2fe;
+    max-width: 720px;
+    margin: 0 auto;
+    opacity: 0.95;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.4);
+}
+    .card {
+      background: rgba(15,23,42,0.75) !important;
+      border: 1px solid rgba(103,232,249,0.4) !important;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 0 25px rgba(103,232,249,0.25);
+      transition: all 0.4s cubic-bezier(0.23,1,0.32,1);
+    }
+    .card:hover {
+      transform: translateY(-14px) scale(1.04);
+      box-shadow: 0 0 45px rgba(103,232,249,0.7), 0 0 70px rgba(192,38,211,0.5);
+      border-color: #c026d3 !important;
+    }
+
+    .sidebar {
+      background: rgba(15,23,42,0.9) !important;
+      border-right: 2px solid rgba(103,232,249,0.5);
+      box-shadow: 6px 0 40px rgba(103,232,249,0.2);
+    }
+
+    .login-btn:hover, .chat-btn:hover, #shop-cart-button:hover {
+      box-shadow: 0 0 40px #c026d3, 0 0 70px #67e8f9;
+      transform: scale(1.1);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- === HIỆU ỨNG MỚI (THÊM) === -->
+  <canvas id="bgCanvas"></canvas>
+  <div class="neon-cursor" id="neonCursor"></div>
+
+  <!-- nút đăng nhập -->
+  <button class="login-btn" onclick="window.location.href='login.html'">
+    Đăng nhập
+  </button>
+  <div class="sidebar" id="sidebar">
+  <div class="profile card">
+    <img src="https://i.pinimg.com/736x/6d/b7/0e/6db70ea8cc222598a89d17de720e7433.jpg" alt="Avatar" class="avatar">
+    <h3 id="playerName">Tên người chơi</h3>
+    <p class="level">Cấp độ: <span id="levelSpan">1</span> <span class="level-icon">⭐</span></p>
+    
+    <!-- Thanh progress mới thêm -->
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+    </div>
+    <div class="progress-text" id="progressText">0 / 100 XP</div>
+    
+  </div>
+
+  <div class="card">
+    <h4>🏆 Thành tựu</h4>
+    <div class="achievement">100 câu đúng 🎯</div>
+    <div class="achievement">Hoàn thành 5 quiz liên tiếp 🔥</div>
+    <div class="achievement">Thành viên 1 tháng 🎉</div>
+  </div>
+
+  <div class="card">
+    <h4>📊 Thống kê</h4>
+    <div class="stat"><b>Tổng điểm:</b> 2560</div>
+    <div class="stat"><b>Thời gian chơi:</b> 12h</div>
+  </div>
+</div>
+
+
+  <div class="container">
+    <h1>Creative Quiz</h1>
+    <p class="lead">
+      Ôn tập Khoa học Tự nhiên — chọn chủ đề bạn muốn học ngay
+    </p>
+
+    <div class="search-row">
+      <!-- search box -->
+      <div class="search-box" id="searchBox" role="search" aria-label="Tìm quiz">
+        <div class="search-icon">🔎</div>
+        <input 
+          id="searchInput" 
+          class="search-input" 
+          type="text" 
+          placeholder="Bấm vào ô tìm kiếm để chọn môn học (Vật lý, Hóa học, Sinh học...)." 
+          autocomplete="off" 
+        />
+        <button id="goBtn" class="btn" title="Bắt đầu">
+          Bắt đầu
+        </button>
+      </div>
+
+      <!-- placeholder -->
+      <div id="placeholder" class="placeholder">
+        <div class="hero">
+          <p>Ôn tập Khoa học Tự nhiên dễ dàng và thú vị.<br>
+          Chọn môn học bạn muốn học bằng cách tìm kiếm hoặc chọn bên dưới 👇</p>
+          <div class="hero-icons">
+            <span>🔭</span>
+            <span>⚗️</span>
+            <span>🧬</span>
+            <span>🌍</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- bảng mặc định -->
+      <div id="defaultBoards" class="default-boards">
+        <div class="board">
+          <h3>📖 Hướng dẫn sử dụng</h3>
+          <p>Bấm vào ô tìm kiếm để chọn môn học (Vật lý, Hóa học, Sinh học...).</p>
+        </div>
+        <div class="board">
+          <h3>🤔 Không biết chọn gì?</h3>
+          <p>Cứ chọn ngẫu nhiên một môn để bắt đầu trải nghiệm thử nếu không hãy thử chơi những trò chơi vui vẻ</p>
+        </div>
+        <div class="board">
+          <h3>🎮 Chọn chơi thử</h3>
+          <p>Bấm "Bắt đầu" mà không gõ gì, hệ thống sẽ gợi ý một chủ đề ngẫu nhiên.</p>
+        </div>
+      </div>
+
+      <!-- results -->
+      <div id="results" class="results" aria-hidden="true">
+        <div class="card" data-key="vatly" tabindex="0">
+          <div class="title">🔭 Vật Lý</div>
+          <div class="desc">Cơ học, điện — cơ bản đến nâng cao cho lớp 9</div>
+          <div class="meta">Số quiz: 12 • Thời gian trung bình: 8 phút</div>
+        </div>
+        <div class="card" data-key="hoahoc" tabindex="0">
+          <div class="title">⚗️ Hóa Học</div>
+          <div class="desc">Nguyên tử — phản ứng, phương trình & bài tập thực hành</div>
+          <div class="meta">Số quiz: 10 • Thời gian trung bình: 10 phút</div>
+        </div>
+        <div class="card" data-key="sinhhoc" tabindex="0">
+          <div class="title">🧬 Sinh Học</div>
+          <div class="desc">Sinh vật & cơ chế — dễ hiểu, có hình minh họa</div>
+          <div class="meta">Số quiz: 8 • Thời gian trung bình: 6 phút</div>
+        </div>
+        <div class="card" data-key="datkhi" tabindex="0">
+          <div class="title">🌍 Khoa học Trái Đất</div>
+          <div class="desc">Địa chất, khí tượng, môi trường — gần gũi thực tế</div>
+          <div class="meta">Số quiz: 6 • Thời gian trung bình: 5 phút</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+
+  <!-- ===== NÚT CHAT AI ===== -->
+  <button id="chatBtn" class="chat-btn" title="Hỏi AI">💬</button>
+
+  <!-- ===== CHATBOX AI ===== -->
+  <div id="chatbox" class="chatbox">
+    <div class="chat-header">
+      <h4>🤖 Trợ lý AI Quiz</h4>
+      <button class="close-chat" title="Đóng">&times;</button>
+    </div>
+    <div class="messages" id="messages">
+      <!-- Messages sẽ được thêm động -->
+      <div class="message ai">Chào bạn! Tôi là trợ lý AI của Creative Quiz. Hỏi tôi bất cứ điều gì về Vật lý, Hóa học, Sinh học hoặc Khoa học Trái Đất nhé! Ví dụ: "Lực ma sát là gì?", "Nguyên tử là gì?", "Sinh sản ở sinh vật như thế nào?", "Địa chất học là gì?", "Phản ứng hóa học là gì?", "Di truyền là gì?", "Động đất nguyên nhân gì?", "Điện trở là gì?", "Hằng số Avogadro là gì?", "Hô hấp ở người ra sao?", "Năng lượng bảo toàn thế nào?", "Ô nhiễm môi trường giải pháp gì?"</div>
+    </div>
+    <div class="chat-input">
+      <input type="text" id="chatInput" placeholder="Nhập câu hỏi của bạn..." maxlength="500">
+      <button id="chatSend" class="chat-send">→</button>
+    </div>
+  </div>
+
+<script>
+// ===== TOÀN BỘ SCRIPT CŨ CỦA BẠN (GIỮ NGUYÊN 100%) =====
+function getUserStats(user) {
+  const key = `playerStats_${user}`;
+  let statsStr = localStorage.getItem(key);
+  let stats = null;
+  
+  if (!statsStr) {
+    const now = Date.now();
+    stats = {
+      totalCorrect: 0,
+      totalWrong: 0,
+      totalQuizzes: 0,
+      quizStreak: 0,
+      totalPoints: 0,
+      playTime: 0,
+      firstPlayDate: now,
+      currentStreakDate: now
+    };
+    localStorage.setItem(key, JSON.stringify(stats));
+  } else {
+    try {
+      stats = JSON.parse(statsStr);
+    } catch (e) {
+      console.warn('Invalid stats data, resetting:', e);
+      stats = null;
+    }
+    
+    if (!stats) {
+      const now = Date.now();
+      stats = {
+        totalCorrect: 0,
+        totalWrong: 0,
+        totalQuizzes: 0,
+        quizStreak: 0,
+        totalPoints: 0,
+        playTime: 0,
+        firstPlayDate: now,
+        currentStreakDate: now
+      };
+      localStorage.setItem(key, JSON.stringify(stats));
+    } else {
+      stats.totalPoints = Number(stats.totalPoints) || 0;
+      stats.playTime = Number(stats.playTime) || 0;
+      stats.totalCorrect = Number(stats.totalCorrect) || 0;
+      stats.quizStreak = Number(stats.quizStreak) || 0;
+      stats.firstPlayDate = Number(stats.firstPlayDate) || Date.now();
+      stats.currentStreakDate = Number(stats.currentStreakDate) || Date.now();
+    }
+  }
+  
+  return stats;
+}
+
+function updateAchievements(stats) {
+  const achievements = document.querySelectorAll('.achievement');
+  
+  const totalCorrect = stats.totalCorrect || 0;
+  achievements[0].textContent = `${totalCorrect} câu đúng`;
+  if (totalCorrect >= 100) achievements[0].innerHTML += ' 🎯';
+  
+  const quizStreak = stats.quizStreak || 0;
+  achievements[1].textContent = `Hoàn thành ${quizStreak} quiz liên tiếp`;
+  if (quizStreak >= 5) achievements[1].innerHTML += ' 🔥';
+  
+  const firstPlayDate = stats.firstPlayDate || Date.now();
+  const daysPlayed = Math.floor((Date.now() - firstPlayDate) / (1000 * 60 * 60 * 24));
+  achievements[2].textContent = `Thành viên ${daysPlayed} ngày`;
+  if (daysPlayed >= 30) achievements[2].innerHTML += ' 🎉';
+}
+
+function updateSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const currentUser = localStorage.getItem('currentUser');
+  
+  if (!currentUser) {
+    sidebar.style.display = 'none';
+    return;
+  } else {
+    sidebar.style.display = 'flex';
+    
+    const s = getUserStats(currentUser);
+    
+    document.getElementById('playerName').textContent = currentUser;
+    
+    const levelSpan = document.getElementById('levelSpan');
+    const safeTotalPoints = Number(s.totalPoints) || 0;
+    const level = Math.floor(safeTotalPoints / 100) + 1;
+    levelSpan.textContent = level;
+    
+    const currentXP = safeTotalPoints % 100;
+    const progressPercent = (currentXP / 100) * 100;
+    document.getElementById('progressFill').style.width = progressPercent + '%';
+    document.getElementById('progressText').textContent = `${currentXP} / 100 XP`;
+    
+    updateAchievements(s);
+    
+    const totalPointsElem = document.querySelectorAll('.stat')[0];
+    totalPointsElem.innerHTML = `<b>Tổng điểm:</b> ${safeTotalPoints}`;
+    
+    const playTimeElem = document.querySelectorAll('.stat')[1];
+    const safePlayTime = Number(s.playTime) || 0;
+    const hours = (safePlayTime / 3600).toFixed(1);
+    playTimeElem.innerHTML = `<b>Thời gian chơi:</b> ${hours}h`;
+  }
+}
+
+function addExperience(points, playTimeSeconds = 0) {
+  const currentUser = localStorage.getItem('currentUser');
+  if (!currentUser) return;
+
+  let stats = getUserStats(currentUser);
+  
+  stats.totalPoints += Number(points) || 0;
+  stats.playTime += Number(playTimeSeconds) || 0;
+  
+  localStorage.setItem(`playerStats_${currentUser}`, JSON.stringify(stats));
+  
+  if (document.getElementById('sidebar')) {
+    updateSidebar();
+  }
+}
+
+window.getUserStats = getUserStats;
+window.updateSidebar = updateSidebar;
+window.addExperience = addExperience;
+
+const loginBtn = document.querySelector('.login-btn');
+
+const logoutBtn = document.createElement('button');
+logoutBtn.textContent = 'Đăng xuất';
+logoutBtn.className = 'login-btn';
+logoutBtn.style.background = 'linear-gradient(90deg,#ec4899,#9333ea)';
+logoutBtn.style.display = 'none';
+logoutBtn.style.position = 'fixed';
+logoutBtn.style.top = '20px';
+logoutBtn.style.right = '20px';
+logoutBtn.style.zIndex = '10';
+document.body.appendChild(logoutBtn);
+
+const currentUser = localStorage.getItem('currentUser');
+if (currentUser) {
+  loginBtn.style.display = 'none';
+  logoutBtn.style.display = 'block';
+}
+
+loginBtn.addEventListener('click', () => {
+  window.location.href = 'login.html';
+});
+
+logoutBtn.addEventListener('click', () => {
+  localStorage.removeItem('currentUser');
+  alert('Bạn đã đăng xuất!');
+  location.reload();
+});
+
+const searchInput = document.getElementById('searchInput');
+const searchBox = document.getElementById('searchBox');
+const results = document.getElementById('results');
+const cards = results.querySelectorAll('.card');
+const goBtn = document.getElementById('goBtn');
+const defaultBoards = document.getElementById('defaultBoards');
+
+let isStarted = false;
+
+function norm(s) {
+  if (!s) return '';
+  return s.toString().toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^\w\s]/g, '')
+    .trim();
+}
+
+function showResults() {
+  defaultBoards.style.display = 'none'; 
+  results.style.display = '';
+  results.classList.add('show');
+  results.setAttribute('aria-hidden', 'false');
+}
+
+function showDefault() {
+  results.classList.remove('show');
+  results.setAttribute('aria-hidden', 'true');
+  defaultBoards.style.display = 'flex'; 
+  results.style.display = '';
+}
+
+function filterCards(keyword) {
+  const k = norm(keyword).replace(/\s+/g, '');
+  if (!k) {
+    cards.forEach(card => card.style.display = 'block');
+    return;
+  }
+  cards.forEach(card => {
+    const keyNorm = norm(card.getAttribute('data-key')).replace(/\s+/g, '');
+    const titleNorm = norm(card.querySelector('.title').textContent).replace(/\s+/g, '');
+    card.style.display = (keyNorm === k || titleNorm === k) ? 'block' : 'none';
+  });
+}
+
+searchInput.addEventListener('input', () => {
+  delete searchInput.dataset.key;
+  cards.forEach(c => c.style.display = 'block');
+  filterCards(searchInput.value);
+
+  if (searchInput.value.trim() === "") {
+    isStarted = false;
+    showResults(); 
+  } else {
+    showResults(); 
+  }
+});
+
+searchBox.addEventListener('click', () => {
+  searchInput.focus();
+  if (searchInput.value.trim() === "") {
+    showResults();
+  } else {
+    showResults();
+  }
+});
+
+document.addEventListener('click', (e) => {
+  if (!isStarted &&
+      !searchBox.contains(e.target) &&
+      !results.contains(e.target)) {
+    showDefault(); 
+  }
+});
+
+cards.forEach(card => {
+  card.addEventListener('click', () => {
+    const title = card.querySelector('.title').textContent || '';
+    const key = card.getAttribute('data-key') || '';
+    searchInput.value = title;
+    searchInput.dataset.key = key;
+    showDefault();
+  });
+});
+
+goBtn.addEventListener('click', () => {
+  let subjectKey = searchInput.dataset.key || null;
+  if (!subjectKey) {
+    const inorm = norm(searchInput.value).replace(/\s+/g, '');
+    cards.forEach(card => {
+      const keyNorm = norm(card.getAttribute('data-key')).replace(/\s+/g, '');
+      const titleNorm = norm(card.querySelector('.title').textContent).replace(/\s+/g, '');
+      if (keyNorm === inorm || titleNorm === inorm) {
+        subjectKey = card.getAttribute('data-key');
+      }
+    });
+  }
+
+  if (subjectKey) {
+    window.location.href = 'choice.html?subject=' + subjectKey;
+  } else {
+    showResults();
+    alert('Không tìm thấy chủ đề phù hợp. Hãy chọn trong danh sách bên dưới.');
+  }
+});
+
+updateSidebar();
+
+// ===== SCRIPT CHAT AI (GIỮ NGUYÊN) =====
+const aiResponses = {
+  'lực hấp dẫn': 'Lực hấp dẫn là lực hút giữa các vật có khối lượng...',
+  'hấp dẫn': 'Lực hấp dẫn là lực hút giữa các vật có khối lượng...',
+  'lực ma sát': 'Lực ma sát là lực cản trở chuyển động...',
+  'ma sát': 'Lực ma sát là lực cản trở chuyển động...',
+  'điện trở': 'Điện trở R = ρ * l / A...',
+  'năng lượng': 'Năng lượng không tạo/diệt...',
+  'bảo toàn': 'Năng lượng không tạo/diệt...',
+  'nguyên tử': 'Nguyên tử là đơn vị cơ bản của vật chất...',
+  'phản ứng hóa học': 'Phản ứng hóa học là quá trình các chất thay đổi...',
+  'hằng số avogadro': 'Hằng số Avogadro NA = 6.022 × 10²³...',
+  'avogadro': 'Hằng số Avogadro NA = 6.022 × 10²³...',
+  'sinh sản': 'Sinh sản ở sinh vật có hai loại...',
+  'di truyền': 'Di truyền là sự truyền đặc điểm...',
+  'hô hấp': 'Hô hấp ở người: Hít O₂ qua phổi...',
+  'địa chất': 'Địa chất học nghiên cứu cấu tạo Trái Đất...',
+  'động đất': 'Động đất là rung lắc Trái Đất...',
+  'môi trường': 'Ô nhiễm môi trường do khói xe...',
+  'ô nhiễm môi trường': 'Ô nhiễm môi trường do khói xe...',
+  'default': 'Tôi chưa có thông tin chi tiết về câu hỏi này...'
+};
+
+function getAIResponse(question) {
+  const qNorm = question.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\w\s]/g, '').trim();
+  let bestMatch = null;
+  let bestLength = 0;
+
+  for (let key in aiResponses) {
+    if (key === 'default') continue;
+    const keyNorm = key.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\w\s]/g, '').trim();
+    if (qNorm.includes(keyNorm) && keyNorm.length > bestLength) {
+      bestLength = keyNorm.length;
+      bestMatch = aiResponses[key];
+    }
+  }
+  return bestMatch || aiResponses['default'];
+}
+
+const chatBtn = document.getElementById('chatBtn');
+const chatbox = document.getElementById('chatbox');
+const closeChat = document.querySelector('.close-chat');
+chatBtn.addEventListener('click', () => chatbox.classList.toggle('show'));
+closeChat.addEventListener('click', () => chatbox.classList.remove('show'));
+
+const chatInput = document.getElementById('chatInput');
+const chatSend = document.getElementById('chatSend');
+const messages = document.getElementById('messages');
+
+function addMessage(text, isUser = false) {
+  const msg = document.createElement('div');
+  msg.className = `message ${isUser ? 'user' : 'ai'}`;
+  msg.textContent = text;
+  messages.appendChild(msg);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+chatSend.addEventListener('click', sendMessage);
+chatInput.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') sendMessage();
+});
+
+function sendMessage() {
+  const text = chatInput.value.trim();
+  if (!text) return;
+
+  addMessage(text, true);
+  chatInput.value = '';
+  chatSend.disabled = true;
+  chatSend.textContent = '⏳';
+
+  setTimeout(() => {
+    const response = getAIResponse(text);
+    addMessage(response);
+    chatSend.disabled = false;
+    chatSend.textContent = '→';
+  }, 1500 + Math.random() * 1000);
+}
+
+document.addEventListener('click', (e) => {
+  if (!chatbox.contains(e.target) && !chatBtn.contains(e.target)) {
+    chatbox.classList.remove('show');
+  }
+});
+
+// ===== HIỆU ỨNG THEO CHUỘT (THÊM Ở CUỐI) =====
+const canvas = document.getElementById('bgCanvas');
+const ctx = canvas.getContext('2d');
+let w = canvas.width = window.innerWidth;
+let h = canvas.height = window.innerHeight;
+
+window.addEventListener('resize', () => {
+  w = canvas.width = window.innerWidth;
+  h = canvas.height = window.innerHeight;
+});
+
+const mouse = { x: w/2, y: h/2 };
+
+document.addEventListener('mousemove', e => {
+  mouse.x = e.clientX;
+  mouse.y = e.clientY;
+  document.documentElement.style.setProperty('--mouse-x', e.clientX + 'px');
+  document.documentElement.style.setProperty('--mouse-y', e.clientY + 'px');
+  document.getElementById('neonCursor').style.left = e.clientX + 'px';
+  document.getElementById('neonCursor').style.top = e.clientY + 'px';
+});
+
+class Particle {
+  constructor() { this.reset(); }
+  reset() {
+    this.x = Math.random() * w;
+    this.y = Math.random() * h;
+    this.size = Math.random() * 2.2 + 0.8;
+    this.speedX = Math.random() * 1 - 0.5;
+    this.speedY = Math.random() * 1 - 0.5;
+  }
+  update() {
+    this.x += this.speedX; this.y += this.speedY;
+    const dx = mouse.x - this.x, dy = mouse.y - this.y;
+    const dist = Math.hypot(dx, dy);
+    if (dist < 170 && dist > 0) {
+      const force = (170 - dist) / 170;
+      this.speedX += (dx / dist) * force * 1.8;
+      this.speedY += (dy / dist) * force * 1.8;
+    }
+    this.speedX *= 0.975; this.speedY *= 0.975;
+    if (this.x < 0 || this.x > w) this.speedX *= -1;
+    if (this.y < 0 || this.y > h) this.speedY *= -1;
+  }
+  draw() {
+    ctx.fillStyle = 'rgba(103, 232, 249, 0.92)';
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+let particles = [];
+for (let i = 0; i < 130; i++) particles.push(new Particle());
+
+function animate() {
+  ctx.fillStyle = 'rgba(11, 11, 31, 0.15)';
+  ctx.fillRect(0, 0, w, h);
+  particles.forEach(p => { p.update(); p.draw(); });
+  requestAnimationFrame(animate);
+}
+animate();
+</script>
+
+  <!-- Nút Shop - Xe đẩy siêu thị -->
+  <a href="shop.html" id="shop-cart-button" title="Đi tới Shop">
+    <svg width="68" height="68" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="50" cy="50" r="46" fill="#ff6f00" stroke="#e65100" stroke-width="4"/>
+      <rect x="28" y="48" width="44" height="24" rx="4" fill="white"/>
+      <rect x="32" y="52" width="36" height="16" fill="#ff8f00"/>
+      <circle cx="38" cy="78" r="10" fill="#e65100"/>
+      <circle cx="62" cy="78" r="10" fill="#e65100"/>
+      <circle cx="38" cy="78" r="6" fill="#333"/>
+      <circle cx="62" cy="78" r="6" fill="#333"/>
+      <path d="M25 45 Q20 35, 30 30 Q50 25, 70 30 Q80 35, 75 45" fill="none" stroke="white" stroke-width="7" stroke-linecap="round"/>
+      <circle cx="45" cy="58" r="5" fill="#4caf50"/>
+      <circle cx="55" cy="62" r="6" fill="#ff5252"/>
+      <circle cx="50" cy="55" r="4" fill="#ffd600"/>
+      <text x="50" y="92" font-size="19" text-anchor="middle" fill="white" font-weight="bold">Shop</text>
+    </svg>
+  </a>
+
+  <style>
+    #shop-cart-button {
+      position: fixed;
+      bottom: 25px;
+      left: 25px;
+      z-index: 9999;
+      animation: float 3s ease-in-out infinite;
+      transition: all 0.3s ease;
+      border-radius: 50%;
+      box-shadow: 0 8px 25px rgba(255, 111, 0, 0.5);
+    }
+    #shop-cart-button:hover {
+      transform: translateY(-8px) scale(1.1);
+      box-shadow: 0 15px 35px rgba(255, 111, 0, 0.7);
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    @media (max-width: 480px) {
+      #shop-cart-button, #shop-cart-button svg {
+        width: 56px;
+        height: 56px;
+      }
+      #shop-cart-button {
+        bottom: 15px;
+        left: 15px;
+      }
+    }
+  </style>
+
+</body>
+</html>

@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Bài kiểm tra Vật lý 8 — Chuyển động & Quang học (20 phút)</title>
+    <style>
+      :root {
+        --bg: #06121a;
+        --card: #071827;
+        --accent: #0ea5e9; /* xanh dương cho Vật lý */
+        --muted: #94a3b8;
+        --glass: rgba(255, 255, 255, 0.03);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+        background: linear-gradient(180deg, #0a1a2e 0%, #0f2b4e 100%);
+        color: #eef6fb;
+        padding: 24px;
+      }
+      .wrap {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+      }
+      h1 {
+        font-size: 20px;
+        margin: 0;
+      }
+      .meta {
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .card {
+        background: var(--card);
+        border-radius: 12px;
+        padding: 18px;
+        margin-bottom: 14px;
+        box-shadow: 0 6px 18px rgba(2, 6, 23, 0.6);
+      }
+      button {
+        background: var(--accent);
+        border: none;
+        color: #fff;
+        padding: 8px 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 700;
+      }
+      button.secondary {
+        background: transparent;
+        color: var(--accent);
+        border: 1px solid rgba(14, 165, 233, 0.4);
+      }
+      .timer {
+        font-weight: 700;
+        font-size: 18px;
+      }
+      .question {
+        margin-bottom: 14px;
+        padding: 12px;
+        border-radius: 8px;
+        background: var(--glass);
+        border: 1px solid rgba(255, 255, 255, 0.03);
+      }
+      .q-title {
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+      .options label {
+        display: block;
+        padding: 8px;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+      input[type="radio"] {
+        margin-right: 8px;
+      }
+      input[type="text"] {
+        width: 100%;
+        padding: 8px;
+        border-radius: 6px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        background: transparent;
+        color: inherit;
+      }
+      .actions {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+        margin-top: 12px;
+      }
+      .footnote {
+        color: var(--muted);
+        font-size: 13px;
+        margin-top: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <div>
+          <h1>Bài kiểm tra: Vật lý 8 — Chuyển động & Quang học (20 phút)</h1>
+          <div class="meta">
+            8 câu trắc nghiệm + 5 câu tự luận/tính toán • Thời gian:
+            <span class="timer" id="display-timer">20:00</span>
+          </div>
+        </div>
+        <div class="controls">
+          <button id="start-btn">Bắt đầu</button>
+          <button id="submit-btn" class="secondary" disabled>Nộp bài</button>
+          <button id="cancel-btn" class="secondary" disabled>Bỏ bài</button>
+        </div>
+      </header>
+
+      <section class="card">
+        <div style="margin-bottom: 12px">
+          Nhấn “Bắt đầu” để chạy đồng hồ 20 phút. Điểm tự động lưu.
+        </div>
+
+        <form id="quiz-form">
+          <!-- TRẮC NGHIỆM -->
+          <div class="question" data-qtype="mc">
+            <div class="q-title">1. Đơn vị của vận tốc trong Hệ SI là:</div>
+            <div class="options">
+              <label><input type="radio" name="q1" value="A" />A. m/s</label>
+              <label><input type="radio" name="q1" value="B" />B. km/h</label>
+              <label><input type="radio" name="q1" value="C" />C. m/s²</label>
+              <label><input type="radio" name="q1" value="D" />D. cm/s</label>
+            </div>
+          </div>
+
+          <div class="question" data-qtype="mc">
+            <div class="q-title">2. Công thức tính vận tốc đều:</div>
+            <div class="options">
+              <label
+                ><input type="radio" name="q2" value="A" />A. v = s/t</label
+              >
+              <label
+                ><input type="radio" name="q2" value="B" />B. v = s × t</label
+              >
+              <label
+                ><input type="radio" name="q2" value="C" />C. v = t/s</label
+              >
+              <label
+                ><input type="radio" name="q2" value="D" />D. v = a × t</label
+              >
+            </div>
+          </div>
+
+          <div class="question" data-qtype="mc">
+            <div class="q-title">3. 72 km/h tương đương bao nhiêu m/s?</div>
+            <div class="options">
+              <label><input type="radio" name="q3" value="A" />A. 20 m/s</label>
+              <label><input type="radio" name="q3" value="B" />B. 25 m/s</label>
+              <label><input type="radio" name="q3" value="C" />C. 18 m/s</label>
+              <label><input type="radio" name="q3" value="D" />D. 30 m/s</label>
+            </div>
+          </div>
+
+          <div class="question" data-qtype="mc">
+            <div class="q-title">
+              4. Tia sáng truyền từ không khí vào nước thì:
+            </div>
+            <div class="options">
+              <label
+                ><input type="radio" name="q4" value="A" />A. Bị khúc xạ lại gần
+                pháp tuyến</label
+              >
+              <label
+                ><input type="radio" name="q4" value="B" />B. Bị khúc xạ ra xa
+                pháp tuyến</label
+              >
+              <label
+                ><input type="radio" name="q4" value="C" />C. Đi thẳng không đổi
+                hướng</label
+              >
+              <label
+                ><input type="radio" name="q4" value="D" />D. Bị phản xạ toàn
+                phần</label
+              >
+            </div>
+          </div>
+
+          <div class="question" data-qtype="mc">
+            <div class="q-title">5. Gương phẳng cho ảnh:</div>
+            <div class="options">
+              <label
+                ><input type="radio" name="q5" value="A" />A. Ống, bằng vật,
+                cách gương một đoạn bằng khoảng cách từ vật đến gương</label
+              >
+              <label
+                ><input type="radio" name="q5" value="B" />B. Thực, hứng được
+                trên màn</label
+              >
+              <label
+                ><input type="radio" name="q5" value="C" />C. Luôn phóng
+                đại</label
+              >
+              <label
+                ><input type="radio" name="q5" value="D" />D. Luôn thu
+                nhỏ</label
+              >
+            </div>
+          </div>
+
+          <div class="question" data-qtype="mc">
+            <div class="q-title">
+              6. Hiện tượng tán sắc ánh sáng xảy ra khi ánh sáng trắng đi qua:
+            </div>
+            <div class="options">
+              <label
+                ><input type="radio" name="q6" value="A" />A. Lăng kính</label
+              >
+              <label
+                ><input type="radio" name="q6" value="B" />B. Gương phẳng</label
+              >
+              <label
+                ><input type="radio" name="q6" value="C" />C. Thấu kính phân
+                kỳ</label
+              >
+              <label
+                ><input type="radio" name="q6" value="D" />D. Tấm kính
+                phẳng</label
+              >
+            </div>
+          </div>
+
+          <div class="question" data-qtype="mc">
+            <div class="q-title">7. Vật đứng yên so với mặt đất thì:</div>
+            <div class="options">
+              <label
+                ><input type="radio" name="q7" value="A" />A. Vận tốc bằng
+                0</label
+              >
+              <label
+                ><input type="radio" name="q7" value="B" />B. Vận tốc khác
+                0</label
+              >
+              <label
+                ><input type="radio" name="q7" value="C" />C. Gia tốc khác
+                0</label
+              >
+              <label
+                ><input type="radio" name="q7" value="D" />D. Không xác định
+                được</label
+              >
+            </div>
+          </div>
+
+          <div class="question" data-qtype="mc">
+            <div class="q-title">
+              8. Thấu kính hội tụ có tiêu cự 10 cm, vật đặt cách thấu kính 15 cm
+              → ảnh tạo ở đâu?
+            </div>
+            <div class="options">
+              <label
+                ><input type="radio" name="q8" value="A" />A. Cách thấu kính 30
+                cm, cùng phía với vật</label
+              >
+              <label
+                ><input type="radio" name="q8" value="B" />B. Cách thấu kính 30
+                cm, phía bên kia</label
+              >
+              <label
+                ><input type="radio" name="q8" value="C" />C. Cách thấu kính 6
+                cm, phía bên kia</label
+              >
+              <label
+                ><input type="radio" name="q8" value="D" />D. Không tạo ảnh
+                thực</label
+              >
+            </div>
+          </div>
+
+          <hr
+            style="
+              border: none;
+              height: 1px;
+              background: rgba(255, 255, 255, 0.03);
+              margin: 20px 0;
+            "
+          />
+
+          <!-- TỰ LUẬN / TÍNH TOÁN -->
+          <div class="question" data-qtype="sa">
+            <div class="q-title">
+              9. Xe chạy đều quãng đường 240 km trong 4 giờ. Tính vận tốc của xe
+              (km/h và m/s).
+            </div>
+            <input type="text" name="q9" placeholder="Trả lời" />
+          </div>
+
+          <div class="question" data-qtype="sa">
+            <div class="q-title">10. Đổi 54 km/h sang m/s.</div>
+            <input type="text" name="q10" placeholder="Trả lời" />
+          </div>
+
+          <div class="question" data-qtype="sa">
+            <div class="q-title">
+              11. Nêu 2 tính chất của ảnh tạo bởi gương phẳng.
+            </div>
+            <input type="text" name="q11" placeholder="Trả lời" />
+          </div>
+
+          <div class="question" data-qtype="sa">
+            <div class="q-title">
+              12. Xe đi được 90 km trong 2,5 giờ. Tính vận tốc trung bình
+              (km/h).
+            </div>
+            <input type="text" name="q12" placeholder="Trả lời" />
+          </div>
+
+          <div class="question" data-qtype="sa">
+            <div class="q-title">
+              13. Một người đi bộ với vận tốc 6 km/h. Hỏi trong 30 phút người đó
+              đi được bao nhiêu mét?
+            </div>
+            <input type="text" name="q13" placeholder="Trả lời" />
+          </div>
+        </form>
+
+        <div class="actions">
+          <button id="auto-check" class="secondary" disabled>
+            Kiểm tra nhanh trắc nghiệm
+          </button>
+        </div>
+        <div class="footnote">
+          Trắc nghiệm chấm tự động. Tự luận được kiểm tra sơ bộ (có gợi ý đáp
+          án).
+        </div>
+      </section>
+
+      <section class="card" id="result-card" style="display: none">
+        <div id="result-summary"></div>
+        <div id="answers"></div>
+      </section>
+    </div>
+
+    <script>
+      const MC_ANSWERS = {
+        q1: "A",
+        q2: "A",
+        q3: "A",
+        q4: "A",
+        q5: "A",
+        q6: "A",
+        q7: "A",
+        q8: "B",
+      };
+
+      const SA_ANSWERS = {
+        q9: /60|16[.,]?6|16[.,]?7|16.6|16.7/i,
+        q10: /15/,
+        q11: /hư.*ảo|hư|hư.*ảo|ảo.*hư|ảo.*bằng|bằng.*vật|bằng.*kích|kích.*thước|dựng|trái.*phải|phải.*trái/i,
+        q12: /36/,
+        q13: /3000|3[.,]?0*km|3\s*km/i,
+      };
+
+      let timerInterval = null,
+        timeLeft = 20 * 60,
+        started = false;
+      const startTime = performance.now();
+      document.getElementById("display-timer").textContent = "20:00";
+
+      function formatTime(s) {
+        const m = Math.floor(s / 60),
+          ss = s % 60;
+        return `${String(m).padStart(2, "0")}:${String(ss).padStart(2, "0")}`;
+      }
+
+      function updateQuizStats(c, w, sec, pts) {
+        const user = localStorage.getItem("currentUser") || "guest";
+        const key = `playerStats_${user}`;
+        let stats = JSON.parse(localStorage.getItem(key) || "{}");
+        if (Object.keys(stats).length === 0)
+          stats = {
+            totalCorrect: 0,
+            totalWrong: 0,
+            totalQuizzes: 0,
+            quizStreak: 0,
+            totalPoints: 0,
+            playTime: 0,
+            currentStreakDate: 0,
+          };
+        stats.totalCorrect += c;
+        stats.totalWrong += w;
+        stats.totalQuizzes += 1;
+        stats.totalPoints += pts;
+        stats.playTime += sec;
+        const now = Date.now();
+        stats.quizStreak =
+          stats.currentStreakDate &&
+          now - stats.currentStreakDate < 24 * 60 * 60 * 1000
+            ? stats.quizStreak + 1
+            : 1;
+        stats.currentStreakDate = now;
+        localStorage.setItem(key, JSON.stringify(stats));
+        alert(`Xong rồi bro! ${pts} điểm Vật lý!`);
+        setTimeout(() => (location.href = "trangchu.html"), 1800);
+      }
+
+      document.getElementById("start-btn").onclick = () => {
+        if (started) return;
+        started = true;
+        document.getElementById("start-btn").disabled = true;
+        ["submit-btn", "cancel-btn", "auto-check"].forEach(
+          (id) => (document.getElementById(id).disabled = false)
+        );
+        timerInterval = setInterval(() => {
+          timeLeft--;
+          document.getElementById("display-timer").textContent =
+            formatTime(timeLeft);
+          if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            doSubmit(true);
+          }
+        }, 1000);
+      };
+
+      document.getElementById("cancel-btn").onclick = () => {
+        if (confirm("Bỏ bài mất streak nha, chắc chưa?")) {
+          const user = localStorage.getItem("currentUser") || "guest";
+          let stats = JSON.parse(
+            localStorage.getItem(`playerStats_${user}`) || "{}"
+          );
+          stats.quizStreak = 0;
+          localStorage.setItem(`playerStats_${user}`, JSON.stringify(stats));
+          location.href = "trangchu.html";
+        }
+      };
+
+      document.getElementById("auto-check").onclick = () => {
+        const fd = new FormData(document.getElementById("quiz-form"));
+        let c = 0;
+        for (let i = 1; i <= 8; i++)
+          if (fd.get("q" + i) === MC_ANSWERS["q" + i]) c++;
+        alert(`Trắc nghiệm: ${c}/8 đúng`);
+      };
+
+      document.getElementById("submit-btn").onclick = () => doSubmit(false);
+
+      function doSubmit(timeout = false) {
+        if (timerInterval) clearInterval(timerInterval);
+        ["submit-btn", "cancel-btn", "auto-check"].forEach(
+          (id) => (document.getElementById(id).disabled = true)
+        );
+
+        const fd = new FormData(document.getElementById("quiz-form"));
+        let mc = 0;
+        for (let i = 1; i <= 8; i++)
+          if (fd.get("q" + i) === MC_ANSWERS["q" + i]) mc++;
+
+        let sa = 0;
+        const results = [];
+        for (let i = 9; i <= 13; i++) {
+          const raw = (fd.get("q" + i) || "").trim();
+          const user = raw.toLowerCase().replace(/\s/g, "");
+          let ok = false;
+          if (i === 9) {
+            ok = /60|16[.,]?6|16[.,]?7|16.6|16.7/.test(user);
+          } else if (i === 10 || i === 12) {
+            ok = /^(15|36)$/.test(user);
+          } else if (i === 13) {
+            ok = /3000|3km|3[.,]?0+km/.test(user);
+          } else ok = SA_ANSWERS["q" + i].test(user);
+          if (ok) sa++;
+          results.push({ q: i, user: raw, ok });
+        }
+
+        const total = mc + sa,
+          points = total * 10;
+        const seconds = Math.floor((performance.now() - startTime) / 1000);
+        updateQuizStats(total, 13 - total, seconds, points);
+
+        document.getElementById("result-card").style.display = "block";
+        document.getElementById("result-summary").innerHTML = `
+          <div style="font-size:19px;font-weight:700">Trắc nghiệm: ${mc}/8 • Tự luận: ${sa}/5 • Tổng: ${points} điểm</div>
+          ${
+            timeout
+              ? '<div style="color:#ffcc66;margin-top:8px">Hết giờ rồi, tự động nộp!</div>'
+              : ""
+          }
+        `;
+
+        let html = "<ol>";
+        for (let i = 1; i <= 8; i++) {
+          const a = fd.get("q" + i) || "(trống)";
+          html += `<li>Câu ${i}: ${
+            a === MC_ANSWERS["q" + i]
+              ? "Đúng"
+              : "Sai (đáp án: " + MC_ANSWERS["q" + i] + ")"
+          }</li>`;
+        }
+        html += "</ol><h4>Tự luận</h4><ol start=9>";
+        results.forEach(
+          (r) =>
+            (html += `<li>Câu ${r.q}: ${
+              r.ok ? "Đúng" : "Chưa đúng"
+            }<br><small>Bạn: ${escapeHtml(r.user)}</small></li>`)
+        );
+        html += "</ol>";
+        document.getElementById("answers").innerHTML = html;
+        document
+          .getElementById("result-card")
+          .scrollIntoView({ behavior: "smooth" });
+      }
+
+      function escapeHtml(t) {
+        return t
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+      }
+
+      window.addEventListener("beforeunload", (e) => {
+        if (started && !document.getElementById("submit-btn").disabled) {
+          e.preventDefault();
+          e.returnValue = "";
+        }
+      });
+    </script>
+  </body>
+</html>

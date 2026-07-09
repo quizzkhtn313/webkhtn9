@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SciDesk — Giáo Viên KHTN</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* === GIỮ NGUYÊN TOÀN BỘ CSS CŨ CỦA BẠN (rất dài) === */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#04080f;--bg2:#080f1a;--bg3:#0d1726;--bg4:#111e30;--border:rgba(56,189,248,0.08);--accent:#38bdf8;--text:#e2f0ff;--text2:#7ba8c8;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;display:flex;overflow-x:hidden;}
+/* ... (bạn copy hết phần <style> cũ của bạn vào đây) ... */
+
+/* === CSS MỚI CHO QUIZ BUILDER === */
+.quiz-modal .modal{width:95vw;max-width:1300px;height:92vh;overflow:hidden;display:flex;flex-direction:column;}
+.quiz-content{flex:1;display:flex;gap:20px;padding:20px;overflow:auto;background:var(--bg2);}
+.sidebar-quiz{width:280px;background:var(--bg3);border-radius:12px;padding:16px;}
+.main-quiz{flex:1;background:var(--bg3);border-radius:12px;padding:24px;overflow:auto;}
+.question-block{background:var(--bg4);padding:24px;border-radius:12px;margin-bottom:24px;position:relative;}
+</style>
+</head>
+<body>
+
+<!-- Sidebar, Main, Setup... giữ nguyên như cũ của bạn -->
+
+<!-- ASSIGN MODAL ĐÃ NÂNG CẤP -->
+<div class="overlay" id="assignOverlay">
+  <div class="modal quiz-modal">
+    <div class="modal-title">📝 Tạo & Giao Bài Tập Với Grok AI 
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    
+    <div class="quiz-content">
+      <!-- Sidebar quiz -->
+      <div class="sidebar-quiz">
+        <input type="text" id="quizTitle" class="fc" placeholder="Tên bài tập / Chủ đề" style="margin-bottom:16px;">
+        <button onclick="addMCQuestion()" class="btn btn-primary" style="width:100%;margin-bottom:8px;">+ Trắc nghiệm</button>
+        <button onclick="addEssayQuestion()" class="btn btn-primary" style="width:100%;margin-bottom:16px;">+ Tự luận</button>
+        <button onclick="saveAndAssign()" class="btn btn-ai" style="width:100%;">🚀 Lưu & Giao bài</button>
+      </div>
+
+      <!-- Main quiz builder -->
+      <div class="main-quiz" id="questionsContainer"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// === GIỮ NGUYÊN CODE CŨ CỦA BẠN (teacher, classroom, assignments...) ===
+// ... (copy hết script cũ trừ phần generateWithAI cũ) ...
+
+let questionCounter = 0;
+
+// Thêm câu trắc nghiệm
+function addMCQuestion() {
+  questionCounter++;
+  const container = document.getElementById('questionsContainer');
+  const block = document.createElement('div');
+  block.className = 'question-block';
+  block.innerHTML = `
+    <div style="position:absolute;top:12px;right:12px;background:#f87171;color:white;padding:4px 10px;border-radius:6px;cursor:pointer;" onclick="this.parentElement.remove()">Xóa</div>
+    <h3>Câu ${questionCounter} — Trắc nghiệm</h3>
+    <textarea class="fc q-text" placeholder="Nhập nội dung câu hỏi..." style="min-height:80px;margin:12px 0;"></textarea>
+    
+    <button onclick="generateMCOptions(this)" class="btn btn-sm" style="background:#7c3aed;color:white;margin:8px 0;">Grok tạo 4 đáp án</button>
+    <button onclick="generateExplanation(this)" class="btn btn-sm" style="background:#22d3ee;color:black;">Grok giải thích chi tiết</button>
+    
+    <div class="options" style="display:grid;gap:10px;margin-top:12px;">
+      <div class="option"><input type="radio" name="q${questionCounter}"><input type="text" class="fc opt" placeholder="A. "></div>
+      <div class="option"><input type="radio" name="q${questionCounter}"><input type="text" class="fc opt" placeholder="B. "></div>
+      <div class="option"><input type="radio" name="q${questionCounter}"><input type="text" class="fc opt" placeholder="C. "></div>
+      <div class="option"><input type="radio" name="q${questionCounter}"><input type="text" class="fc opt" placeholder="D. "></div>
+    </div>
+  `;
+  container.appendChild(block);
+}
+
+// Thêm câu tự luận
+function addEssayQuestion() {
+  questionCounter++;
+  const container = document.getElementById('questionsContainer');
+  const block = document.createElement('div');
+  block.className = 'question-block';
+  block.innerHTML = `
+    <div style="position:absolute;top:12px;right:12px;background:#f87171;color:white;padding:4px 10px;border-radius:6px;cursor:pointer;" onclick="this.parentElement.remove()">Xóa</div>
+    <h3>Câu ${questionCounter} — Tự luận</h3>
+    <textarea class="fc q-text" placeholder="Nhập câu hỏi tự luận..." style="min-height:100px;margin:12px 0;"></textarea>
+    <button onclick="generateEssayAnswer(this)" class="btn btn-sm" style="background:#a855f7;color:white;">Grok tạo đáp án mẫu + rubric</button>
+    <textarea class="fc essay-model" placeholder="Đáp án mẫu & rubric sẽ hiện ở đây..." style="margin-top:12px;min-height:120px;"></textarea>
+  `;
+  container.appendChild(block);
+}
+
+// === AI FUNCTIONS (DÙNG GROK) ===
+async function callGrok(prompt) {
+  // Nếu bạn chạy trên Puter thì dùng puter.ai.chat
+  // Nếu không, bạn có thể thay bằng fetch đến API Grok (nếu có key)
+  try {
+    const res = await fetch('https://api.x.ai/v1/chat/completions', { // hoặc dùng Puter
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' /* + Authorization nếu có */ },
+      body: JSON.stringify({
+        model: "grok-4-1-fast",
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
+    const data = await res.json();
+    return data.choices[0].message.content;
+  } catch(e) {
+    alert("Lỗi kết nối Grok: " + e.message);
+    return "Lỗi AI";
+  }
+}
+
+async function generateMCOptions(btn) {
+  const block = btn.closest('.question-block');
+  const q = block.querySelector('.q-text').value.trim();
+  if (!q) return alert("Nhập câu hỏi trước!");
+
+  btn.textContent = "Đang tạo...";
+  const prompt = `Tạo 4 đáp án trắc nghiệm cho câu hỏi sau. Trả về JSON: {"options":["A. ...","B. ...","C. ...","D. ..."],"correct":"A"}\nCâu hỏi: ${q}`;
+  const result = await callGrok(prompt);
+  try {
+    const data = JSON.parse(result);
+    const opts = block.querySelectorAll('.opt');
+    data.options.forEach((opt,i) => { if(opts[i]) opts[i].value = opt; });
+  } catch(e) {}
+  btn.textContent = "Grok tạo 4 đáp án";
+}
+
+async function generateEssayAnswer(btn) {
+  const block = btn.closest('.question-block');
+  const q = block.querySelector('.q-text').value.trim();
+  if (!q) return alert("Nhập câu hỏi trước!");
+
+  btn.textContent = "Đang tạo...";
+  const prompt = `Tạo đáp án mẫu và rubric chấm cho câu tự luận: ${q}. Trả về JSON: {"model_answer":"...", "rubric":"..."}`;
+  const result = await callGrok(prompt);
+  try {
+    const data = JSON.parse(result);
+    block.querySelector('.essay-model').value = `Đáp án mẫu:\n${data.model_answer}\n\nRubric:\n${data.rubric}`;
+  } catch(e) {}
+  btn.textContent = "Grok tạo đáp án mẫu + rubric";
+}
+
+// Lưu & giao bài
+async function saveAndAssign() {
+  const title = document.getElementById('quizTitle').value.trim() || "Bài tập không tên";
+  const questions = [];
+
+  document.querySelectorAll('.question-block').forEach(block => {
+    const qText = block.querySelector('.q-text').value.trim();
+    if (!qText) return;
+
+    if (block.querySelector('.options')) { // trắc nghiệm
+      const opts = Array.from(block.querySelectorAll('.opt')).map(o => o.value);
+      const correct = block.querySelector('input[type="radio"]:checked')?.value;
+      questions.push({type:'multiple', question: qText, options: opts, correct});
+    } else { // tự luận
+      const model = block.querySelector('.essay-model').value;
+      questions.push({type:'essay', question: qText, modelAnswer: model});
+    }
+  });
+
+  const assignment = {
+    id: Date.now(),
+    title: title,
+    type: "quiz",
+    questions: questions,
+    due: document.getElementById('fDue') ? document.getElementById('fDue').value : null,
+    createdAt: Date.now()
+  };
+
+  assignments.push(assignment);
+  save('sd-assignments', assignments);
+  
+  closeModal();
+  render();
+  showToast('🚀', 'Đã giao bài thành công!', title);
+}
+
+// Mở modal
+function openModal() {
+  document.getElementById('assignOverlay').classList.add('open');
+  document.getElementById('questionsContainer').innerHTML = '';
+  questionCounter = 0;
+  document.getElementById('quizTitle').value = '';
+}
+
+// Đóng modal
+function closeModal() {
+  document.getElementById('assignOverlay').classList.remove('open');
+}
+</script>
+</body>
+</html>

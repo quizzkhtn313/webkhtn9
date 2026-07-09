@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>🌌  Mạng Lưới Sự Sống Vũ Trụ | Hệ Sinh Thái Lâm Đồng</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,700&family=Orbitron:wght@400;700&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui;
+            background: radial-gradient(ellipse at 30% 20%, #0B1120, #020617);
+            min-height: 100vh;
+        }
+        /* Nền sao lấp lánh */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            background-image: 
+                radial-gradient(2px 2px at 18% 35%, #fff, rgba(0,0,0,0)),
+                radial-gradient(3px 3px at 68% 82%, #fde68a, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 94% 22%, #bae6fd, rgba(0,0,0,0)),
+                radial-gradient(4px 4px at 7% 91%, #c084fc, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 44% 48%, #6ee7b7, rgba(0,0,0,0));
+            background-repeat: no-repeat;
+            background-size: 300px 300px, 220px 220px, 180px 180px, 400px 400px, 250px 250px;
+            opacity: 0.6;
+            animation: nebulaDrift 110s linear infinite;
+            z-index: 0;
+        }
+        @keyframes nebulaDrift {
+            0% { background-position: 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%; }
+            100% { background-position: 300% 250%, 200% 180%, 400% 300%, 150% 280%, 500% 200%; }
+        }
+        .glass-card {
+            background: rgba(8, 16, 35, 0.65);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(88, 180, 255, 0.3);
+            border-radius: 2rem;
+            box-shadow: 0 25px 40px -15px rgba(0, 0, 0, 0.6), 0 0 12px rgba(0, 255, 255, 0.2);
+        }
+        #workspace {
+            background: radial-gradient(circle at 30% 40%, rgba(10, 25, 55, 0.7), rgba(0, 0, 0, 0.75)), url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&w=1000&q=80');
+            background-size: cover;
+            background-blend-mode: overlay;
+            transition: all 0.3s;
+        }
+        .node {
+            position: absolute;
+            width: 94px; height: 94px;
+            border-radius: 999px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 46px;
+            box-shadow: 0 12px 28px -8px black, 0 0 0 2px rgba(255,255,200,0.2), inset 0 1px 2px rgba(255,255,255,0.3);
+            user-select: none;
+            cursor: grab;
+            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            backdrop-filter: blur(4px);
+            background-color: rgba(0,0,0,0.25);
+            border: 1px solid rgba(255,215,0,0.4);
+        }
+        .node:active { cursor: grabbing; }
+        .node:hover { transform: scale(1.1) rotate(2deg); box-shadow: 0 20px 30px -5px black; border-color: #ffd966; }
+        .node .qty {
+            font-size: 16px; font-weight: 800; background: rgba(0,0,0,0.7); padding: 2px 8px;
+            border-radius: 40px; margin-top: -6px; color: #fef9c3; letter-spacing: 0.5px;
+        }
+        svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
+        .arrow {
+            stroke: #a5f3c3; stroke-width: 4.5; stroke-dasharray: 6 6; stroke-linecap: round;
+            filter: drop-shadow(0 0 3px #2dd4bf);
+            animation: pulseFlow 2s infinite;
+        }
+        @keyframes pulseFlow {
+            0% { stroke-width: 4; stroke-dashoffset: 0; }
+            100% { stroke-width: 6; stroke-dashoffset: 12; }
+        }
+        .tooltip {
+            position: absolute; background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(12px);
+            color: #e2e8f0; padding: 10px 16px; border-radius: 28px; font-size: 0.85rem;
+            border-left: 4px solid #22d3ee; pointer-events: none; z-index: 200;
+            font-weight: 500; box-shadow: 0 10px 20px -5px black; display: none;
+            white-space: nowrap;
+        }
+        button { transition: all 0.2s; font-weight: 600; letter-spacing: 0.3px; }
+        button:active { transform: scale(0.97); }
+        .legend-glow {
+            background: rgba(0, 20, 40, 0.6); backdrop-filter: blur(4px);
+            border-radius: 60px; padding: 0.3rem 1rem;
+        }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: #0f172a; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #2dd4bf; border-radius: 10px; }
+    </style>
+</head>
+<body class="text-slate-100">
+<div class="max-w-[1500px] mx-auto p-5">
+    <div class="flex justify-between items-center mb-4">
+        <div>
+            <h1 class="text-5xl font-bold bg-gradient-to-r from-indigo-300 via-cyan-300 to-emerald-300 bg-clip-text text-transparent drop-shadow-lg">🌠  MẠNG LƯỚI SỰ SỐNG · LÂM ĐỒNG</h1>
+            <p class="text-cyan-200/80 mt-1 text-sm font-mono">⚡ 12 loài đặc trưng | Tương tác năng lượng | Mô phỏng biến đổi khí hậu</p>
+        </div>
+        <div class="flex gap-2 text-xs bg-black/40 p-2 rounded-full px-4">
+            <span class="w-3 h-3 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>Mô phỏng sinh thái thời gian thực</span>
+        </div>
+    </div>
+
+    <div class="flex flex-wrap gap-6">
+        <!-- Sidebar điều khiển -->
+        <div class="w-80 glass-card p-6 shrink-0">
+            <h2 class="font-bold text-2xl mb-5 flex items-center gap-2 text-cyan-200">🌿  Quần xã sinh vật</h2>
+            <div id="sidebar" class="grid grid-cols-2 gap-3 max-h-[420px] overflow-y-auto pr-1"></div>
+
+            <div class="mt-8 border-t border-cyan-800/50 pt-5">
+                <h3 class="font-bold mb-4 flex items-center gap-2 text-amber-200">🌪️  Yếu tố áp lực môi trường</h3>
+                <div class="space-y-5">
+                    <div><label class="flex justify-between text-sm"><span>🧪  Thuốc trừ sâu</span><span id="pestVal" class="text-rose-300 font-mono">0</span>%</label>
+                        <input type="range" id="pestSlider" min="0" max="100" value="0" class="w-full accent-rose-400 h-1.5 rounded-lg">
+                    </div>
+                    <div><label class="flex justify-between text-sm"><span>🔥  Hạn hán</span><span id="droughtVal" class="text-amber-300 font-mono">0</span>%</label>
+                        <input type="range" id="droughtSlider" min="0" max="100" value="0" class="w-full accent-amber-500 h-1.5">
+                    </div>
+                    <div><label class="flex justify-between text-sm"><span>🌡️  Nhiệt độ tăng</span><span id="heatVal" class="text-orange-300 font-mono">0</span>°C</label>
+                        <input type="range" id="heatSlider" min="0" max="5" step="0.5" value="0" class="w-full accent-orange-400">
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 grid grid-cols-2 gap-3">
+                <button onclick="startRealtimeSim()" id="simBtn" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 py-3 rounded-xl shadow-lg font-bold flex items-center justify-center gap-1">▶️  Chạy mô phỏng</button>
+                <button onclick="stopSim()" class="bg-slate-700 hover:bg-slate-600 py-3 rounded-xl font-bold">⏹️  Dừng</button>
+                <button onclick="loadSampleSystem()" class="bg-indigo-700 hover:bg-indigo-600 py-3 rounded-xl font-bold col-span-2">✨  Tải lưới mẫu (Rừng cà phê)</button>
+                <button onclick="runEnergyFlow()" class="bg-cyan-700 hover:bg-cyan-600 py-3 rounded-xl font-bold">🌀  Hiệu ứng dòng năng lượng</button>
+                <button onclick="analyzeSystem()" class="bg-amber-700 hover:bg-amber-600 py-3 rounded-xl font-bold">📊  Phân tích bậc dinh dưỡng</button>
+                <button onclick="exportPNG()" class="bg-purple-700 hover:bg-purple-600 py-3 rounded-xl font-bold">📸  Xuất ảnh lưới thức ăn</button>
+                <button onclick="resetAll()" class="bg-gray-700 hover:bg-gray-600 py-3 rounded-xl font-bold col-span-2">⟳  Thiết lập lại</button>
+            </div>
+            <div class="text-center text-[11px] text-slate-400 mt-4">⭐ Nhấp đúp: xóa loài | Chuột phải: thông tin | Kéo thả để tạo chuỗi</div>
+        </div>
+
+        <!-- Khu vực làm việc + Biểu đồ -->
+        <div class="flex-1 flex flex-col gap-5">
+            <div id="workspace" class="h-[640px] rounded-3xl shadow-2xl relative border-2 border-cyan-400/50 overflow-hidden">
+                <svg id="edges" width="100%" height="100%"></svg>
+                <div id="tooltip" class="tooltip"></div>
+            </div>
+
+            <div class="glass-card p-5">
+                <div class="flex justify-between items-center mb-2">
+                    <h3 class="font-bold text-lg text-cyan-200">📈  Biến động số lượng quần thể</h3>
+                    <span class="text-xs text-emerald-300">Mỗi bước mô phỏng = tiêu thụ & sinh trưởng</span>
+                </div>
+                <canvas id="popChart" class="w-full h-56 bg-black/40 rounded-xl p-2"></canvas>
+            </div>
+
+            <div class="flex flex-wrap justify-center gap-5 text-xs font-mono">
+                <div class="legend-glow flex items-center gap-2"><span class="text-xl">🌳</span> Sinh vật sản xuất</div>
+                <div class="legend-glow flex items-center gap-2"><span class="text-xl">🐛</span> Sinh vật tiêu thụ bậc 1</div>
+                <div class="legend-glow flex items-center gap-2"><span class="text-xl">🕷️</span> Sinh vật tiêu thụ bậc 2</div>
+                <div class="legend-glow flex items-center gap-2"><span class="text-xl">🦅</span> Động vật đỉnh</div>
+                <div class="legend-glow flex items-center gap-2"><span class="text-xl">🍂</span> Sinh vật phân hủy</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Danh sách loài mở rộng (Lâm Đồng)
+    const species = [
+        {id:'coffee', emoji:'🌳', name:'Cây cà phê', color:'#2b5e2b', role:'Sản xuất', trophic:1},
+        {id:'banana', emoji:'🌴', name:'Cây chuối rừng', color:'#4caf50', role:'Sản xuất', trophic:1},
+        {id:'leaf', emoji:'🍂', name:'Lá mục & nấm', color:'#9e6b3e', role:'Phân hủy', trophic:1},
+        {id:'caterpillar', emoji:'🐛', name:'Sâu hại', color:'#b8860b', role:'Tiêu thụ bậc 1', trophic:2},
+        {id:'butterfly', emoji:'🦋', name:'Bướm', color:'#e879f9', role:'Tiêu thụ bậc 1', trophic:2},
+        {id:'bee', emoji:'🐝', name:'Ong', color:'#facc15', role:'Tiêu thụ bậc 1', trophic:2},
+        {id:'spider', emoji:'🕷️', name:'Nhện', color:'#a5b4fc', role:'Tiêu thụ bậc 2', trophic:3},
+        {id:'ant', emoji:'🐜', name:'Kiến', color:'#f97316', role:'Tiêu thụ bậc 2', trophic:3},
+        {id:'bird', emoji:'🐦', name:'Chim sâu', color:'#3b82f6', role:'Tiêu thụ bậc 2-3', trophic:3},
+        {id:'mouse', emoji:'🐭', name:'Chuột đồng', color:'#9ca3af', role:'Tiêu thụ bậc 2', trophic:3},
+        {id:'civet', emoji:'🦝', name:'Cầy hương', color:'#a855f7', role:'Tiêu thụ bậc 3', trophic:4},
+        {id:'eagle', emoji:'🦅', name:'Đại bàng', color:'#334155', role:'Tiêu thụ bậc 4', trophic:5}
+    ];
+
+    let nodes = [], edges = [], selected = null, draggingNode = null, offsetX, offsetY;
+    let simInterval = null, chart = null, timeAxis = 0;
+    const workspace = document.getElementById('workspace');
+    const tooltipDiv = document.getElementById('tooltip');
+
+    // Tạo thanh bên với các loài (kéo thả)
+    function buildSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        species.forEach(sp => {
+            const card = document.createElement('div');
+            card.className = `flex flex-col items-center p-3 bg-slate-800/70 border border-indigo-400/40 rounded-2xl cursor-grab hover:border-cyan-300 hover:scale-105 transition-all`;
+            card.draggable = true;
+            card.innerHTML = `<div class="text-5xl mb-1">${sp.emoji}</div><div class="font-semibold text-xs text-center">${sp.name}</div><div class="text-[10px] text-cyan-300">${sp.role}</div>`;
+            card.addEventListener('dragstart', e => e.dataTransfer.setData('text/plain', sp.id));
+            sidebar.appendChild(card);
+        });
+    }
+
+    workspace.addEventListener('dragover', e => e.preventDefault());
+    workspace.addEventListener('drop', e => {
+        e.preventDefault();
+        const id = e.dataTransfer.getData('text/plain');
+        const sp = species.find(s => s.id === id);
+        if (sp) addNode(sp, e.offsetX - 47, e.offsetY - 47);
+    });
+
+    function addNode(sp, x, y) {
+        const nodeDiv = document.createElement('div');
+        nodeDiv.className = 'node';
+        nodeDiv.style.backgroundColor = sp.color;
+        nodeDiv.style.left = Math.min(Math.max(20, x), workspace.clientWidth - 100) + 'px';
+        nodeDiv.style.top = Math.min(Math.max(20, y), workspace.clientHeight - 100) + 'px';
+        nodeDiv.innerHTML = `<span>${sp.emoji}</span><div class="qty">100</div>`;
+        nodeDiv.dataset.id = sp.id + '_' + Date.now() + Math.random();
+        nodeDiv.dataset.name = sp.name;
+        nodeDiv.dataset.emoji = sp.emoji;
+        nodeDiv.dataset.role = sp.role;
+        nodeDiv.dataset.trophic = sp.trophic;
+        nodeDiv.dataset.quantity = 100;
+
+        nodeDiv.addEventListener('mousedown', startDragNode);
+        nodeDiv.addEventListener('click', e => { e.stopPropagation(); selectNodeForEdge(nodeDiv); });
+        nodeDiv.addEventListener('dblclick', () => { nodeDiv.remove(); nodes = nodes.filter(n => n !== nodeDiv); redrawEdges(); updateChart(); });
+        nodeDiv.addEventListener('contextmenu', e => { e.preventDefault(); showEcoInfo(nodeDiv); });
+        nodeDiv.addEventListener('mouseenter', showTooltip);
+        nodeDiv.addEventListener('mouseleave', () => tooltipDiv.style.display = 'none');
+
+        workspace.appendChild(nodeDiv);
+        nodes.push(nodeDiv);
+        updateChart();
+    }
+
+    function startDragNode(e) {
+        draggingNode = e.currentTarget;
+        const rect = workspace.getBoundingClientRect();
+        offsetX = e.clientX - rect.left - draggingNode.offsetLeft;
+        offsetY = e.clientY - rect.top - draggingNode.offsetTop;
+        document.addEventListener('mousemove', onDragMove);
+        document.addEventListener('mouseup', stopDragNode);
+    }
+    function onDragMove(e) {
+        if (!draggingNode) return;
+        const rect = workspace.getBoundingClientRect();
+        let x = e.clientX - rect.left - offsetX, y = e.clientY - rect.top - offsetY;
+        x = Math.min(Math.max(15, x), rect.width - 90);
+        y = Math.min(Math.max(15, y), rect.height - 90);
+        draggingNode.style.left = x + 'px';
+        draggingNode.style.top = y + 'px';
+        redrawEdges();
+    }
+    function stopDragNode() {
+        document.removeEventListener('mousemove', onDragMove);
+        document.removeEventListener('mouseup', stopDragNode);
+        draggingNode = null;
+    }
+
+    function selectNodeForEdge(node) {
+        if (selected === node) { selected.style.boxShadow = ''; selected = null; return; }
+        if (selected) {
+            edges.push({ from: selected, to: node });
+            redrawEdges();
+            selected.style.boxShadow = '';
+            selected = null;
+        } else {
+            selected = node;
+            node.style.boxShadow = '0 0 0 4px #86efac, 0 0 0 8px rgba(34,211,238,0.4)';
+        }
+    }
+
+    function redrawEdges() {
+        const svg = document.getElementById('edges');
+        svg.innerHTML = `<defs><marker id="arrowhead" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><polygon points="0 0, 10 4, 0 8" fill="#a5f3c3"/></marker></defs>`;
+        edges.forEach(edge => {
+            if (!edge.from || !edge.to || !workspace.contains(edge.from) || !workspace.contains(edge.to)) return;
+            const fRect = edge.from.getBoundingClientRect(), tRect = edge.to.getBoundingClientRect();
+            const wRect = workspace.getBoundingClientRect();
+            const x1 = fRect.left + fRect.width/2 - wRect.left;
+            const y1 = fRect.top + fRect.height/2 - wRect.top;
+            const x2 = tRect.left + tRect.width/2 - wRect.left;
+            const y2 = tRect.top + tRect.height/2 - wRect.top;
+            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            line.setAttribute("x1", x1); line.setAttribute("y1", y1);
+            line.setAttribute("x2", x2); line.setAttribute("y2", y2);
+            line.setAttribute("class", "arrow");
+            svg.appendChild(line);
+        });
+    }
+
+    function showTooltip(e) {
+        const node = e.currentTarget;
+        tooltipDiv.style.display = 'flex';
+        tooltipDiv.style.left = (e.pageX + 18) + 'px';
+        tooltipDiv.style.top = (e.pageY - 35) + 'px';
+        tooltipDiv.innerHTML = `${node.dataset.emoji} <b>${node.dataset.name}</b><br>🌿 ${node.dataset.role} | 🧬 Số lượng: ${node.dataset.quantity}`;
+    }
+
+    function showEcoInfo(node) {
+        const facts = {
+            coffee: '🌍 Cây cà phê chiếm 70% sản lượng Lâm Đồng, tán rừng che bóng giảm 2°C.',
+            civet: '🐾 Cầy hương ăn quả chín → hạt cà phê chồn hảo hạng, tương tác đặc hữu.',
+            bee: '🌸 Ong đực đảm bảo đậu quả, nếu thiệt hại do thuốc trừ sâu → sụt giảm năng suất.',
+            bird: '🎵 Chim sâu kiểm soát sâu bọ tự nhiên, chỉ số đa dạng sinh học cao.'
+        };
+        const key = node.dataset.id.split('_')[0];
+        alert(`🪐 ${node.dataset.name}\n\n📖 ${facts[key] || 'Loài chủ chốt trong lưới thức ăn rừng cà phê, đóng vai trò cân bằng hệ sinh thái.'}\n📊 Hiện tại: ${node.dataset.quantity} cá thể`);
+    }
+
+    function loadSampleSystem() {
+        resetAll();
+        const positions = [
+            {sp:species[0], x:120, y:200},{sp:species[1], x:380, y:130},{sp:species[3], x:290, y:340},
+            {sp:species[5], x:560, y:230},{sp:species[6], x:450, y:400},{sp:species[8], x:640, y:470},
+            {sp:species[10], x:780, y:360},{sp:species[11], x:880, y:510}
+        ];
+        positions.forEach(p => addNode(p.sp, p.x, p.y));
+        setTimeout(() => {
+            if (nodes.length >= 6) {
+                edges = [
+                    {from:nodes[0], to:nodes[2]}, {from:nodes[1], to:nodes[2]}, {from:nodes[2], to:nodes[4]},
+                    {from:nodes[3], to:nodes[4]}, {from:nodes[4], to:nodes[5]}, {from:nodes[5], to:nodes[6]},
+                    {from:nodes[6], to:nodes[7]}
+                ];
+                redrawEdges();
+            }
+        }, 150);
+    }
+
+    function runEnergyFlow() {
+        if (edges.length === 0) return alert("🌟 Hãy tạo ít nhất một chuỗi thức ăn bằng cách kéo thả và kết nối các loài!");
+        edges.forEach((edge, idx) => {
+            setTimeout(() => {
+                const particle = document.createElement('div');
+                particle.textContent = '✨';
+                particle.style.position = 'absolute'; particle.style.fontSize = '32px'; particle.style.filter = 'drop-shadow(0 0 6px gold)';
+                particle.style.transition = 'all 1.2s ease-out';
+                particle.style.left = edge.from.style.left; particle.style.top = edge.from.style.top;
+                workspace.appendChild(particle);
+                setTimeout(() => {
+                    particle.style.left = edge.to.style.left;
+                    particle.style.top = edge.to.style.top;
+                    particle.style.opacity = '0';
+                    particle.style.transform = 'scale(0.2)';
+                }, 30);
+                setTimeout(() => particle.remove(), 1300);
+            }, idx * 220);
+        });
+    }
+
+    // Mô phỏng sinh thái thời gian thực
+    function startRealtimeSim() {
+        if (simInterval) return;
+        document.getElementById('simBtn').innerHTML = '⏸️ Đang chạy mô phỏng...';
+        simInterval = setInterval(() => {
+            timeAxis++;
+            edges.forEach(edge => {
+                let prey = parseInt(edge.from.dataset.quantity);
+                let pred = parseInt(edge.to.dataset.quantity);
+                if (prey > 3 && pred < 250) {
+                    let consume = Math.min(7, Math.floor(prey * 0.08));
+                    edge.from.dataset.quantity = Math.max(5, prey - consume);
+                    edge.to.dataset.quantity = Math.min(280, pred + Math.floor(consume * 0.6));
+                    edge.from.querySelector('.qty').textContent = edge.from.dataset.quantity;
+                    edge.to.querySelector('.qty').textContent = edge.to.dataset.quantity;
+                }
+            });
+            nodes.forEach(n => {
+                if (n.dataset.role.includes('Sản xuất')) {
+                    let q = parseInt(n.dataset.quantity);
+                    let regen = Math.min(180, q + 4);
+                    n.dataset.quantity = regen;
+                    n.querySelector('.qty').textContent = regen;
+                }
+            });
+            applyEnvironmentalStress();
+            updateChart();
+            redrawEdges();
+        }, 800);
+    }
+
+    function applyEnvironmentalStress() {
+        const pest = parseInt(document.getElementById('pestSlider').value);
+        const drought = parseInt(document.getElementById('droughtSlider').value);
+        const heat = parseFloat(document.getElementById('heatSlider').value);
+        nodes.forEach(n => {
+            let q = parseInt(n.dataset.quantity);
+            if (n.dataset.role.includes('bậc 1') || n.dataset.role.includes('Sâu')) q = Math.max(2, q - Math.floor(pest / 12));
+            if (n.dataset.role.includes('Sản xuất')) q = Math.max(8, q - Math.floor(drought / 7));
+            if (n.dataset.trophic >= 3) q = Math.max(2, q - Math.floor(heat * 2.5));
+            n.dataset.quantity = Math.min(280, q);
+            n.querySelector('.qty').textContent = n.dataset.quantity;
+        });
+    }
+
+    function stopSim() {
+        clearInterval(simInterval);
+        simInterval = null;
+        document.getElementById('simBtn').innerHTML = '▶️ Chạy mô phỏng';
+    }
+
+    function analyzeSystem() {
+        const producers = nodes.filter(n => n.dataset.role.includes('Sản xuất')).length;
+        const primary = nodes.filter(n => n.dataset.role.includes('bậc 1')).length;
+        const topPred = nodes.filter(n => n.dataset.trophic >= 4).length;
+        let stability = producers >= 2 ? "🟢 Ổn định cao (mô phỏng hệ canh tác cà phê)" : "🔴 Hệ sinh thái mong manh, thiếu sinh vật sản xuất";
+        alert(`🌿 Phân tích tháp dinh dưỡng\n🌳 Sinh vật sản xuất: ${producers}\n🐛 Sinh vật tiêu thụ bậc 1: ${primary}\n🦅 Động vật đỉnh: ${topPred}\n\n🔁 Số chuỗi thức ăn: ${edges.length}\n${stability}`);
+    }
+
+    function updateChart() {
+        if (!chart) {
+            const ctx = document.getElementById('popChart').getContext('2d');
+            chart = new Chart(ctx, { type: 'line', data: { labels: [], datasets: [] }, options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'top', labels: { color: '#cbd5e1' } } }, scales: { y: { title: { display: true, text: 'Số lượng cá thể', color: '#94a3b8' }, beginAtZero: true } } } });
+        }
+        if (chart.data.datasets.length !== nodes.length) {
+            chart.data.datasets = nodes.map(n => ({
+                label: n.dataset.name,
+                data: [],
+                borderColor: n.style.backgroundColor,
+                backgroundColor: 'transparent',
+                tension: 0.3,
+                borderWidth: 2,
+                pointRadius: 2
+            }));
+        }
+        chart.data.labels.push(timeAxis);
+        chart.data.datasets.forEach((ds, idx) => {
+            if (nodes[idx]) ds.data.push(parseInt(nodes[idx].dataset.quantity));
+            else ds.data.push(0);
+        });
+        if (chart.data.labels.length > 35) {
+            chart.data.labels.shift();
+            chart.data.datasets.forEach(d => d.data.shift());
+        }
+        chart.update('none');
+    }
+
+    function exportPNG() {
+        html2canvas(document.querySelector('.flex-1'), { scale: 2, backgroundColor: '#020617' }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = 'luoi_thuc_an_lamdong.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        });
+    }
+
+    function resetAll() {
+        stopSim();
+        nodes.forEach(n => n.remove());
+        nodes = [];
+        edges = [];
+        redrawEdges();
+        if (chart) { chart.data.labels = []; chart.data.datasets = []; chart.update(); }
+        timeAxis = 0;
+    }
+
+    // Cập nhật giá trị hiển thị khi kéo slider
+    ['pestSlider', 'droughtSlider', 'heatSlider'].forEach(id => {
+        const slider = document.getElementById(id);
+        slider.addEventListener('input', (e) => {
+            const val = e.target.value;
+            const spanId = id.replace('Slider', 'Val');
+            document.getElementById(spanId).textContent = val;
+            if (simInterval) applyEnvironmentalStress();
+        });
+    });
+
+    window.onload = () => {
+        buildSidebar();
+        setTimeout(() => {
+            addNode(species[0], 180, 250);
+            addNode(species[3], 420, 310);
+            addNode(species[6], 620, 280);
+        }, 200);
+    };
+</script>
+</body>
+</html>

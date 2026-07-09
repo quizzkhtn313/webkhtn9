@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>🌌 VŨ TRỤ TRI THỨC – 120+ CÂU HỎI KHOA HỌC</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            min-height: 100vh;
+            background: radial-gradient(ellipse at 20% 30%, #03030f, #000000);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', 'Inter', system-ui, sans-serif;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Nền sao */
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0;
+            animation: twinkle 3s infinite alternate;
+            pointer-events: none;
+            z-index: 0;
+        }
+        @keyframes twinkle {
+            0% {
+                opacity: 0.1;
+                transform: scale(1);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+        }
+
+        /* Tinh vân */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 70% 20%, rgba(100, 50, 200, 0.3), transparent 50%),
+                radial-gradient(circle at 20% 80%, rgba(0, 180, 220, 0.25), transparent 55%);
+            animation: nebula 16s infinite alternate;
+            pointer-events: none;
+            z-index: 0;
+        }
+        @keyframes nebula {
+            0% {
+                transform: scale(1) rotate(0deg);
+                opacity: 0.6;
+            }
+            100% {
+                transform: scale(1.1) rotate(2deg);
+                opacity: 1;
+            }
+        }
+
+        /* Khung game chính */
+        #gameBox {
+            position: relative;
+            width: 1000px;
+            max-width: 95%;
+            background: rgba(8, 8, 25, 0.7);
+            backdrop-filter: blur(20px);
+            border-radius: 48px;
+            padding: 30px 30px 40px;
+            border: 1px solid rgba(0, 255, 255, 0.4);
+            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.6), 0 0 0 2px rgba(80, 150, 255, 0.2);
+            z-index: 10;
+            transition: 0.3s;
+        }
+
+        /* Menu */
+        .menuBtn {
+            padding: 22px 25px;
+            margin: 12px 0;
+            background: radial-gradient(circle at 30% 10%, #1a1f3a, #050510);
+            border: 1px solid cyan;
+            border-radius: 60px;
+            font-size: 26px;
+            font-weight: bold;
+            font-family: monospace;
+            color: #b7f0ff;
+            text-shadow: 0 0 8px cyan;
+            cursor: pointer;
+            text-align: center;
+            transition: 0.2s;
+        }
+        .menuBtn:hover {
+            transform: scale(1.02);
+            background: #2a2f5a;
+            box-shadow: 0 0 20px cyan;
+            color: white;
+        }
+
+        #subjectName {
+            font-size: 28px;
+            font-weight: bold;
+            text-align: center;
+            background: linear-gradient(135deg, #aaffff, #ffaaff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 15px;
+            letter-spacing: 2px;
+        }
+
+        #scoreDisplay,
+        #timer {
+            display: inline-block;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-size: 22px;
+            font-weight: bold;
+            font-family: monospace;
+            margin: 0 10px 15px 0;
+            border: 1px solid cyan;
+        }
+        #scoreDisplay {
+            color: #aaffaa;
+            text-shadow: 0 0 5px #0f0;
+        }
+        #timer {
+            color: #ffaa66;
+            text-shadow: 0 0 5px orange;
+        }
+
+        #progressBarContainer {
+            background: #222;
+            height: 12px;
+            border-radius: 20px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+        #progressBar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #0ff, #f0f);
+            transition: width 0.4s;
+            border-radius: 20px;
+        }
+
+        #questionText {
+            font-size: 34px;
+            font-weight: bold;
+            color: #fff0dd;
+            text-shadow: 0 0 10px #00aaff;
+            margin: 20px 0 30px;
+            line-height: 1.3;
+            min-height: 100px;
+        }
+
+        .answers {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px 40px;
+            margin: 20px auto;
+        }
+
+        .answerBtn {
+            background: rgba(20, 30, 60, 0.8);
+            border: 1px solid #0af;
+            border-radius: 32px;
+            padding: 22px 15px;
+            font-size: 18px;
+            font-weight: 500;
+            color: #eef;
+            text-align: center;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            transition: 0.2s;
+            box-shadow: 0 5px 12px black;
+        }
+        .answerBtn:hover {
+            transform: translateY(-5px);
+            background: #2a3f7a;
+            border-color: #ffaa44;
+            box-shadow: 0 0 18px cyan;
+        }
+
+        .correct {
+            background: radial-gradient(circle at 30% 20%, #00cc66, #008844) !important;
+            border-color: #aaffaa !important;
+            box-shadow: 0 0 35px #0f0 !important;
+            animation: correctFlash 0.4s ease;
+        }
+        @keyframes correctFlash {
+            0% {
+                transform: scale(0.98);
+            }
+            80% {
+                transform: scale(1.03);
+            }
+        }
+
+        .wrong {
+            background: radial-gradient(circle at 30% 20%, #cc3333, #770000) !important;
+            border-color: #ff6666 !important;
+            box-shadow: 0 0 30px #f00 !important;
+            animation: shake 0.3s;
+        }
+        @keyframes shake {
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+            25% {
+                transform: translateX(-6px);
+            }
+            75% {
+                transform: translateX(6px);
+            }
+        }
+
+        .item-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        .item-btn {
+            background: #111a2e;
+            border: 1px solid gold;
+            padding: 10px 22px;
+            border-radius: 40px;
+            font-weight: bold;
+            font-size: 15px;
+            color: #ffdd99;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .item-btn:hover:not(:disabled) {
+            background: #ffaa3355;
+            transform: scale(1.05);
+        }
+        .item-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        #restartBtn,
+        #homeBtn {
+            background: #1a1a3a;
+            border: 1px solid #ff66cc;
+            padding: 12px 30px;
+            border-radius: 40px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffccff;
+            margin-top: 15px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-block;
+        }
+        #restartBtn:hover,
+        #homeBtn:hover {
+            background: #ff44aa30;
+            box-shadow: 0 0 15px #ff66cc;
+            color: white;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 20;
+            border-radius: 48px;
+        }
+
+        .slideOut {
+            animation: slideOutAnim 0.4s forwards;
+        }
+        .slideIn {
+            animation: slideInAnim 0.5s forwards;
+        }
+        @keyframes slideOutAnim {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+                filter: blur(0);
+            }
+            to {
+                transform: translateX(-50px);
+                opacity: 0;
+                filter: blur(4px);
+            }
+        }
+        @keyframes slideInAnim {
+            from {
+                transform: translateX(60px);
+                opacity: 0;
+                filter: blur(6px);
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+                filter: blur(0);
+            }
+        }
+
+        /* ===== AI NHẬN XÉT ===== */
+        #aiReviewContainer {
+            margin-top: 25px;
+            border-top: 2px solid rgba(0, 255, 255, 0.25);
+            padding-top: 20px;
+            display: none;
+            animation: fadeInUp 0.6s ease;
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        #aiReviewContainer .ai-title {
+            font-size: 26px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #ffcc77, #ff88ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        #aiReviewContainer .ai-title .ai-sparkle {
+            display: inline-block;
+            animation: sparkle 1.2s infinite alternate;
+        }
+        @keyframes sparkle {
+            0% {
+                opacity: 0.4;
+                transform: scale(0.9);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1.1);
+            }
+        }
+
+        /* Loading */
+        #aiLoading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px 20px;
+            background: rgba(0, 20, 40, 0.5);
+            border-radius: 24px;
+            border: 1px solid rgba(100, 200, 255, 0.2);
+        }
+        #aiLoading .loader-text {
+            font-size: 20px;
+            color: #bbddff;
+            font-weight: 500;
+            margin-bottom: 18px;
+            letter-spacing: 1px;
+        }
+        .loader-dots {
+            display: flex;
+            gap: 14px;
+        }
+        .loader-dots span {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #00ccff;
+            animation: dotBounce 1.4s infinite ease-in-out both;
+        }
+        .loader-dots span:nth-child(1) {
+            animation-delay: -0.32s;
+            background: #ff66aa;
+        }
+        .loader-dots span:nth-child(2) {
+            animation-delay: -0.16s;
+            background: #66ffaa;
+        }
+        .loader-dots span:nth-child(3) {
+            animation-delay: 0s;
+            background: #66aaff;
+        }
+        @keyframes dotBounce {
+            0%,
+            80%,
+            100% {
+                transform: scale(0.5);
+                opacity: 0.4;
+            }
+            40% {
+                transform: scale(1.1);
+                opacity: 1;
+            }
+        }
+
+        /* Kết quả AI */
+        #aiResult {
+            display: none;
+            background: rgba(0, 10, 30, 0.6);
+            border-radius: 28px;
+            padding: 22px 28px 28px;
+            border: 1px solid rgba(0, 255, 200, 0.2);
+            backdrop-filter: blur(4px);
+            animation: fadeInUp 0.5s ease;
+        }
+        #aiResult .ai-block {
+            margin: 14px 0;
+        }
+        #aiResult .ai-block-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #ffdd99;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        #aiResult .ai-block-title .icon {
+            font-size: 24px;
+        }
+        #aiResult .ai-block-content {
+            color: #ddeeff;
+            font-size: 17px;
+            line-height: 1.6;
+            padding-left: 10px;
+            border-left: 3px solid rgba(0, 255, 255, 0.25);
+            padding: 8px 16px;
+            background: rgba(0, 20, 50, 0.3);
+            border-radius: 12px;
+            margin-top: 4px;
+        }
+        #aiResult .ai-block-content ul,
+        #aiResult .ai-block-content ol {
+            padding-left: 24px;
+            margin: 6px 0;
+        }
+        #aiResult .ai-block-content li {
+            margin: 4px 0;
+        }
+        #aiResult .ai-block-content .highlight {
+            color: #ffbb77;
+            font-weight: 500;
+        }
+        #aiResult .ai-block-content .pass {
+            color: #77ffaa;
+        }
+        #aiResult .ai-block-content .fail {
+            color: #ff7777;
+        }
+        #aiResult .ai-block-content .info {
+            color: #77ccff;
+        }
+
+        .ai-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px 30px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 16px;
+            padding: 14px 20px;
+            margin-bottom: 18px;
+            border: 1px solid rgba(255, 200, 100, 0.15);
+        }
+        .ai-stats .stat-item {
+            font-size: 17px;
+            color: #ccddff;
+        }
+        .ai-stats .stat-item strong {
+            color: #ffdd77;
+            font-weight: 600;
+        }
+        .ai-stats .stat-item .score-num {
+            font-size: 28px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #ffdd44, #ff8844);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .submit-btn {
+            background: radial-gradient(circle at 30% 20%, #2a4a7a, #0a1a3a);
+            border: 2px solid #66ddff;
+            border-radius: 60px;
+            padding: 16px 40px;
+            font-size: 22px;
+            font-weight: bold;
+            color: #ddf;
+            cursor: pointer;
+            transition: 0.3s;
+            margin: 18px auto 8px;
+            display: inline-block;
+            box-shadow: 0 0 20px rgba(0, 200, 255, 0.2);
+        }
+        .submit-btn:hover {
+            transform: scale(1.04);
+            background: #2a5a8a;
+            box-shadow: 0 0 40px rgba(0, 200, 255, 0.4);
+            border-color: #88ffff;
+        }
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .result-summary {
+            font-size: 20px;
+            color: #ddeeff;
+            text-align: center;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .result-summary .big-score {
+            font-size: 44px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffdd44, #ff8844);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .result-summary .sub-info {
+            color: #99bbdd;
+            font-size: 17px;
+        }
+
+        /* Nút "Nộp bài" và "Chơi lại" xếp hàng ngang */
+        .action-row {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        /* Responsive */
+        @media (max-width: 700px) {
+            .answers {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            #questionText {
+                font-size: 24px;
+            }
+            .answerBtn {
+                padding: 14px;
+                font-size: 16px;
+            }
+            .menuBtn {
+                font-size: 20px;
+                padding: 14px;
+            }
+            #aiResult .ai-block-content {
+                font-size: 15px;
+                padding: 6px 12px;
+            }
+            .ai-stats {
+                gap: 10px 18px;
+                padding: 12px 14px;
+            }
+            .ai-stats .stat-item {
+                font-size: 15px;
+            }
+            .submit-btn {
+                font-size: 18px;
+                padding: 12px 28px;
+            }
+            .result-summary .big-score {
+                font-size: 32px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="gameBox">
+        <div id="menu">
+            <div class="menuBtn" onclick="startSubject('ly')">🌌 VẬT LÝ VŨ TRỤ (25+ câu)</div>
+            <div class="menuBtn" onclick="startSubject('hoa')">⚛️ HÓA HỌC THIÊN HÀ (25+ câu)</div>
+            <div class="menuBtn" onclick="startSubject('sinh')">🧬 SINH HỌC SỰ SỐNG (25+ câu)</div>
+            <div class="menuBtn" onclick="startSubject('td')">🌍 KHOA HỌC TRÁI ĐẤT (25+ câu)</div>
+            <button id="homeBtn" onclick="goHome()">🚀 TRỞ VỀ HÀNH TINH CHÍNH</button>
+        </div>
+        <div id="subjectName"></div>
+        <div id="scoreDisplay">🌟 ĐIỂM: 0</div>
+        <div id="timer">⏱️ THỜI GIAN: 30s</div>
+        <div id="progressBarContainer"><div id="progressBar"></div></div>
+        <div id="questionText"></div>
+        <div class="answers" id="answerBox"></div>
+        <div id="item-buttons" class="item-buttons">
+            <button id="timeBtn" class="item-btn" onclick="useExtraTime()">⏳ +30 giây</button>
+            <button id="doubleBtn" class="item-btn" onclick="useDoublePoints()">✨ x2 Điểm</button>
+            <button id="fiftyBtn" class="item-btn" onclick="useFiftyFifty()">🌙 50/50</button>
+            <button id="hintBtn" class="item-btn" onclick="useHint()">💡 Gợi ý</button>
+        </div>
+
+        <!-- Khu vực AI Nhận xét -->
+        <div id="aiReviewContainer">
+            <div class="ai-title">
+                <span class="ai-sparkle">🧠</span> 🤖 AI NHẬN XÉT
+            </div>
+            <div id="aiLoading">
+                <div class="loader-text">🤖 AI đang phân tích bài làm...</div>
+                <div class="loader-dots">
+                    <span></span><span></span><span></span>
+                </div>
+            </div>
+            <div id="aiResult"></div>
+        </div>
+
+        <div id="actionRow" class="action-row" style="display:none;">
+            <button id="submitReviewBtn" class="submit-btn" onclick="submitForAIReview()">📤 Nộp bài để nhận xét</button>
+            <button id="restartBtn" onclick="restartGame()">🔄 CHƠI LẠI</button>
+        </div>
+
+        <canvas id="confettiCanvas"></canvas>
+        <canvas id="particleCanvas"></canvas>
+    </div>
+
+    <script>
+        // ================== KHO CÂU HỎI KHỔNG LỒ (Mỗi môn 25+ câu) ==================
+        const quizDB = {
+            ly: [
+                { q: "Ánh sáng truyền trong chân không với tốc độ bao nhiêu?", a: ["3×10⁸ m/s", "3×10⁵ m/s", "3×10⁶ m/s",
+                        "3×10⁷ m/s"
+                    ], c: 0 },
+                { q: "Đơn vị của lực trong hệ SI là gì?", a: ["Newton", "Joule", "Watt", "Pascal"], c: 0 },
+                { q: "Định luật vạn vật hấp dẫn do ai phát hiện?", a: ["Isaac Newton", "Albert Einstein", "Galileo",
+                        "Tesla"
+                    ], c: 0 },
+                { q: "Hiện tượng cảm ứng điện từ do ai tìm ra?", a: ["Michael Faraday", "Thomas Edison", "Ampere",
+                        "Ohm"
+                    ], c: 0 },
+                { q: "Công thức tính công cơ học là?", a: ["A = F.s", "A = m.g", "A = I²R", "A = U.I.t"], c: 0 },
+                { q: "Điện trở đo bằng đơn vị nào?", a: ["Ohm", "Ampe", "Vôn", "Fara"], c: 0 },
+                { q: "Sóng âm không truyền được trong môi trường nào?", a: ["Chân không", "Rắn", "Lỏng", "Khí"], c: 0 },
+                { q: "Gia tốc trọng trường trên Trái Đất xấp xỉ?", a: ["9,8 m/s²", "1,6 m/s²", "3,7 m/s²", "12 m/s²"],
+                c: 0 },
+                { q: "Tia X thường dùng trong lĩnh vực nào?", a: ["Y tế", "Viễn thông", "Nấu ăn", "Luyện kim"], c: 0 },
+                { q: "Áp suất được tính bằng công thức?", a: ["p = F/S", "p = S/F", "p = F.V", "p = m/V"], c: 0 },
+                { q: "Định luật bảo toàn cơ năng đúng khi nào?", a: ["Chỉ có lực thế", "Có ma sát", "Có ngoại lực",
+                        "Luôn đúng"
+                    ], c: 0 },
+                { q: "Mắt người nhìn thấy ánh sáng trong dải bước sóng?", a: ["380-760 nm", "100-300 nm", "1-10 mm",
+                        "0,1-1 m"
+                    ], c: 0 },
+                { q: "Tần số đo bằng đơn vị?", a: ["Hertz", "Giây", "Mét", "Decibel"], c: 0 },
+                { q: "Hiệu điện thế đo bằng?", a: ["Vôn kế", "Ampe kế", "Ôm kế", "Oát kế"], c: 0 },
+                { q: "Năng lượng mặt trời đến Trái Đất chủ yếu dạng?", a: ["Bức xạ nhiệt & ánh sáng", "Sóng vô tuyến",
+                        "Tia gamma", "Sóng siêu âm"
+                    ], c: 0 },
+                { q: "Khúc xạ ánh sáng là hiện tượng?", a: ["Đổi hướng qua mặt phân cách", "Phản xạ", "Tán sắc",
+                        "Giao thoa"
+                    ], c: 0 },
+                { q: "Động năng phụ thuộc vào?", a: ["Khối lượng & vận tốc", "Khối lượng & độ cao", "Vận tốc & độ cao",
+                        "Áp suất"
+                    ], c: 0 },
+                { q: "Pin mặt trời biến đổi quang năng thành?", a: ["Điện năng", "Nhiệt năng", "Cơ năng", "Hóa năng"],
+                    c: 0 },
+                { q: "Lực ma sát trượt xuất hiện khi?", a: ["Vật trượt trên bề mặt", "Vật lăn", "Vật đứng yên",
+                        "Rơi tự do"
+                    ], c: 0 },
+                { q: "Hồng ngoại có bước sóng?", a: ["Dài hơn ánh sáng đỏ", "Ngắn hơn tử ngoại", "Bằng tím",
+                        "Không xác định"
+                    ], c: 0 },
+                { q: "Máy biến thế dùng để?", a: ["Thay đổi hiệu điện thế xoay chiều", "Đổi chiều dòng điện",
+                        "Tăng tần số", "Lưu trữ điện"
+                    ], c: 0 },
+                { q: "Động cơ điện hoạt động dựa trên?", a: ["Tác dụng từ của dòng điện", "Cảm ứng điện từ", "Phản lực",
+                        "Nhiệt điện"
+                    ], c: 0 },
+                { q: "Đơn vị của công suất là?", a: ["Watt", "Joule", "Newton mét", "Ampe"], c: 0 },
+                { q: "Ánh sáng đơn sắc là ánh sáng có?", a: ["Một màu nhất định", "Nhiều màu", "Bước sóng thay đổi",
+                        "Cường độ lớn"
+                    ], c: 0 },
+                { q: "Hiện tượng quang điện là?", a: ["Electron bật ra khỏi kim loại khi chiếu sáng", "Phát sáng",
+                        "Dẫn điện", "Tỏa nhiệt"
+                    ], c: 0 },
+                { q: "Thuyết tương đối hẹp do ai đề xuất?", a: ["Einstein", "Newton", "Maxwell", "Planck"], c: 0 }
+            ],
+            hoa: [
+                { q: "Nguyên tử gồm những hạt nào?", a: ["Proton, neutron, electron", "Proton, electron",
+                        "Neutron, electron", "Chỉ proton"
+                    ], c: 0 },
+                { q: "Công thức muối ăn?", a: ["NaCl", "KCl", "CaCl₂", "MgCl₂"], c: 0 },
+                { q: "Nước cất có pH bằng?", a: ["7", "6", "8", "5"], c: 0 },
+                { q: "Ký hiệu 'C' là nguyên tố?", a: ["Carbon", "Canxi", "Clo", "Crom"], c: 0 },
+                { q: "Phản ứng axit + bazơ gọi là?", a: ["Trung hòa", "Oxi hóa khử", "Thủy phân", "Este hóa"], c: 0 },
+                { q: "Kim loại mềm nhất (cắt bằng dao)?", a: ["Natri", "Sắt", "Đồng", "Nhôm"], c: 0 },
+                { q: "Khí chiếm nhiều nhất trong không khí?", a: ["Nitơ", "Oxi", "Argon", "CO₂"], c: 0 },
+                { q: "Đơn vị đo lượng chất?", a: ["Mol", "Gam", "Lít", "Joule"], c: 0 },
+                { q: "Hợp chất hữu cơ nhất thiết chứa?", a: ["Carbon", "Oxi", "Hydro", "Nitơ"], c: 0 },
+                { q: "Chất chỉ thị axit-bazơ phổ biến?", a: ["Quỳ tím", "Phenolphtalein", "Cả hai", "Metanol"], c: 2 },
+                { q: "Bảng tuần hoàn do ai sáng lập?", a: ["Mendeleev", "Dalton", "Bohr", "Rutherford"], c: 0 },
+                { q: "Phân tử nước có dạng?", a: ["Góc (chữ V)", "Thẳng", "Tứ diện", "Phẳng"], c: 0 },
+                { q: "Chất khử trùng nước bể bơi thường dùng?", a: ["Clo", "Ozon", "Flo", "Brom"], c: 0 },
+                { q: "Kim loại dẫn điện tốt nhất?", a: ["Bạc", "Đồng", "Vàng", "Nhôm"], c: 0 },
+                { q: "Đốt cháy xăng là phản ứng?", a: ["Oxi hóa tỏa nhiệt", "Phân hủy", "Thế", "Trung hòa"], c: 0 },
+                { q: "Dãy toàn kim loại?", a: ["Fe, Cu, Al", "O, N, C", "Cl, Br, I", "He, Ne, Ar"], c: 0 },
+                { q: "Số oxi hóa của O trong hầu hết hợp chất?", a: ["-2", "+2", "0", "-1"], c: 0 },
+                { q: "Dung dịch HCl làm quỳ tím chuyển?", a: ["Đỏ", "Xanh", "Tím", "Vàng"], c: 0 },
+                { q: "Chất nào là bazơ?", a: ["NaOH", "HCl", "H₂SO₄", "CH₃COOH"], c: 0 },
+                { q: "Thành phần chính khí thiên nhiên?", a: ["Mêtan", "Êtan", "Prôpan", "Butan"], c: 0 },
+                { q: "Chất béo thuộc loại hợp chất?", a: ["Este", "Axit", "Ancol", "Andehit"], c: 0 },
+                { q: "Phản ứng trùng hợp tạo polime từ?", a: ["Etilen", "Glucozơ", "Amino axit", "Axit béo"], c: 0 },
+                { q: "Nguyên tử khối của H là?", a: ["1", "2", "12", "16"], c: 0 },
+                { q: "Nước cứng chứa nhiều ion?", a: ["Ca²⁺, Mg²⁺", "Na⁺, K⁺", "Fe²⁺, Al³⁺", "Cl⁻, SO₄²⁻"], c: 0 },
+                { q: "Chất xúc tác trong phản ứng là?", a: ["Chất làm tăng tốc, không bị biến đổi", "Chất tham gia",
+                        "Sản phẩm", "Chất ức chế"
+                    ], c: 0 },
+                { q: "Khí CO₂ được tạo ra từ?", a: ["Đốt cháy nhiên liệu", "Quang hợp", "Hô hấp động vật",
+                        "Cả A và C"
+                    ], c: 3 }
+            ],
+            sinh: [
+                { q: "Đơn vị cấu tạo cơ thể sống?", a: ["Tế bào", "Mô", "Cơ quan", "Hệ cơ quan"], c: 0 },
+                { q: "DNA có cấu trúc?", a: ["2 mạch xoắn kép", "1 mạch", "3 mạch", "4 mạch"], c: 0 },
+                { q: "Quang hợp xảy ra ở bào quan nào?", a: ["Lục lạp", "Ty thể", "Nhân", "Ribosome"], c: 0 },
+                { q: "Động vật có tập tính di cư?", a: ["Chim én", "Chó", "Mèo", "Trâu"], c: 0 },
+                { q: "Hệ tuần hoàn người thuộc loại?", a: ["Hệ kín", "Hệ hở", "Mạch hở", "Đơn giản"], c: 0 },
+                { q: "Bào quan hô hấp tế bào?", a: ["Ty thể", "Lục lạp", "Lizoxom", "Golgi"], c: 0 },
+                { q: "ADN con tổng hợp theo nguyên tắc?", a: ["Bổ sung & bán bảo toàn", "Khuôn mẫu hoàn toàn",
+                        "Sao chép một mạch", "Ngẫu nhiên"
+                    ], c: 0 },
+                { q: "Insulin có tác dụng?", a: ["Hạ đường huyết", "Tăng đường huyết", "Kích thích tăng trưởng",
+                        "Điều hòa canxi"
+                    ], c: 0 },
+                { q: "Thực vật hạt kín đặc điểm?", a: ["Có hoa và quả", "Hạt trần", "Sống dưới nước", "Không rễ"],
+                    c: 0 },
+                { q: "Bộ phận não điều khiển thăng bằng?", a: ["Tiểu não", "Đại não", "Hành não", "Cầu não"], c: 0 },
+                { q: "Enzim có bản chất?", a: ["Protein", "Lipit", "Gluxit", "Axit nucleic"], c: 0 },
+                { q: "Nhóm máu chuyên cho?", a: ["O", "A", "B", "AB"], c: 0 },
+                { q: "Vòng tuần hoàn lớn bắt đầu từ?", a: ["Tâm thất trái", "Tâm nhĩ phải", "Tâm thất phải",
+                        "Tâm nhĩ trái"
+                    ], c: 0 },
+                { q: "Chức năng chính của thận?", a: ["Lọc máu, bài tiết", "Tiêu hóa", "Hô hấp", "Vận động"], c: 0 },
+                { q: "Động vật nguyên sinh ví dụ?", a: ["Trùng giày", "Thủy tức", "Giun đất", "Ruồi"], c: 0 },
+                { q: "Nước và muối khoáng vận chuyển nhờ?", a: ["Mạch gỗ", "Mạch rây", "Khí khổng", "Biểu bì"], c: 0 },
+                { q: "Phản xạ có điều kiện ví dụ?", a: ["Chó tiết nước bọt khi nghe chuông", "Trời nóng toát mồ hôi",
+                        "Tay chạm nóng rụt lại", "Khóc khi bị hành"
+                    ], c: 0 },
+                { q: "Bệnh do virus gây ra?", a: ["Covid-19", "Tiểu đường", "Cao huyết áp", "Ung thư"], c: 0 },
+                { q: "Rễ cây hút nước nhờ?", a: ["Lông hút", "Biểu bì", "Vỏ", "Mạch rây"], c: 0 },
+                { q: "Chuỗi thức ăn bắt đầu bằng?", a: ["Sinh vật sản xuất", "Động vật ăn cỏ", "Động vật ăn thịt",
+                        "Vi sinh vật"
+                    ], c: 0 },
+                { q: "Hệ thần kinh trung ương gồm?", a: ["Não và tủy sống", "Dây thần kinh", "Hạch thần kinh",
+                        "Tất cả"
+                    ], c: 0 },
+                { q: "Cây hô hấp vào ban đêm thải ra?", a: ["CO₂", "O₂", "N₂", "H₂"], c: 0 },
+                { q: "Hiện tượng ưu thế lai thường biểu hiện ở?", a: ["F1", "P", "F2", "F3"], c: 0 },
+                { q: "Loại ARN mang axit amin?", a: ["tARN", "mARN", "rARN", "ADN"], c: 0 },
+                { q: "Bệnh Down do đột biến?", a: ["Thừa NST số 21", "Thiếu NST", "Đột biến gen",
+                        "Đột biến cấu trúc"
+                    ], c: 0 }
+            ],
+            td: [
+                { q: "Lục địa lớn nhất?", a: ["Á-Âu", "Châu Phi", "Bắc Mỹ", "Nam Mỹ"], c: 0 },
+                { q: "Đại dương lớn nhất?", a: ["Thái Bình Dương", "Ấn Độ Dương", "Đại Tây Dương", "Bắc Băng Dương"],
+                    c: 0 },
+                { q: "Núi cao nhất thế giới?", a: ["Everest", "K2", "Fansipan", "Makalu"], c: 0 },
+                { q: "Sông dài nhất thế giới?", a: ["Sông Nile", "Amazon", "Mississippi", "Hoàng Hà"], c: 0 },
+                { q: "Việt Nam nằm trong kiểu khí hậu?", a: ["Nhiệt đới gió mùa", "Xích đạo", "Ôn đới", "Hàn đới"],
+                    c: 0 },
+                { q: "Thủ đô Việt Nam?", a: ["Hà Nội", "TP.HCM", "Đà Nẵng", "Hải Phòng"], c: 0 },
+                { q: "Sa mạc lớn nhất?", a: ["Sahara", "Gobi", "Kalahari", "Atacama"], c: 0 },
+                { q: "Vịnh Hạ Long được công nhận là?", a: ["Di sản thiên nhiên thế giới", "Khu dự trữ sinh quyển",
+                        "Công viên địa chất", "Tất cả"
+                    ], c: 3 },
+                { q: "Nước đông dân nhất 2024?", a: ["Ấn Độ", "Trung Quốc", "Mỹ", "Indonesia"], c: 0 },
+                { q: "Biển Đông tiếp giáp nước nào?", a: ["Việt Nam, Philippines, Trung Quốc...", "Chỉ Việt Nam",
+                        "Thái Lan", "Ấn Độ"
+                    ], c: 0 },
+                { q: "Fansipan cao bao nhiêu?", a: ["3.143m", "2.500m", "3.500m", "2.800m"], c: 0 },
+                { q: "Hồ nước ngọt lớn nhất diện tích?", a: ["Hồ Superior", "Victoria", "Baikal", "Michigan"], c: 0 },
+                { q: "Sông dài nhất Việt Nam?", a: ["Đồng Nai", "Hồng", "Mê Kông", "Cửu Long"], c: 0 },
+                { q: "Nóc nhà Đông Dương là?", a: ["Hoàng Liên Sơn", "Himalaya", "Tây Tạng", "Trường Sơn"], c: 0 },
+                { q: "Trung Đông giàu khoáng sản?", a: ["Dầu mỏ", "Than", "Sắt", "Đồng"], c: 0 },
+                { q: "El Nino gây ra?", a: ["Hạn hán, mưa bất thường", "Lũ lụt toàn cầu", "Động đất", "Sóng thần"],
+                    c: 0 },
+                { q: "Thành phố đông dân nhất Việt Nam?", a: ["TP.HCM", "Hà Nội", "Đà Nẵng", "Cần Thơ"], c: 0 },
+                { q: "Châu lục nhỏ nhất?", a: ["Châu Đại Dương", "Châu Âu", "Châu Nam Cực", "Châu Mỹ"], c: 0 },
+                { q: "Rạn san hô lớn nhất ở?", a: ["Australia", "Brazil", "Việt Nam", "Ai Cập"], c: 0 },
+                { q: "Đỉnh núi cao nhất Việt Nam?", a: ["Fansipan", "Tây Côn Lĩnh", "Bạch Mã", "Ngọc Linh"], c: 0 },
+                { q: "Sông Hồng chảy qua tỉnh nào sau cùng ra biển?", a: ["Nam Định", "Hà Nội", "Phú Thọ",
+                        "Thái Bình"
+                    ], c: 0 },
+                { q: "Đồng bằng lớn nhất Việt Nam?", a: ["Đồng bằng sông Cửu Long", "Đồng bằng sông Hồng", "Nghệ An",
+                        "Thanh Hóa"
+                    ], c: 0 },
+                { q: "Vườn quốc gia Phong Nha – Kẻ Bàng nổi tiếng với?", a: ["Hang động đá vôi", "Rừng nguyên sinh",
+                        "Biển", "Núi lửa"
+                    ], c: 0 }
+            ]
+        };
+
+        // ==================== LOGIC GAME CHÍNH ====================
+        let ownedItems = JSON.parse(localStorage.getItem("owned_items")) || [];
+        let extraTime = ownedItems.includes("time");
+        let doublePoints = ownedItems.includes("double");
+        let fiftyFifty = ownedItems.includes("fifty");
+        let hintItem = ownedItems.includes("hint");
+
+        let currentQuestions = [],
+            currentIndex = 0,
+            currentScore = 0,
+            currentSubject = "";
+        let timerInterval = null,
+            timeLeft = 30,
+            multiplier = 1;
+
+        // --- Dữ liệu cho AI ---
+        let wrongList = []; // { question, correctAnswer, studentAnswer, index }
+        let allAnswers = []; // { index, selected, correct }
+        let aiReviewDone = false;
+
+        // Canvas hiệu ứng
+        const confettiCanvas = document.getElementById("confettiCanvas");
+        const ctxConf = confettiCanvas.getContext("2d");
+        const particleCanvas = document.getElementById("particleCanvas");
+        const ctxPart = particleCanvas.getContext("2d");
+        let confettiArr = [],
+            particles = [];
+
+        function resizeCanvases() {
+            let rect = document.getElementById("gameBox").getBoundingClientRect();
+            confettiCanvas.width = rect.width;
+            confettiCanvas.height = rect.height;
+            particleCanvas.width = rect.width;
+            particleCanvas.height = rect.height;
+        }
+        window.addEventListener("resize", resizeCanvases);
+        window.addEventListener("load", resizeCanvases);
+
+        function spawnConfetti() {
+            let w = confettiCanvas.width,
+                h = confettiCanvas.height;
+            for (let i = 0; i < 70; i++) confettiArr.push({
+                x: Math.random() * w,
+                y: Math.random() * h - h,
+                s: Math.random() * 9 + 3,
+                c: `hsl(${Math.random()*360}, 100%, 60%)`,
+                vX: (Math.random() - 0.5) * 5,
+                vY: Math.random() * 4 + 2,
+                r: Math.random() * 360,
+                rot: (Math.random() - 0.5) * 12
+            });
+        }
+
+        function updateConfetti() {
+            ctxConf.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+            confettiArr.forEach((p, i) => {
+                p.x += p.vX;
+                p.y += p.vY;
+                p.r += p.rot;
+                ctxConf.save();
+                ctxConf.translate(p.x, p.y);
+                ctxConf.rotate(p.r * Math.PI / 180);
+                ctxConf.fillStyle = p.c;
+                ctxConf.fillRect(-p.s / 2, -p.s / 2, p.s, p.s);
+                ctxConf.restore();
+                if (p.y > confettiCanvas.height + 100) confettiArr.splice(i, 1);
+            });
+            requestAnimationFrame(updateConfetti);
+        }
+        updateConfetti();
+
+        function spawnParticles(absX, absY, color, count = 20) {
+            let boxRect = document.getElementById("gameBox").getBoundingClientRect();
+            let rx = absX - boxRect.left,
+                ry = absY - boxRect.top;
+            for (let i = 0; i < count; i++) particles.push({
+                x: rx,
+                y: ry,
+                vX: (Math.random() - 0.5) * 12,
+                vY: (Math.random() - 0.5) * 12 - 2,
+                life: 1,
+                decay: Math.random() * 0.02 + 0.01,
+                size: Math.random() * 6 + 2,
+                color
+            });
+        }
+
+        function updateParticles() {
+            ctxPart.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+            particles.forEach((p, i) => {
+                p.x += p.vX;
+                p.y += p.vY;
+                p.vX *= 0.97;
+                p.vY += 0.1;
+                p.life -= p.decay;
+                if (p.life <= 0) { particles.splice(i, 1); return; }
+                ctxPart.globalAlpha = p.life;
+                ctxPart.fillStyle = p.color;
+                ctxPart.beginPath();
+                ctxPart.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctxPart.fill();
+            });
+            requestAnimationFrame(updateParticles);
+        }
+        updateParticles();
+
+        function startSubject(subject) {
+            // Reset AI data
+            wrongList = [];
+            allAnswers = [];
+            aiReviewDone = false;
+            document.getElementById("aiReviewContainer").style.display = "none";
+            document.getElementById("aiResult").style.display = "none";
+            document.getElementById("aiLoading").style.display = "flex";
+            document.getElementById("actionRow").style.display = "none";
+
+            currentSubject = subject;
+            currentQuestions = [...quizDB[subject]];
+            for (let i = currentQuestions.length - 1; i > 0; i--) {
+                let j = Math.floor(Math.random() * (i + 1));
+                [currentQuestions[i], currentQuestions[j]] = [currentQuestions[j], currentQuestions[i]];
+            }
+            currentIndex = 0;
+            currentScore = 0;
+            multiplier = 1;
+
+            document.getElementById('item-buttons').style.display = 'flex';
+            document.getElementById('timeBtn').disabled = !extraTime;
+            document.getElementById('doubleBtn').disabled = !doublePoints;
+            document.getElementById('fiftyBtn').disabled = !fiftyFifty;
+            document.getElementById('hintBtn').disabled = !hintItem;
+            document.getElementById("menu").style.display = "none";
+            document.getElementById("subjectName").style.display = "block";
+            document.getElementById("scoreDisplay").style.display = "inline-block";
+            document.getElementById("timer").style.display = "inline-block";
+            document.getElementById("progressBarContainer").style.display = "block";
+            document.getElementById("restartBtn").style.display = "none";
+
+            let nameMap = { ly: "🌠 VẬT LÝ VŨ TRỤ", hoa: "🔬 HÓA HỌC TINH VÂN", sinh: "🧬 SINH HỌC SỰ SỐNG",
+                td: "🪐 KHOA HỌC TRÁI ĐẤT" };
+            document.getElementById("subjectName").innerHTML = nameMap[subject];
+            updateScoreDisplay();
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            if (timerInterval) clearInterval(timerInterval);
+            timeLeft = 30;
+            document.getElementById("timer").innerHTML = `⏱️ THỜI GIAN: ${timeLeft}s`;
+            timerInterval = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    timeOut();
+                } else {
+                    timeLeft--;
+                    document.getElementById("timer").innerHTML = `⏱️ THỜI GIAN: ${timeLeft}s`;
+                    if (timeLeft <= 5) document.getElementById("timer").style.color = "#ff5555";
+                    else document.getElementById("timer").style.color = "#ffaa66";
+                }
+            }, 1000);
+
+            let q = currentQuestions[currentIndex];
+            let qDiv = document.getElementById("questionText");
+            let aBox = document.getElementById("answerBox");
+            qDiv.classList.add("slideIn");
+            aBox.classList.add("slideIn");
+            qDiv.innerHTML = q.q;
+            aBox.innerHTML = "";
+            q.a.forEach((ans, idx) => {
+                let isCorrect = (idx === q.c) ? 'true' : 'false';
+                aBox.innerHTML +=
+                    `<div class="answerBtn" data-correct="${isCorrect}" onclick="chooseAnswer(${idx})">🔹 ${ans}</div>`;
+            });
+            setTimeout(() => { qDiv.classList.remove("slideIn");
+                aBox.classList.remove("slideIn"); }, 500);
+        }
+
+        function chooseAnswer(selected) {
+            if (timerInterval) clearInterval(timerInterval);
+            let q = currentQuestions[currentIndex];
+            let btns = document.querySelectorAll(".answerBtn");
+            btns.forEach(btn => btn.style.pointerEvents = "none");
+
+            let isCorrect = (selected === q.c);
+            // Ghi nhận câu trả lời
+            allAnswers.push({
+                index: currentIndex,
+                selected: selected,
+                correct: isCorrect,
+                question: q.q,
+                correctAnswer: q.a[q.c],
+                studentAnswer: q.a[selected]
+            });
+
+            if (!isCorrect) {
+                wrongList.push({
+                    index: currentIndex,
+                    question: q.q,
+                    correctAnswer: q.a[q.c],
+                    studentAnswer: q.a[selected]
+                });
+            }
+
+            let rect = btns[selected].getBoundingClientRect();
+            if (isCorrect) {
+                btns[selected].classList.add("correct");
+                currentScore += 10 * multiplier;
+                updateScoreDisplay();
+                updateProgress();
+                spawnConfetti();
+                spawnParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, "#aaffaa", 30);
+            } else {
+                btns[selected].classList.add("wrong");
+                btns[q.c].classList.add("correct");
+                spawnParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, "#ff6666", 25);
+            }
+            setTimeout(() => nextQuestion(), 800);
+        }
+
+        function timeOut() {
+            let btns = document.querySelectorAll(".answerBtn");
+            btns.forEach(b => b.style.pointerEvents = "none");
+            let q = currentQuestions[currentIndex];
+            let correctIdx = q.c;
+            btns[correctIdx].classList.add("correct");
+
+            // Ghi nhận câu trả lời (timeout => sai)
+            allAnswers.push({
+                index: currentIndex,
+                selected: -1,
+                correct: false,
+                question: q.q,
+                correctAnswer: q.a[q.c],
+                studentAnswer: "(Hết giờ)"
+            });
+            wrongList.push({
+                index: currentIndex,
+                question: q.q,
+                correctAnswer: q.a[q.c],
+                studentAnswer: "(Hết giờ)"
+            });
+
+            let rect = btns[correctIdx].getBoundingClientRect();
+            spawnParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, "#ffaa66", 30);
+            setTimeout(() => nextQuestion(), 1000);
+        }
+
+        function nextQuestion() {
+            let qDiv = document.getElementById("questionText");
+            let aBox = document.getElementById("answerBox");
+            qDiv.classList.add("slideOut");
+            aBox.classList.add("slideOut");
+            setTimeout(() => {
+                qDiv.classList.remove("slideOut");
+                aBox.classList.remove("slideOut");
+                currentIndex++;
+                if (currentIndex < currentQuestions.length) loadQuestion();
+                else endGame();
+            }, 450);
+        }
+
+        function updateScoreDisplay() {
+            document.getElementById("scoreDisplay").innerHTML = `🌟 ĐIỂM: ${currentScore}`;
+            document.getElementById("progressBar").style.width = ((currentIndex) / currentQuestions.length * 100) + "%";
+        }
+
+        function updateProgress() {
+            document.getElementById("progressBar").style.width = ((currentIndex + 1) / currentQuestions.length * 100) +
+            "%";
+        }
+
+        // ==================== END GAME + AI ====================
+        function endGame() {
+            if (timerInterval) clearInterval(timerInterval);
+            document.getElementById("timer").style.display = "none";
+            document.getElementById("item-buttons").style.display = "none";
+
+            let total = currentQuestions.length;
+            let correctCount = allAnswers.filter(a => a.correct).length;
+            let wrongCount = total - correctCount;
+            let pct = Math.round((correctCount / total) * 100);
+
+            // Hiển thị kết quả
+            document.getElementById("questionText").innerHTML = `
+                🎉 HOÀN THÀNH BÀI TẬP
+                <div style="font-size:22px; margin-top:10px; color:#aaddff;">
+                    <span class="big-score">${currentScore}</span> / ${total*10} điểm
+                    <br><span style="font-size:18px; color:#99bbdd;">✅ ${correctCount} đúng &nbsp;|&nbsp; ❌ ${wrongCount} sai &nbsp;|&nbsp; 📊 ${pct}%</span>
+                </div>
+                <div style="width:100%; max-width:400px; margin:12px auto; background:#1a1a2e; border-radius:20px; height:16px; overflow:hidden; border:1px solid rgba(0,255,255,0.2);">
+                    <div style="width:${pct}%; height:100%; background:linear-gradient(90deg,#00dd88,#ffdd44); border-radius:20px; transition:width 0.8s;"></div>
+                </div>
+            `;
+            document.getElementById("answerBox").innerHTML = "";
+
+            // Ẩn các nút item cũ, hiện action row
+            document.getElementById("actionRow").style.display = "flex";
+            document.getElementById("submitReviewBtn").style.display = "inline-block";
+            document.getElementById("submitReviewBtn").disabled = false;
+            document.getElementById("restartBtn").style.display = "inline-block";
+
+            // Reset AI container
+            document.getElementById("aiReviewContainer").style.display = "none";
+            document.getElementById("aiResult").style.display = "none";
+            document.getElementById("aiLoading").style.display = "flex";
+            aiReviewDone = false;
+
+            if (pct >= 80) spawnConfetti();
+        }
+
+        // ===== NỘP BÀI → AI NHẬN XÉT =====
+        function submitForAIReview() {
+            if (aiReviewDone) return;
+            let btn = document.getElementById("submitReviewBtn");
+            btn.disabled = true;
+            btn.textContent = "⏳ Đang xử lý...";
+
+            // Hiện container AI
+            let container = document.getElementById("aiReviewContainer");
+            container.style.display = "block";
+            document.getElementById("aiLoading").style.display = "flex";
+            document.getElementById("aiResult").style.display = "none";
+
+            // Thu thập dữ liệu
+            let total = currentQuestions.length;
+            let correctCount = allAnswers.filter(a => a.correct).length;
+            let wrongCount = total - correctCount;
+            let pct = Math.round((correctCount / total) * 100);
+            let subjectName = document.getElementById("subjectName").innerHTML || "Bài tập khoa học";
+
+            // Mô phỏng AI phân tích (delay 1.8~2.5s)
+            let delay = 1800 + Math.random() * 700;
+            setTimeout(() => {
+                let comment = generateAIComment({
+                    subjectName: subjectName,
+                    subject: currentSubject,
+                    score: currentScore,
+                    total: total,
+                    correct: correctCount,
+                    wrong: wrongCount,
+                    pct: pct,
+                    wrongList: wrongList,
+                    allAnswers: allAnswers
+                });
+
+                document.getElementById("aiLoading").style.display = "none";
+                let resultDiv = document.getElementById("aiResult");
+                resultDiv.style.display = "block";
+                resultDiv.innerHTML = comment;
+                aiReviewDone = true;
+                btn.textContent = "📤 Đã nhận xét";
+                btn.disabled = true;
+
+                // Cuộn xuống AI
+                document.getElementById("aiReviewContainer").scrollIntoView({ behavior: "smooth", block: "start" });
+            }, delay);
+        }
+
+        // ===== TẠO NHẬN XÉT (AI giả lập) =====
+        function generateAIComment(data) {
+            const { subjectName, subject, score, total, correct, wrong, pct, wrongList, allAnswers } = data;
+
+            // Xác định mức độ
+            let level, levelEmoji, levelColor;
+            if (pct >= 90) { level = "Xuất sắc";
+                levelEmoji = "🌟";
+                levelColor = "#ffdd44"; } else if (pct >= 75) { level = "Khá giỏi";
+                levelEmoji = "💪";
+                levelColor = "#77ffaa"; } else if (pct >= 60) { level = "Trung bình";
+                levelEmoji = "📖";
+                levelColor = "#ffbb66"; } else if (pct >= 40) { level = "Yếu";
+                levelEmoji = "⚠️";
+                levelColor = "#ff8866"; } else { level = "Cần cố gắng nhiều";
+                levelEmoji = "🔥";
+                levelColor = "#ff5555"; }
+
+            // Đánh giá chung
+            let generalComment = "";
+            if (pct >= 90) generalComment = "Bạn đã thể hiện sự hiểu biết xuất sắc về chủ đề này. Kiến thức rất vững vàng!";
+            else if (pct >= 75) generalComment =
+            "Bạn nắm khá tốt kiến thức. Có một vài lỗi nhỏ cần điều chỉnh để đạt điểm tuyệt đối.";
+            else if (pct >= 60) generalComment =
+                "Bạn đã hiểu được những phần cơ bản, nhưng vẫn còn một số lỗ hổng kiến thức cần lấp đầy.";
+            else if (pct >= 40) generalComment =
+                "Bạn mới chỉ nắm được một phần kiến thức. Cần ôn tập lại những khái niệm nền tảng.";
+            else generalComment = "Bạn cần dành thời gian ôn tập lại toàn bộ chủ đề. Đừng nản lòng, hãy kiên trì nhé!";
+
+            // Điểm mạnh
+            let strengths = [];
+            if (pct >= 70) strengths.push("✔ Bạn có khả năng ghi nhớ và vận dụng tốt các kiến thức cơ bản.");
+            if (correct >= total * 0.6) strengths.push("✔ Bạn đã làm đúng phần lớn câu hỏi, cho thấy sự tập trung tốt.");
+            if (wrongList.length <= 3 && pct >= 70) strengths.push("✔ Số lỗi sai ít, chứng tỏ bạn đã chuẩn bị bài kỹ lưỡng.");
+            if (pct >= 80) strengths.push("✔ Bạn có khả năng tư duy logic và phân tích tốt.");
+            if (strengths.length === 0) strengths.push(
+            "✔ Bạn đã có những nỗ lực nhất định trong việc hoàn thành bài tập. Hãy tiếp tục phát huy!");
+
+            // Điểm cần cải thiện
+            let improvements = [];
+            if (wrongList.length > 0) {
+                let wrongQ = wrongList.map((w, i) =>
+                    `• Câu ${w.index+1}: <span class="fail">${w.studentAnswer}</span> → <span class="pass">${w.correctAnswer}</span> (${w.question.substring(0, 60)}${w.question.length>60?'...':''})`
+                    );
+                improvements.push(...wrongQ);
+            } else {
+                improvements.push("✅ Không có câu nào sai! Tuyệt vời!");
+            }
+            if (pct < 70) improvements.push(
+            "• Cần đọc kỹ đề bài và xác định yêu cầu trước khi chọn đáp án.");
+            if (pct < 50) improvements.push("• Nên ôn lại các khái niệm cốt lõi trước khi làm bài tập nâng cao.");
+
+            // Kiến thức cần ôn tập
+            let reviewTopics = [];
+            let subjectTopics = {
+                ly: ["Định luật Newton và các định luật bảo toàn", "Công thức tính công, công suất và năng lượng",
+                    "Sóng âm, sóng ánh sáng và điện từ", "Điện học: định luật Ohm, mạch điện",
+                    "Thuyết tương đối hẹp và vật lý hiện đại"
+                ],
+                hoa: ["Bảng tuần hoàn và cấu tạo nguyên tử", "Liên kết hóa học và phản ứng oxi hóa - khử",
+                    "Axit - bazơ - muối, pH và dung dịch", "Hóa học hữu cơ: hidrocacbon, este, polime",
+                    "Nhiệt động hóa học và tốc độ phản ứng"
+                ],
+                sinh: ["Cấu trúc tế bào và các bào quan", "Di truyền học: ADN, ARN, đột biến gen",
+                    "Sinh lý người: tuần hoàn, hô hấp, bài tiết", "Quang hợp và hô hấp ở thực vật",
+                    "Hệ sinh thái và chuỗi thức ăn"
+                ],
+                td: ["Địa lý tự nhiên: lục địa, đại dương, khí hậu", "Địa hình Việt Nam: núi, sông, đồng bằng",
+                    "Khoáng sản và tài nguyên thiên nhiên", "Biến đổi khí hậu và hiện tượng El Nino",
+                    "Di sản thiên nhiên và bảo tồn môi trường"
+                ]
+            };
+
+            let topics = subjectTopics[subject] || ["Ôn tập lại toàn bộ kiến thức cơ bản của môn học.",
+                "Làm thêm các bài tập trắc nghiệm để rèn kỹ năng.", "Xem lại các lỗi sai đã mắc phải và ghi nhớ."
+            ];
+
+            // Chọn 2-3 chủ đề dựa trên lỗi sai
+            if (wrongList.length > 0) {
+                let used = [];
+                for (let i = 0; i < Math.min(wrongList.length, 3); i++) {
+                    let idx = wrongList[i].index;
+                    let topicIdx = idx % topics.length;
+                    if (!used.includes(topicIdx)) {
+                        used.push(topicIdx);
+                        reviewTopics.push(`- ${topics[topicIdx]}`);
+                    }
+                }
+            }
+            if (reviewTopics.length === 0) {
+                reviewTopics = topics.slice(0, 3).map(t => `- ${t}`);
+            }
+            // đảm bảo không quá 4
+            if (reviewTopics.length > 4) reviewTopics = reviewTopics.slice(0, 4);
+
+            // Lời khuyên
+            let advice = "";
+            if (pct >= 90) advice =
+                "Hãy thử thách bản thân với các câu hỏi ở cấp độ cao hơn hoặc tham gia các cuộc thi khoa học để phát triển thêm.";
+            else if (pct >= 75) advice =
+                "Ôn lại những câu sai và làm thêm khoảng 10 bài tập cùng dạng để đạt trên 90% ở lần sau.";
+            else if (pct >= 60) advice =
+                "Tập trung ôn lại các phần kiến thức còn yếu. Làm thêm 15–20 câu hỏi mỗi ngày sẽ cải thiện đáng kể.";
+            else if (pct >= 40) advice =
+                "Hãy bắt đầu lại từ những khái niệm cơ bản. Sử dụng sách giáo khoa và tài liệu tham khảo để hệ thống hóa kiến thức.";
+            else advice =
+                "Đừng bỏ cuộc! Hãy học lại từ đầu với phương pháp mới: tóm tắt bài học, làm flashcard, và thực hành nhiều hơn.";
+
+            // Xếp hạng chữ cái
+            let grade = "";
+            if (pct >= 90) grade = "A+";
+            else if (pct >= 80) grade = "A";
+            else if (pct >= 70) grade = "B+";
+            else if (pct >= 60) grade = "B";
+            else if (pct >= 50) grade = "C+";
+            else if (pct >= 40) grade = "C";
+            else grade = "D";
+
+            let wrongItemsHtml = "";
+            if (wrongList.length > 0) {
+                wrongItemsHtml = wrongList.map((w, i) =>
+                    `<li><span class="info">Câu ${w.index+1}:</span> ${w.question.substring(0, 70)}${w.question.length>70?'...':''}<br>
+                            <span style="color:#ff9999;">→ Đáp án của bạn: ${w.studentAnswer}</span> &nbsp;|&nbsp; 
+                            <span style="color:#77ffaa;">✓ Đáp án đúng: ${w.correctAnswer}</span></li>`
+                ).join('');
+            } else {
+                wrongItemsHtml = `<li style="color:#77ffaa;">🎯 Không có câu nào sai! Bạn đã hoàn thành xuất sắc.</li>`;
+            }
+
+            return `
+                    <div class="ai-stats">
+                        <div class="stat-item">📚 <strong>Bài tập:</strong> ${subjectName}</div>
+                        <div class="stat-item">🎯 <strong>Điểm:</strong> <span class="score-num">${score}</span> / ${total*10}</div>
+                        <div class="stat-item">✅ <strong>Đúng:</strong> ${correct} / ${total}</div>
+                        <div class="stat-item">❌ <strong>Sai:</strong> ${wrong} / ${total}</div>
+                        <div class="stat-item">📊 <strong>Tỷ lệ:</strong> ${pct}%</div>
+                    </div>
+
+                    <div class="ai-block">
+                        <div class="ai-block-title"><span class="icon">📊</span> Đánh giá chung</div>
+                        <div class="ai-block-content">${generalComment}</div>
+                    </div>
+
+                    <div class="ai-block">
+                        <div class="ai-block-title"><span class="icon">🎯</span> Điểm mạnh</div>
+                        <div class="ai-block-content">
+                            <ul>${strengths.map(s=>`<li>${s}</li>`).join('')}</ul>
+                        </div>
+                    </div>
+
+                    <div class="ai-block">
+                        <div class="ai-block-title"><span class="icon">❌</span> Những lỗi thường gặp</div>
+                        <div class="ai-block-content">
+                            <ul>${improvements.map(s=>`<li>${s}</li>`).join('')}</ul>
+                        </div>
+                    </div>
+
+                    ${wrongList.length > 0 ? `
+                    <div class="ai-block">
+                        <div class="ai-block-title"><span class="icon">📋</span> Chi tiết các câu sai</div>
+                        <div class="ai-block-content">
+                            <ul>${wrongItemsHtml}</ul>
+                        </div>
+                    </div>
+                    ` : ''}
+
+                    <div class="ai-block">
+                        <div class="ai-block-title"><span class="icon">📚</span> Kiến thức cần ôn tập</div>
+                        <div class="ai-block-content">
+                            <ul>${reviewTopics.map(t=>`<li>${t}</li>`).join('')}</ul>
+                        </div>
+                    </div>
+
+                    <div class="ai-block">
+                        <div class="ai-block-title"><span class="icon">💡</span> Lời khuyên để cải thiện</div>
+                        <div class="ai-block-content">${advice}</div>
+                    </div>
+
+                    <div class="ai-block">
+                        <div class="ai-block-title"><span class="icon">⭐</span> Mức độ thành thạo</div>
+                        <div class="ai-block-content" style="font-size:22px; font-weight:bold; color:${levelColor};">
+                            ${levelEmoji} ${level} (${grade})
+                        </div>
+                    </div>
+                `;
+        }
+
+        function restartGame() {
+            document.getElementById("menu").style.display = "flex";
+            document.getElementById("subjectName").style.display = "none";
+            document.getElementById("scoreDisplay").style.display = "none";
+            document.getElementById("timer").style.display = "none";
+            document.getElementById("progressBarContainer").style.display = "none";
+            document.getElementById("restartBtn").style.display = "none";
+            document.getElementById("actionRow").style.display = "none";
+            document.getElementById("progressBar").style.width = "0%";
+            document.getElementById("aiReviewContainer").style.display = "none";
+            document.getElementById("aiResult").style.display = "none";
+            document.getElementById("aiLoading").style.display = "flex";
+            confettiArr = [];
+            particles = [];
+            if (timerInterval) clearInterval(timerInterval);
+            ownedItems = JSON.parse(localStorage.getItem("owned_items")) || [];
+            extraTime = ownedItems.includes("time");
+            doublePoints = ownedItems.includes("double");
+            fiftyFifty = ownedItems.includes("fifty");
+            hintItem = ownedItems.includes("hint");
+            wrongList = [];
+            allAnswers = [];
+            aiReviewDone = false;
+            document.getElementById("submitReviewBtn").textContent = "📤 Nộp bài để nhận xét";
+            document.getElementById("submitReviewBtn").disabled = false;
+        }
+
+        function goHome() { window.location.href = "trangchu.html"; }
+
+        function useExtraTime() { if (!extraTime) return;
+            timeLeft += 30;
+            document.getElementById("timer").innerHTML = `⏱️ THỜI GIAN: ${timeLeft}s`;
+            removeItem("time");
+            extraTime = false;
+            document.getElementById('timeBtn').disabled = true; }
+
+        function useDoublePoints() { if (!doublePoints) return;
+            multiplier = 2;
+            removeItem("double");
+            doublePoints = false;
+            document.getElementById('doubleBtn').disabled = true; }
+
+        function useFiftyFifty() {
+            if (!fiftyFifty) return;
+            let btns = document.querySelectorAll(".answerBtn");
+            let wrongs = [...btns].filter(btn => btn.dataset.correct === "false");
+            if (wrongs.length >= 2) { wrongs.sort(() => Math.random() - 0.5);
+                wrongs[0].style.opacity = "0.25";
+                wrongs[1].style.opacity = "0.25";
+                wrongs[0].style.pointerEvents = "none";
+                wrongs[1].style.pointerEvents = "none"; }
+            removeItem("fifty");
+            fiftyFifty = false;
+            document.getElementById('fiftyBtn').disabled = true;
+        }
+
+        function useHint() {
+            if (!hintItem) return;
+            let btns = document.querySelectorAll(".answerBtn");
+            btns.forEach(btn => { if (btn.dataset.correct === "true") btn.style.border = "3px solid gold"; });
+            removeItem("hint");
+            hintItem = false;
+            document.getElementById('hintBtn').disabled = true;
+        }
+
+        function removeItem(item) {
+            let owned = JSON.parse(localStorage.getItem("owned_items")) || [];
+            owned = owned.filter(i => i !== item);
+            localStorage.setItem("owned_items", JSON.stringify(owned));
+        }
+
+        // Tạo sao nền
+        for (let i = 0; i < 300; i++) {
+            let s = document.createElement('div');
+            s.classList.add('star');
+            let sz = Math.random() * 3 + 1;
+            s.style.width = sz + 'px';
+            s.style.height = sz + 'px';
+            s.style.left = Math.random() * 100 + '%';
+            s.style.top = Math.random() * 100 + '%';
+            s.style.animationDelay = Math.random() * 5 + 's';
+            document.body.appendChild(s);
+        }
+        resizeCanvases();
+    </script>
+</body>
+</html>

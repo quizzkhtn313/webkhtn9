@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Bài kiểm tra: Sinh học cơ bản — 20 phút</title>
+  <style>
+    :root{--bg:#06121a;--card:#071827;--accent:#10b981;--muted:#94a3b8;--glass:rgba(255,255,255,0.03)}
+    *{box-sizing:border-box}
+    body{font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial; background:linear-gradient(180deg,#04121a 0%, #082430 100%); color:#eef6fb; padding:24px}
+    .wrap{max-width:900px;margin:0 auto}
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+    h1{font-size:20px;margin:0}
+    .meta{color:var(--muted);font-size:13px}
+    .card{background:var(--card);border-radius:12px;padding:18px;margin-bottom:14px;box-shadow:0 6px 18px rgba(2,6,23,0.6)}
+    .controls{display:flex;gap:8px;align-items:center}
+    button{background:var(--accent);border:none;color:#081019;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:700}
+    button.secondary{background:transparent;color:var(--accent);border:1px solid rgba(16,185,129,0.2)}
+    .timer{font-weight:700;font-size:18px}
+    form .question{margin-bottom:14px;padding:12px;border-radius:8px;background:var(--glass);border:1px solid rgba(255,255,255,0.03)}
+    .q-title{font-weight:700;margin-bottom:8px}
+    .options label{display:block;padding:8px;border-radius:6px;cursor:pointer}
+    input[type="radio"]{margin-right:8px}
+    textarea,input[type='text'],input[type='number']{width:100%;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:inherit}
+    .actions{display:flex;gap:8px;justify-content:flex-end}
+    .result{font-size:16px;font-weight:700}
+    .footnote{color:var(--muted);font-size:13px;margin-top:8px}
+    @media (max-width:600px){.controls{flex-direction:column;align-items:flex-start}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Bài kiểm tra: Sinh học cơ bản (20 phút)</h1>
+        <div class="meta">8 câu trắc nghiệm + 5 câu tự luận / Thời gian: <span class="timer" id="display-timer">20:00</span></div>
+      </div>
+      <div class="controls">
+        <button id="start-btn">Bắt đầu</button>
+        <button id="submit-btn" class="secondary" disabled>Nộp bài</button>
+        <button id="cancel-btn" class="secondary" disabled>Bỏ bài</button>
+      </div>
+    </header>
+
+    <section class="card">
+      <div style="margin-bottom:8px">Hướng dẫn: Nhấn "Bắt đầu" để bắt đầu đồng hồ 20 phút. Sau khi hết giờ, hệ thống sẽ tự nộp và chấm trắc nghiệm. Các câu tự luận có gợi ý đáp án để giáo viên/học sinh đối chiếu.</div>
+
+      <form id="quiz-form">
+        <!-- 8 câu trắc nghiệm -->
+        <div class="question" data-qtype="mc">
+          <div class="q-title">1. Đơn vị cơ bản của cơ thể sống là gì?</div>
+          <div class="options">
+            <label><input type="radio" name="q1" value="A">A. Tế bào</label>
+            <label><input type="radio" name="q1" value="B">B. Mô</label>
+            <label><input type="radio" name="q1" value="C">C. Cơ quan</label>
+            <label><input type="radio" name="q1" value="D">D. Hệ cơ quan</label>
+          </div>
+        </div>
+
+        <div class="question" data-qtype="mc">
+          <div class="q-title">2. Chức năng chính của màng sinh chất là gì?</div>
+          <div class="options">
+            <label><input type="radio" name="q2" value="A">A. Bảo vệ và điều chỉnh vật chất ra/vào tế bào</label>
+            <label><input type="radio" name="q2" value="B">B. Tổng hợp protein</label>
+            <label><input type="radio" name="q2" value="C">C. Tạo năng lượng</label>
+            <label><input type="radio" name="q2" value="D">D. Lưu trữ thông tin di truyền</label>
+          </div>
+        </div>
+
+        <div class="question" data-qtype="mc">
+          <div class="q-title">3. ADN mang thông tin gì?</div>
+          <div class="options">
+            <label><input type="radio" name="q3" value="A">A. Cấu trúc tế bào</label>
+            <label><input type="radio" name="q3" value="B">B. Năng lượng</label>
+            <label><input type="radio" name="q3" value="C">C. Thông tin di truyền</label>
+            <label><input type="radio" name="q3" value="D">D. Môi trường sống</label>
+          </div>
+        </div>
+
+        <div class="question" data-qtype="mc">
+          <div class="q-title">4. Loài nào là thực vật hạt kín?</div>
+          <div class="options">
+            <label><input type="radio" name="q4" value="A">A. Dương xỉ</label>
+            <label><input type="radio" name="q4" value="B">B. Dương liễu</label>
+            <label><input type="radio" name="q4" value="C">C. Thông</label>
+            <label><input type="radio" name="q4" value="D">D. Hoa hồng</label>
+          </div>
+        </div>
+
+        <div class="question" data-qtype="mc">
+          <div class="q-title">5. Nguồn năng lượng chính của hầu hết sinh vật là gì?</div>
+          <div class="options">
+            <label><input type="radio" name="q5" value="A">A. Nhiệt</label>
+            <label><input type="radio" name="q5" value="B">B. Ánh sáng mặt trời</label>
+            <label><input type="radio" name="q5" value="C">C. Oxy</label>
+            <label><input type="radio" name="q5" value="D">D. Nước</label>
+          </div>
+        </div>
+
+        <div class="question" data-qtype="mc">
+          <div class="q-title">6. Quá trình quang hợp xảy ra ở đâu?</div>
+          <div class="options">
+            <label><input type="radio" name="q6" value="A">A. Lục lạp</label>
+            <label><input type="radio" name="q6" value="B">B. Nhân</label>
+            <label><input type="radio" name="q6" value="C">C. Ty thể</label>
+            <label><input type="radio" name="q6" value="D">D. Màng sinh chất</label>
+          </div>
+        </div>
+
+        <div class="question" data-qtype="mc">
+          <div class="q-title">7. Protein được tạo thành từ các đơn vị cơ bản nào?</div>
+          <div class="options">
+            <label><input type="radio" name="q7" value="A">A. Axit amin</label>
+            <label><input type="radio" name="q7" value="B">B. Glucid</label>
+            <label><input type="radio" name="q7" value="C">C. Lipid</label>
+            <label><input type="radio" name="q7" value="D">D. Nucleotid</label>
+          </div>
+        </div>
+
+        <div class="question" data-qtype="mc">
+          <div class="q-title">8. Hệ tuần hoàn ở người gồm mấy loại mạch chính?</div>
+          <div class="options">
+            <label><input type="radio" name="q8" value="A">A. 1</label>
+            <label><input type="radio" name="q8" value="B">B. 2</label>
+            <label><input type="radio" name="q8" value="C">C. 3</label>
+            <label><input type="radio" name="q8" value="D">D. 4</label>
+          </div>
+        </div>
+
+        <hr style="border:none;height:1px;background:rgba(255,255,255,0.03);margin:12px 0" />
+
+        <!-- 5 câu tự luận -->
+        <div class="question" data-qtype="sa">
+          <div class="q-title">9. (Ngắn) Định nghĩa tế bào là gì?</div>
+          <input type="text" name="q9" placeholder="Viết ngắn gọn" />
+        </div>
+
+        <div class="question" data-qtype="sa">
+          <div class="q-title">10. (Tính) Tính số lượng nucleotid trong ADN có 20% A, 30% G.</div>
+          <input type="text" name="q10" placeholder="Nhập đáp án" />
+        </div>
+
+        <div class="question" data-qtype="sa">
+          <div class="q-title">11. (Ngắn) Ví dụ một quá trình trao đổi chất trong cơ thể và nêu vai trò.</div>
+          <input type="text" name="q11" placeholder="Trả lời ngắn" />
+        </div>
+
+        <div class="question" data-qtype="sa">
+          <div class="q-title">12. (Ngắn) Vai trò của enzyme trong phản ứng sinh học?</div>
+          <input type="text" name="q12" placeholder="Trả lời" />
+        </div>
+
+        <div class="question" data-qtype="sa">
+          <div class="q-title">13. (Ngắn) Phân biệt tế bào nhân sơ và nhân thực.</div>
+          <input type="text" name="q13" placeholder="Trả lời ngắn" />
+        </div>
+
+      </form>
+
+      <div class="actions" style="margin-top:12px">
+        <button id="auto-check" class="secondary" disabled>Kiểm tra nhanh trắc nghiệm</button>
+      </div>
+      <div class="footnote">Ghi chú: Trắc nghiệm chấm tự động. Các bài tính so sánh với sai số ±0.5 nếu là số thập phân. Tự luận có gợi ý đáp án để đối chiếu.</div>
+    </section>
+
+    <section class="card" id="result-card" style="display:none">
+      <div id="result-summary"></div>
+      <div id="answers"></div>
+    </section>
+  </div>
+
+  <script>
+    // --- Giữ nguyên tất cả JS cũ ---
+    const startBtn = document.getElementById('start-btn');
+    const submitBtn = document.getElementById('submit-btn');
+    const cancelBtn = document.getElementById('cancel-btn');
+    const autoCheckBtn = document.getElementById('auto-check');
+    const timerDisplay = document.getElementById('display-timer');
+    const form = document.getElementById('quiz-form');
+    const resultCard = document.getElementById('result-card');
+    const resultSummary = document.getElementById('result-summary');
+    const answersDiv = document.getElementById('answers');
+
+    // Đáp án MC + SA mới
+    const MC_ANSWERS = {q1:'A', q2:'A', q3:'C', q4:'D', q5:'B', q6:'A', q7:'A', q8:'B'};
+    const SA_ANSWERS = {
+      q9: 'Tế bào là đơn vị cơ bản của sự sống, là cấu trúc và chức năng cơ bản của sinh vật.',
+      q10: function(){ return 40; }, // ví dụ
+      q11: 'Ví dụ: hô hấp, tiêu hóa… vai trò cung cấp năng lượng và vật chất cho cơ thể.',
+      q12: 'Enzyme làm tăng tốc phản ứng sinh học bằng cách giảm năng lượng kích hoạt.',
+      q13: 'Nhân sơ: không có nhân thật, nhân thực: có nhân chứa ADN; khác về màng bào quan.'
+    };
+
+    // --- Giữ nguyên toàn bộ JS timer, chấm bài, stats, nộp bài, bỏ bài ---
+    let timerInterval = null;
+    let timeLeft = 20*60;
+    let started = false;
+    let startTime = null;
+    function formatTime(s){const m=Math.floor(s/60);const ss=s%60;return String(m).padStart(2,'0')+':'+String(ss).padStart(2,'0');}
+    timerDisplay.textContent = formatTime(timeLeft);
+
+    function getUserStats(user){const key='playerStats_'+user;let stats=localStorage.getItem(key);if(!stats){const now=Date.now();stats={totalCorrect:0,totalWrong:0,totalQuizzes:0,quizStreak:0,totalPoints:0,playTime:0,firstPlayDate:now,currentStreakDate:now};localStorage.setItem(key,JSON.stringify(stats));}else{stats=JSON.parse(stats);}return stats;}
+    function updateQuizStats(correctCount, wrongCount, quizTimeSeconds, pointsEarned){const currentUser=localStorage.getItem('currentUser')||'guest';const stats=getUserStats(currentUser);stats.totalCorrect+=correctCount;stats.totalWrong+=wrongCount;stats.totalQuizzes+=1;stats.totalPoints+=pointsEarned;stats.playTime+=quizTimeSeconds;const now=Date.now();if(stats.currentStreakDate&&(now-stats.currentStreakDate)<(24*60*60*1000)){stats.quizStreak=(stats.quizStreak||0)+1;}else{stats.quizStreak=1;}stats.currentStreakDate=now;localStorage.setItem('playerStats_'+currentUser,JSON.stringify(stats));const subject=new URLSearchParams(window.location.search).get('subject')||'sinhhoc_coban';localStorage.setItem('diem_'+subject,pointsEarned.toString());alert('Hoàn thành! Điểm: '+pointsEarned+'. Stats đã cập nhật.');window.location.href='index.html';}
+    cancelBtn.addEventListener('click',()=>{if(confirm('Bạn có chắc muốn bỏ bài? Streak sẽ bị reset.')){const currentUser=localStorage.getItem('currentUser')||'guest';const stats=getUserStats(currentUser);stats.quizStreak=0;localStorage.setItem('playerStats_'+currentUser,JSON.stringify(stats));window.location.href='index.html';}});
+    startBtn.addEventListener('click',()=>{if(started)return;started=true;startBtn.disabled=true;submitBtn.disabled=false;cancelBtn.disabled=false;autoCheckBtn.disabled=false;startTime=performance.now();timerInterval=setInterval(()=>{timeLeft-=1;timerDisplay.textContent=formatTime(timeLeft);if(timeLeft<=0){clearInterval(timerInterval);doSubmit(true);}},1000);});
+    submitBtn.addEventListener('click',()=>doSubmit(false));
+    autoCheckBtn.addEventListener('click',()=>gradeMCOnly());
+    function gradeMCOnly(){const formData=new FormData(form);let correct=0,total=0;for(let i=1;i<=8;i++){const key='q'+i;total++;if(formData.get(key)===MC_ANSWERS[key])correct++;}alert('Trắc nghiệm: '+correct+'/'+total+' đúng');}
+    function doSubmit(timeout){if(timerInterval)clearInterval(timerInterval);submitBtn.disabled=true;cancelBtn.disabled=true;autoCheckBtn.disabled=true;const formData=new FormData(form);let mcCorrect=0;for(let i=1;i<=8;i++){const key='q'+i;if(formData.get(key)===MC_ANSWERS[key])mcCorrect++;}const saResults=[];let saCorrect=0;for(let k=9;k<=13;k++){const key='q'+k;const userRaw=(formData.get(key)||'').trim();let expected=SA_ANSWERS[key];let ok=false;let note='';if(typeof expected==='function')expected=expected();if(!isNaN(expected)){const num=parseFloat(userRaw.replace(',','.'));if(!isNaN(num)){ok=Math.abs(num-expected)<=0.5;note='Đáp chuẩn: '+expected;}else{ok=false;note='Đáp chuẩn (số): '+expected;}}else{const u=userRaw.toLowerCase();if(key==='q9'){ok=u.length>0&&(u.includes('tế bào'));}else if(key==='q11'){ok=u.length>0&&(u.includes('hô hấp')||u.includes('trao đổi'));}else if(key==='q12'){ok=u.length>0&&(u.includes('enzyme')||u.includes('kích hoạt'));}else if(key==='q13'){ok=u.length>0&&(u.includes('nhân sơ')||u.includes('nhân thực'));}else{ok=u.length>0;}note='Gợi ý đáp án: '+expected;}if(ok)saCorrect++;saResults.push({q:key,user:userRaw||'(trống)',ok,note});}const totalCorrect=mcCorrect+saCorrect;const totalQuestions=13;const wrongCount=totalQuestions-totalCorrect;const quizTimeSeconds=startTime?Math.floor((performance.now()-startTime)/1000):0;const pointsEarned=totalCorrect*10;updateQuizStats(totalCorrect,wrongCount,quizTimeSeconds,pointsEarned);resultCard.style.display='block';resultSummary.innerHTML='<div class="result">Kết quả trắc nghiệm: '+mcCorrect+'/8 đúng</div><div style="margin-top:8px;color:var(--muted)">(Các câu tự luận hiển thị gợi ý đáp án bên dưới — giáo viên hoặc học sinh tự đối chiếu để chấm)</div>';let html='<h3>Chi tiết</h3><ol>';for(let i=1;i<=8;i++){const key='q'+i;const user=formData.get(key)||'(chưa chọn)';const ok=user===MC_ANSWERS[key];html+='<li>Trắc nghiệm '+i+': Bạn chọn <b>'+user+'</b> — '+(ok?'<span style="color:#57f287">Đúng</span>':'<span style="color:#ff8a8a">Sai</span>')+' (Đáp án: <b>'+MC_ANSWERS[key]+'</b>)</li>';}html+='</ol><h4>Các câu tự luận (gợi ý đáp án / chấm sơ bộ)</h4><ol>';saResults.forEach(r=>{html+='<li>'+r.q+': Bạn: <i>'+escapeHtml(r.user)+'</i> — '+(r.ok?'<span style="color:#57f287">Được</span>':'<span style="color:#ff8a8a">Chưa được</span>')+'<br/><small style="color:var(--muted)">'+r.note+'</small></li>';});html+='</ol>';answersDiv.innerHTML=html;if(timeout){resultSummary.innerHTML+='<div style="color:#ffcc66;margin-top:8px">Hết giờ! Hệ thống đã nộp bài tự động.</div>';}resultCard.scrollIntoView({behavior:'smooth'});}
+    function escapeHtml(text){return String(text).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+    window.addEventListener('beforeunload',(e)=>{if(started&&!submitBtn.disabled){e.preventDefault();e.returnValue='';}});
+  </script>
+</body>
+</html>

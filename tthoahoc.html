@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>宇宙星河·化学宝典 | 初中化学8–9年级终极汇总</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', 'Segoe UI', 'Orbitron', system-ui, -apple-system, 'Quicksand', sans-serif;
+      background: radial-gradient(ellipse at 20% 30%, #0a0f2a, #03050b);
+      color: #eef4ff;
+      padding: 2rem 1rem;
+      scroll-behavior: smooth;
+    }
+
+    /* 星河粒子背景 (纯CSS星光效果) */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      background-image: 
+        radial-gradient(2px 2px at 15% 40%, #fff, rgba(0,0,0,0)),
+        radial-gradient(3px 3px at 72% 18%, #f9f3c1, rgba(0,0,0,0)),
+        radial-gradient(1px 1px at 95% 70%, #b2ebf2, rgba(0,0,0,0)),
+        radial-gradient(4px 4px at 8% 85%, #ffd8a9, rgba(0,0,0,0)),
+        radial-gradient(2px 2px at 50% 95%, #d9b4ff, rgba(0,0,0,0)),
+        radial-gradient(3px 3px at 35% 55%, #7fffd4, rgba(0,0,0,0));
+      background-repeat: no-repeat;
+      background-size: 250px 250px, 300px 300px, 200px 200px, 400px 400px, 350px 350px, 280px 280px;
+      opacity: 0.6;
+      animation: starMove 140s linear infinite;
+      z-index: 0;
+    }
+
+    @keyframes starMove {
+      0% { background-position: 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%; }
+      100% { background-position: 300% 200%, 250% 180%, 400% 300%, 200% 150%, 500% 250%, 150% 350%; }
+    }
+
+    .container {
+      max-width: 1300px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+      backdrop-filter: blur(2px);
+    }
+
+    /* 玻璃宇宙卡片 */
+    header {
+      background: rgba(10, 20, 40, 0.55);
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(120, 180, 255, 0.4);
+      border-radius: 3rem;
+      text-align: center;
+      padding: 2.5rem 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 25px rgba(0, 200, 255, 0.3);
+      transition: 0.4s;
+    }
+
+    header h1 {
+      font-size: 3.2rem;
+      background: linear-gradient(135deg, #fff, #b3e5ff, #c084fc, #6ee7b7);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: 2px;
+      text-shadow: 0 0 12px #00a6ff40;
+      font-weight: 700;
+    }
+
+    header p {
+      font-size: 1.2rem;
+      color: #c4e0ff;
+      margin-top: 0.7rem;
+      font-weight: 500;
+    }
+
+    /* 星际导航 */
+    nav {
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(20px);
+      border-radius: 60px;
+      padding: 0.8rem 1.8rem;
+      margin-bottom: 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.8rem 1.8rem;
+      border: 1px solid rgba(0, 255, 255, 0.4);
+      position: sticky;
+      top: 15px;
+      z-index: 99;
+    }
+
+    nav a {
+      color: #d2eaff;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 1.05rem;
+      padding: 0.4rem 0;
+      transition: 0.2s;
+      border-bottom: 2px solid transparent;
+      letter-spacing: 1px;
+    }
+
+    nav a:hover {
+      color: #ffd966;
+      border-bottom-color: #00ffff;
+      text-shadow: 0 0 6px cyan;
+    }
+
+    /* 内容区域 - 星云卡片 */
+    .section {
+      background: rgba(6, 12, 28, 0.72);
+      backdrop-filter: blur(8px);
+      border-radius: 2.5rem;
+      padding: 2rem 2rem;
+      margin-bottom: 2.5rem;
+      border: 1px solid rgba(72, 187, 255, 0.3);
+      box-shadow: 0 25px 35px -12px rgba(0, 0, 0, 0.5);
+      transition: transform 0.2s ease, box-shadow 0.2s;
+    }
+
+    .section:hover {
+      transform: translateY(-5px);
+      border-color: #7c3aed80;
+      box-shadow: 0 30px 45px -12px #000000cc, 0 0 14px #2dd4bf60;
+    }
+
+    h2 {
+      font-size: 2.3rem;
+      background: linear-gradient(120deg, #b8f2ff, #d9b4ff, #a5f3c3);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 1.2rem;
+      border-left: 6px solid #2dd4bf;
+      padding-left: 20px;
+      letter-spacing: -0.5px;
+    }
+
+    h3 {
+      font-size: 1.7rem;
+      margin: 1.6rem 0 0.8rem 0;
+      color: #bbe4ff;
+      display: inline-block;
+      border-bottom: 2px dashed #2dd4bf80;
+    }
+
+    ul, .glossary-list {
+      background: rgba(20, 30, 55, 0.6);
+      border-radius: 1.5rem;
+      padding: 1.2rem 1.8rem;
+      margin: 1rem 0;
+      list-style-type: none;
+      border-left: 5px solid #7e57c2;
+    }
+
+    li {
+      margin: 0.75rem 0;
+      padding-left: 1.5rem;
+      position: relative;
+      font-size: 1.03rem;
+      line-height: 1.45;
+    }
+
+    li::before {
+      content: "✨";
+      position: absolute;
+      left: 0;
+      color: #ffe69b;
+      font-size: 1rem;
+    }
+
+    .formula {
+      background: linear-gradient(145deg, #0f1a2f, #030617);
+      color: #b9f3ff;
+      font-weight: bold;
+      padding: 1rem;
+      border-radius: 2rem;
+      text-align: center;
+      margin: 1.2rem 0;
+      font-size: 1.1rem;
+      font-family: monospace;
+      border: 1px solid #2dd4bf;
+      box-shadow: 0 0 8px cyan;
+    }
+
+    .highlight {
+      background: rgba(255, 215, 120, 0.12);
+      backdrop-filter: blur(4px);
+      padding: 1rem 1.3rem;
+      border-radius: 1.5rem;
+      border-left: 6px solid #facc15;
+      margin: 1.4rem 0;
+      font-weight: 500;
+    }
+
+    .definition {
+      background: rgba(0, 200, 200, 0.08);
+      padding: 1rem 1.4rem;
+      border-radius: 1.5rem;
+      border-left: 6px solid #34d399;
+      margin: 1.2rem 0;
+      font-size: 1.05rem;
+    }
+
+    .cosmic-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.2rem;
+      margin: 1rem 0;
+    }
+
+    .card-mini {
+      background: #0b142cb3;
+      border-radius: 1.5rem;
+      padding: 0.8rem 1.2rem;
+      flex: 1 1 210px;
+      border: 1px solid #3792ff40;
+      transition: 0.2s;
+    }
+
+    .card-mini strong {
+      color: #facc15;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1.8rem;
+      background: rgba(0, 0, 0, 0.65);
+      border-radius: 3rem;
+      margin-top: 1.5rem;
+      font-size: 0.9rem;
+      backdrop-filter: blur(8px);
+    }
+
+    @media (max-width: 780px) {
+      h2 { font-size: 1.8rem; }
+      h3 { font-size: 1.4rem; }
+      header h1 { font-size: 2rem; }
+      .section { padding: 1.3rem; }
+      nav a { font-size: 0.85rem; }
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #03050b;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #4f46e5;
+      border-radius: 20px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>⚛️ HÓA HỌC VŨ TRỤ 🌌</h1>
+    <p>Kiến thức lớp 8–9 · Siêu dữ liệu · Tra cứu nhanh cho quiz & ôn thi vào 10</p>
+    <p style="font-size:0.9rem;">⭐ 600+ khái niệm · Từ cấu tạo nguyên tử đến phản ứng hữu cơ & vô cơ ⭐</p>
+  </header>
+
+  <nav>
+    <a href="#nguyentu">⚛️ NGUYÊN TỬ</a>
+    <a href="#phanung">🧪 PHẢN ỨNG</a>
+    <a href="#huuco">🌿 HÓA HỮU CƠ</a>
+    <a href="#vuoco">🧂 HÓA VÔ CƠ</a>
+    <a href="#dungdich">💧 DUNG DỊCH & pH</a>
+    <a href="#kinhte">🏭 HÓA HỌC & ĐỜI SỐNG</a>
+  </nav>
+
+  <!-- I. NGUYÊN TỬ (MỞ RỘNG) -->
+  <div class="section" id="nguyentu">
+    <h2>⚛️ I. THẾ GIỚI NGUYÊN TỬ & BẢNG TUẦN HOÀN</h2>
+    <div class="definition">📖 <strong>Nguyên tử</strong> là hạt vô cùng nhỏ, trung hòa về điện, cấu tạo từ hạt nhân (proton + neutron) và vỏ electron. Mọi vật chất đều được tạo từ nguyên tử.</div>
+    <h3>1️⃣ Cấu tạo chi tiết</h3>
+    <ul>
+      <li><strong>Proton (p⁺)</strong>: điện tích +1, khối lượng ≈ 1,0073 u, nằm trong hạt nhân.</li>
+      <li><strong>Neutron (n⁰)</strong>: không điện tích, khối lượng ≈ 1,0087 u, giữ ổn định hạt nhân.</li>
+      <li><strong>Electron (e⁻)</strong>: điện tích -1, khối lượng ≈ 1/1840 u, chuyển động trên các lớp vỏ.</li>
+      <li><strong>Số hiệu nguyên tử (Z)</strong> = số proton = số electron (trong nguyên tử trung hòa).</li>
+      <li><strong>Số khối (A)</strong> = Z + số neutron. Ký hiệu: <sup>A</sup><sub>Z</sub>X</li>
+    </ul>
+    <div class="formula">⚛️ Ký hiệu nguyên tử: <sup>A</sup><sub>Z</sub>X | Ví dụ: <sup>12</sup><sub>6</sub>C (Carbon-12) có 6p, 6n, 6e.</div>
+    <h3>2️⃣ Đồng vị & Nguyên tử khối trung bình</h3>
+    <ul>
+      <li>Đồng vị: cùng Z, khác A (số neutron khác nhau). Ví dụ: <sup>35</sup>Cl (75,77%) và <sup>37</sup>Cl (24,23%).</li>
+      <li>Nguyên tử khối trung bình = (phần trăm đồng vị 1 × A1 + % đồng vị 2 × A2)/100.</li>
+    </ul>
+    <div class="formula">📊 Clo: (35 × 75,77 + 37 × 24,23)/100 ≈ 35,5 u.</div>
+    <h3>3️⃣ Bảng tuần hoàn hóa học</h3>
+    <ul>
+      <li><strong>Chu kỳ</strong>: 7 chu kỳ (1→7). Số thứ tự chu kỳ = số lớp electron.</li>
+      <li><strong>Nhóm (cột)</strong>: 18 nhóm. Nhóm A (IA → VIIIA): nguyên tố s,p; nhóm B (IB → VIIIB): nguyên tố d (kim loại chuyển tiếp).</li>
+      <li>Tính chất biến đổi: Trong 1 chu kỳ từ trái sang phải: tính kim loại giảm, tính phi kim tăng, bán kính nguyên tử giảm.</li>
+      <li>Trong 1 nhóm (từ trên xuống): tính kim loại tăng, phi kim giảm, bán kính nguyên tử tăng.</li>
+    </ul>
+    <div class="highlight">💡 <strong>Quy tắc octet:</strong> Nguyên tử có xu hướng đạt cấu hình electron bền vững của khí hiếm (8e lớp ngoài cùng, trừ He 2e). Đây là cơ sở hình thành liên kết hóa học.</div>
+  </div>
+
+  <!-- II. PHẢN ỨNG HÓA HỌC MỞ RỘNG -->
+  <div class="section" id="phanung">
+    <h2>🧪 II. PHẢN ỨNG HÓA HỌC – ĐỘNG LỰC BIẾN ĐỔI</h2>
+    <div class="definition">📌 <strong>Phản ứng hóa học</strong> là quá trình biến đổi chất này thành chất khác, kèm phá vỡ liên kết cũ và hình thành liên kết mới.</div>
+    <h3>1️⃣ Định luật bảo toàn khối lượng & nguyên tố</h3>
+    <ul>
+      <li>Bảo toàn khối lượng: Σm<sub>chất phản ứng</sub> = Σm<sub>sản phẩm</sub> (Lavoisier).</li>
+      <li>Bảo toàn nguyên tố: Số nguyên tử mỗi nguyên tố không đổi trước và sau phản ứng.</li>
+    </ul>
+    <h3>2️⃣ Các loại phản ứng vô cơ cơ bản</h3>
+    <ul>
+      <li><strong>Hóa hợp:</strong> A + B → AB (VD: CaO + H₂O → Ca(OH)₂).</li>
+      <li><strong>Phân hủy:</strong> AB → A + B (VD: 2KClO₃ --(MnO₂, t°)→ 2KCl + 3O₂↑).</li>
+      <li><strong>Thế:</strong> A + BC → AC + B (VD: Fe + CuSO₄ → FeSO₄ + Cu).</li>
+      <li><strong>Trao đổi:</strong> AB + CD → AD + CB (điều kiện tạo kết tủa, bay hơi hoặc chất điện li yếu). VD: HCl + NaOH → NaCl + H₂O.</li>
+      <li><strong>Oxi hóa – khử:</strong> Có sự thay đổi số oxi hóa. Chất khử (cho e), chất oxi hóa (nhận e).</li>
+    </ul>
+    <div class="formula">⚡ Phương trình ion rút gọn của phản ứng trung hòa: H⁺ + OH⁻ → H₂O</div>
+    <h3>3️⃣ Tốc độ phản ứng & cân bằng hóa học</h3>
+    <ul>
+      <li>Các yếu tố ảnh hưởng: nồng độ (↑ làm tốc độ ↑), nhiệt độ (↑ 10°C, tốc độ ↑ 2-4 lần), áp suất (chất khí), diện tích bề mặt, chất xúc tác.</li>
+      <li>Nguyên lý Le Chatelier: Một hệ đang cân bằng, nếu thay đổi một yếu tố (nồng độ, nhiệt độ, áp suất) thì cân bằng sẽ dịch chuyển theo chiều chống lại sự thay đổi đó.</li>
+    </ul>
+    <div class="highlight">🔥 Phản ứng tỏa nhiệt (ΔH < 0) và thu nhiệt (ΔH > 0). Ví dụ: Đốt cháy than tỏa nhiệt, nung đá vôi CaCO₃ → CaO + CO₂ thu nhiệt.</div>
+  </div>
+
+  <!-- III. HÓA HỮU CƠ (CHI TIẾT) -->
+  <div class="section" id="huuco">
+    <h2>🌿 III. HÓA HỮU CƠ – HÓA HỌC CỦA SỰ SỐNG</h2>
+    <div class="definition">🌱 <strong>Hợp chất hữu cơ</strong> là hợp chất của carbon (trừ CO, CO₂, muối carbonate, cyanua...). Gồm hydrocarbon và dẫn xuất.</div>
+    <h3>1️⃣ Hydrocarbon</h3>
+    <ul>
+      <li><strong>Alkan (bão hòa):</strong> C<sub>n</sub>H<sub>2n+2</sub>, liên kết đơn C–C, phản ứng thế đặc trưng. Metan (CH₄), etan (C₂H₆).</li>
+      <li><strong>Alken (không bão hòa):</strong> C<sub>n</sub>H<sub>2n</sub>, có 1 liên kết đôi C=C, phản ứng cộng (Br₂ làm mất màu dung dịch brom). Etilen (C₂H₄) kích thích quả chín.</li>
+      <li><strong>Alkyn:</strong> C<sub>n</sub>H<sub>2n-2</sub>, liên kết ba C≡C. Axetilen (C₂H₂) dùng trong đèn xì oxi-axetilen.</li>
+      <li><strong>Vòng thơm:</strong> Benzen C₆H₆, vòng 6 cạnh, liên kết π liên hợp, phản ứng thế dễ hơn cộng.</li>
+    </ul>
+    <div class="formula">🔥 Phản ứng cháy hydrocarbon: C<sub>x</sub>H<sub>y</sub> + (x + y/4)O₂ → xCO₂ + (y/2)H₂O</div>
+    <h3>2️⃣ Dẫn xuất hydrocarbon – Nhóm chức</h3>
+    <ul>
+      <li><strong>Rượu (Alcohol):</strong> –OH. Rượu etylic C₂H₅OH (điều chế lên men tinh bột).</li>
+      <li><strong>Axit cacboxylic:</strong> –COOH. Axit axetic CH₃COOH (giấm ăn).</li>
+      <li><strong>Este:</strong> –COOR. Phản ứng este hóa: CH₃COOH + C₂H₅OH ⇌ CH₃COOC₂H₅ + H₂O (xúc tác H₂SO₄ đặc). Este có mùi thơm hoa quả.</li>
+      <li><strong>Chất béo:</strong> Trieste của glycerol và axit béo (olein, stearin…).</li>
+      <li><strong>Glucid (carbohydrate):</strong> glucose C₆H₁₂O₆, saccharose, tinh bột, cellulose.</li>
+      <li><strong>Protein:</strong> Polyme từ amino acid, chứa N, S… thành phần chính của cơ thể sống.</li>
+    </ul>
+    <h3>3️⃣ Đồng phân & phản ứng đặc trưng</h3>
+    <ul>
+      <li>Đồng phân cấu tạo: mạch carbon khác nhau, vị trí nhóm chức hoặc nhóm chức khác nhau. Ví dụ C₄H₁₀ có 2 đồng phân: n-butan và isobutan.</li>
+      <li>Phản ứng cộng: etilen + Br₂ (dd) → 1,2-dibromoetan (màu nâu đỏ mất màu).</li>
+      <li>Phản ứng trùng hợp: nCH₂=CH₂ → (‑CH₂‑CH₂‑)<sub>n</sub> (polyethylene – nhựa PE).</li>
+    </ul>
+    <div class="highlight">🧪 <strong>Nhận biết etilen, axetilen:</strong> Làm mất màu dung dịch brom / KMnO₄. Nhận biết axit bằng quỳ tím hóa đỏ.</div>
+  </div>
+
+  <!-- IV. HÓA VÔ CƠ MỞ RỘNG -->
+  <div class="section" id="vuoco">
+    <h2>🧂 IV. HÓA VÔ CƠ – NỀN TẢNG CHẤT</h2>
+    <div class="definition">🧪 <strong>Hợp chất vô cơ</strong> gồm oxit, axit, bazơ, muối. Có tính chất đa dạng và liên quan mật thiết đến đời sống.</div>
+    <h3>1️⃣ Oxit & Phân loại</h3>
+    <ul>
+      <li><strong>Oxit bazơ:</strong> Tác dụng với axit tạo muối + nước (Na₂O, CaO).</li>
+      <li><strong>Oxit axit:</strong> Tác dụng với bazơ tạo muối + nước (SO₂, CO₂).</li>
+      <li><strong>Oxit lưỡng tính:</strong> Tác dụng với cả axit và bazơ (Al₂O₃, ZnO).</li>
+      <li><strong>Oxit trung tính:</strong> Không tác dụng với axit/bazơ (CO, NO).</li>
+    </ul>
+    <h3>2️⃣ Axit – Bazơ – Muối (chi tiết)</h3>
+    <ul>
+      <li>Axit mạnh: HCl, H₂SO₄, HNO₃ (phân li hoàn toàn). Axit yếu: CH₃COOH, H₂CO₃, H₂S.</li>
+      <li>Bazơ tan (kiềm): NaOH, KOH, Ca(OH)₂ (ít tan), Ba(OH)₂. Bazơ không tan: Cu(OH)₂, Fe(OH)₃.</li>
+      <li>Muối: trung hòa (NaCl, K₂SO₄), muối axit (NaHCO₃, NaHSO₄). Phản ứng trao đổi xảy ra khi tạo kết tủa, bay hơi hoặc nước.</li>
+    </ul>
+    <div class="formula">📌 Phản ứng trung hòa: H⁺ + OH⁻ → H₂O | Điều kiện trao đổi: có ↓, ↑, hoặc chất điện li yếu.</div>
+    <h3>3️⃣ Dãy hoạt động hóa học của kim loại</h3>
+    <ul>
+      <li>K, Na, Ca, Mg, Al, Zn, Fe, Ni, Sn, Pb, (H), Cu, Ag, Hg, Au.</li>
+      <li>Quy tắc α: Kim loại mạnh hơn (đứng trước) đẩy kim loại yếu hơn ra khỏi muối.</li>
+      <li>Kim loại đứng trước H phản ứng với axit (HCl, H₂SO₄ loãng) tạo H₂↑.</li>
+    </ul>
+    <div class="highlight">⚡ Phản ứng của kim loại kiềm với nước: 2Na + 2H₂O → 2NaOH + H₂↑ (dữ dội).</div>
+  </div>
+
+  <!-- V. DUNG DỊCH & pH + NỒNG ĐỘ -->
+  <div class="section" id="dungdich">
+    <h2>💧 V. DUNG DỊCH – NỒNG ĐỘ & pH</h2>
+    <h3>🌊 Các loại nồng độ</h3>
+    <ul>
+      <li><strong>Nồng độ phần trăm (C%):</strong> (khối lượng chất tan / khối lượng dung dịch) × 100%.</li>
+      <li><strong>Nồng độ mol (C<sub>M</sub>):</strong> số mol chất tan trong 1 lít dung dịch (mol/L).</li>
+      <li>Công thức liên hệ: C<sub>M</sub> = (10 × D × C%) / M (với D là khối lượng riêng, M là khối lượng mol).</li>
+    </ul>
+    <div class="formula">📊 C% = (m<sub>ct</sub> / m<sub>dd</sub>) × 100% ; C<sub>M</sub> = n / V (lít)</div>
+    <h3>🧪 Thang pH & chất chỉ thị</h3>
+    <ul>
+      <li>pH < 7: môi trường axit; pH = 7: trung tính; pH > 7: bazơ.</li>
+      <li>Quỳ tím: axit → đỏ, bazơ → xanh. Phenolphtalein: không màu trong axit, hồng trong bazơ.</li>
+      <li>pH của dung dịch axit mạnh (HCl 0,01M) = 2; bazơ mạnh (NaOH 0,01M) = 12.</li>
+    </ul>
+    <div class="highlight">🌡️ Độ tan phụ thuộc vào nhiệt độ, áp suất (chất khí). Đa số chất rắn tan tăng theo nhiệt độ.</div>
+  </div>
+
+  <!-- VI. HÓA HỌC VỚI ĐỜI SỐNG, KINH TẾ, MÔI TRƯỜNG -->
+  <div class="section" id="kinhte">
+    <h2>🏭 VI. HÓA HỌC ỨNG DỤNG – CÔNG NGHIỆP & MÔI TRƯỜNG</h2>
+    <h3>🔋 Sản xuất hóa chất quan trọng</h3>
+    <ul>
+      <li><strong>Clo – NaOH – H₂:</strong> Điện phân dung dịch NaCl (có màng ngăn): 2NaCl + 2H₂O → 2NaOH + Cl₂↑ + H₂↑.</li>
+      <li><strong>Sản xuất H₂SO₄:</strong> Phương pháp tiếp xúc: S → SO₂ → SO₃ → H₂SO₄.</li>
+      <li><strong>Phân bón hóa học:</strong> Urê CO(NH₂)₂, superphosphate Ca(H₂PO₄)₂, NPK tổng hợp.</li>
+      <li><strong>Vật liệu polime:</strong> PE (túi nilon), PVC (ống nhựa), cao su, tơ sợi tổng hợp.</li>
+    </ul>
+    <h3>🌍 Hóa học & môi trường</h3>
+    <ul>
+      <li>Mưa axit: SO₂, NOₓ hòa tan vào nước mưa tạo H₂SO₃, HNO₃ làm hỏng công trình, chết cây.</li>
+      <li>Hiệu ứng nhà kính: CO₂, CH₄, CFC tăng → nhiệt độ Trái Đất nóng lên.</li>
+      <li>Ô nhiễm nguồn nước: kim loại nặng (Hg, Pb), phân bón dư thừa gây phú dưỡng.</li>
+      <li>Xử lý rác thải nhựa: khó phân hủy, hạn chế sử dụng, tái chế, phát triển nhựa sinh học.</li>
+    </ul>
+    <div class="formula">🌱 Phản ứng quang hợp – hóa hợp tự nhiên: 6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂ (ánh sáng, diệp lục).</div>
+    <div class="highlight">♻️ <strong>Hóa học xanh:</strong> Thiết kế sản phẩm và quy trình giảm thiểu chất nguy hại, tiết kiệm năng lượng, nguyên liệu tái tạo.</div>
+  </div>
+
+  <footer>
+    🌟 TỔNG HỢP KIẾN THỨC HÓA HỌC 8-9 CHUẨN CHƯƠNG TRÌNH MỚI + BỔ SUNG NÂNG CAO 🌟 <br/>
+    📖 Tra cứu nhanh dành cho Quiz, ôn thi vào 10 & yêu thích khoa học. Hóa học là ngôn ngữ của vật chất – khám phá thế giới vi mô!
+  </footer>
+</div>
+</body>
+</html>

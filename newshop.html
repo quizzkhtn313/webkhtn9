@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cửa Hàng Phép Thuật - Shop Quiz</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap');
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Comic Neue', cursive;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* Hiệu ứng mây dễ thương */
+        .clouds {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .cloud {
+            position: absolute;
+            background: white;
+            border-radius: 50px;
+            opacity: 0.8;
+            animation: float 20s infinite linear;
+        }
+        
+        .cloud::before, .cloud::after {
+            content: '';
+            position: absolute;
+            background: white;
+            border-radius: 50px;
+        }
+        
+        .cloud1 { width: 100px; height: 40px; top: 20%; left: -100px; animation-delay: 0s; }
+        .cloud1::before { width: 50px; height: 50px; top: -25px; left: 10px; }
+        .cloud1::after { width: 60px; height: 40px; top: -15px; right: 10px; }
+        
+        .cloud2 { width: 80px; height: 30px; top: 40%; left: -80px; animation-delay: 5s; }
+        .cloud2::before { width: 40px; height: 40px; top: -20px; left: 5px; }
+        .cloud2::after { width: 50px; height: 30px; top: -10px; right: 5px; }
+        
+        .cloud3 { width: 120px; height: 50px; top: 60%; left: -120px; animation-delay: 10s; }
+        .cloud3::before { width: 60px; height: 60px; top: -30px; left: 15px; }
+        .cloud3::after { width: 70px; height: 50px; top: -20px; right: 15px; }
+        
+        @keyframes float {
+            0% { transform: translateX(-100px); }
+            100% { transform: translateX(calc(100vw + 100px)); }
+        }
+        
+        /* Header với animation */
+        header {
+            text-align: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-bottom: 5px solid #ffd700;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            animation: bounceIn 1s ease-out;
+        }
+        
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        h1 {
+            color: #ff6b6b;
+            font-size: 2.5em;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            animation: wiggle 2s infinite;
+        }
+        
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(2deg); }
+            75% { transform: rotate(-2deg); }
+        }
+        
+        #diamond-count {
+            font-size: 1.2em;
+            color: #ffd700;
+            margin-top: 10px;
+            animation: sparkle 2s infinite;
+        }
+        
+        @keyframes sparkle {
+            0%, 100% { text-shadow: 0 0 5px #ffd700; }
+            50% { text-shadow: 0 0 20px #ffd700, 0 0 30px #ffd700; }
+        }
+        
+        /* Nút về trang chủ - THÊM MỚI */
+        .home-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(96, 165, 250, 0.4);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            font-weight: bold;
+        }
+        .home-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(96, 165, 250, 0.6);
+        }
+        
+        /* Phần Quy Đổi Điểm mới - với nhiều hiệu ứng */
+        .convert-section {
+            background: rgba(255, 255, 255, 0.95);
+            border: 3px solid #ffd700;
+            border-radius: 20px;
+            margin: 20px auto;
+            padding: 30px;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+            animation: slideInDown 1s ease-out, glow 3s infinite alternate;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        @keyframes slideInDown {
+            0% { transform: translateY(-50px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+        
+        @keyframes glow {
+            0% { box-shadow: 0 6px 12px rgba(255, 215, 0, 0.3); }
+            100% { box-shadow: 0 6px 12px rgba(255, 215, 0, 0.6), 0 0 20px rgba(255, 215, 0, 0.4); }
+        }
+        
+        .convert-section::before {
+            content: '✨';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 2em;
+            animation: rotate 4s linear infinite;
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .convert-title {
+            color: #ffd700;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+        
+        .convert-desc {
+            color: #666;
+            font-size: 1em;
+            margin-bottom: 20px;
+        }
+        
+        #current-points {
+            color: #ff6b6b;
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+        
+        .convert-form {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .convert-input {
+            padding: 10px;
+            border: 2px solid #ff9a9e;
+            border-radius: 10px;
+            font-size: 1em;
+            width: 150px;
+            text-align: center;
+            transition: border-color 0.3s ease;
+        }
+        
+        .convert-input:focus {
+            border-color: #ffd700;
+            outline: none;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+        
+        .convert-btn {
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            color: #ff6b6b;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+        }
+        
+        .convert-btn:hover {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 4px 8px rgba(255, 215, 0, 0.4);
+        }
+        
+        .convert-result {
+            font-size: 1.2em;
+            color: #ffd700;
+            font-weight: bold;
+            margin-top: 10px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.5s ease;
+        }
+        
+        .convert-result.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Main content - 5 item-card chuyển xuống dưới */
+        main {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 20px;
+            gap: 20px;
+        }
+        
+        .item-card {
+            background: rgba(255, 255, 255, 0.95);
+            border: 3px solid #ff9a9e;
+            border-radius: 20px;
+            padding: 20px;
+            width: 200px;
+            text-align: center;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: slideInUp 0.8s ease-out forwards;
+            opacity: 0;
+            transform: translateY(50px);
+        }
+        
+        .item-card:nth-child(1) { animation-delay: 0.2s; } /* Delay nhẹ vì có section mới */
+        .item-card:nth-child(2) { animation-delay: 0.3s; }
+        .item-card:nth-child(3) { animation-delay: 0.4s; }
+        .item-card:nth-child(4) { animation-delay: 0.5s; }
+        .item-card:nth-child(5) { animation-delay: 0.6s; }
+        
+        @keyframes slideInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .item-card:hover {
+            transform: scale(1.05) rotate(2deg);
+            box-shadow: 0 10px 20px rgba(255, 107, 107, 0.3);
+        }
+        
+        .item-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .item-name {
+            font-size: 1.2em;
+            color: #ff6b6b;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .item-desc {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+        
+        .item-price {
+            font-size: 1.1em;
+            color: #ffd700;
+            font-weight: bold;
+        }
+        
+        .buy-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ff9a9e);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .buy-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 8px rgba(255, 107, 107, 0.4);
+        }
+        
+        .buy-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* Popup thông báo mua hàng */
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            border: 3px solid #ff9a9e;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            z-index: 1000;
+            animation: popIn 0.5s ease-out;
+        }
+        
+        @keyframes popIn {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+        
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+        
+        .close-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 600px) {
+            .item-card { width: 90%; }
+            h1 { font-size: 2em; }
+            .convert-form { flex-direction: column; align-items: center; }
+            .convert-input { width: 200px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="clouds">
+        <div class="cloud cloud1"></div>
+        <div class="cloud cloud2"></div>
+        <div class="cloud cloud3"></div>
+    </div>
+    
+    <!-- Nút về trang chủ - THÊM MỚI -->
+    <button class="home-btn" onclick="window.location.href='trangchu.html'" title="Về Trang Chủ">🏠</button>
+    
+    <header>
+        <h1>🛒 Cửa Hàng Phép Thuật Quiz! ✨</h1>
+        <div id="diamond-count">💎 Số kim cương: <span id="diamonds">100</span></div>
+    </header>
+    
+    <!-- Phần Quy Đổi Điểm mới - thêm ở trên -->
+    <section class="convert-section">
+        <h2 class="convert-title">🔄 Quy Đổi Điểm Thành Kim Cương!</h2>
+        <p class="convert-desc">Nhập số điểm từ quiz để quy đổi (10 điểm = 1 kim cương). Nhanh tay nhé! 🚀</p>
+        <div id="current-points"></div>
+        <div class="convert-form">
+            <input type="number" id="points-input" class="convert-input" placeholder="Số điểm..." min="0">
+            <button class="convert-btn" onclick="convertPoints()">Quy Đổi!</button>
+        </div>
+        <div id="convert-result" class="convert-result"></div>
+    </section>
+    
+    <main>
+        <!-- 5 item-card chuyển xuống dưới -->
+        <div class="item-card">
+            <div class="item-icon">⏰</div>
+            <div class="item-name">Tăng Thời Gian</div>
+            <div class="item-desc">Thêm 30 giây cho mỗi câu hỏi!</div>
+            <div class="item-price">💎 10</div>
+            <button class="buy-btn" onclick="buyItem('time', 10)">Mua Ngay!</button>
+        </div>
+        
+        <div class="item-card">
+            <div class="item-icon">⭐</div>
+            <div class="item-name">+100 Điểm</div>
+            <div class="item-desc">Nhận ngay 100 điểm bonus!</div>
+            <div class="item-price">💎 20</div>
+            <button class="buy-btn" onclick="buyItem('points', 20)">Mua Ngay!</button>
+        </div>
+        
+        <div class="item-card">
+            <div class="item-icon">🔥</div>
+            <div class="item-name">x2 Điểm Mỗi Câu</div>
+            <div class="item-desc">Nhân đôi điểm cho 5 câu tiếp theo!</div>
+            <div class="item-price">💎 30</div>
+            <button class="buy-btn" onclick="buyItem('double', 30)">Mua Ngay!</button>
+        </div>
+        
+        <div class="item-card">
+            <div class="item-icon">🎯</div>
+            <div class="item-name">50/50</div>
+            <div class="item-desc">Loại bỏ 2 lựa chọn sai!</div>
+            <div class="item-price">💎 25</div>
+            <button class="buy-btn" onclick="buyItem('fifty', 25)">Mua Ngay!</button>
+        </div>
+        
+        <div class="item-card">
+            <div class="item-icon">💡</div>
+            <div class="item-name">Gợi Ý Trả Lời</div>
+            <div class="item-desc">Nhận gợi ý cho câu hỏi khó!</div>
+            <div class="item-price">💎 15</div>
+            <button class="buy-btn" onclick="buyItem('hint', 15)">Mua Ngay!</button>
+        </div>
+    </main>
+    
+    <div class="overlay" id="overlay" onclick="closePopup()"></div>
+    <div class="popup" id="popup">
+        <h2 id="popup-title">🎉 Mua Hàng Thành Công!</h2>
+        <p id="popup-message">Bạn đã nhận được vật phẩm!</p>
+        <button class="close-btn" onclick="closePopup()">Đóng</button>
+    </div>
+    
+    <script>
+        // ===== HÀM LẤY/INIT STATS RIÊNG CHO USER (COPY TỪ TRANG CHỦ VÀ THÊM DIAMONDS) =====
+        function getUserStats(user) {
+            const key = `playerStats_${user}`;
+            let stats = localStorage.getItem(key);
+            
+            if (!stats) {
+                const now = Date.now();
+                stats = {
+                    totalCorrect: 0,
+                    totalWrong: 0,
+                    totalQuizzes: 0,
+                    quizStreak: 0,
+                    totalPoints: 0,
+                    playTime: 0,
+                    firstPlayDate: now,
+                    currentStreakDate: now,
+                    diamonds: 100  // Kim cương ban đầu
+                };
+                localStorage.setItem(key, JSON.stringify(stats));
+            } else {
+                stats = JSON.parse(stats);
+                // Đảm bảo có trường diamonds nếu chưa có (tương thích cũ)
+                if (!stats.hasOwnProperty('diamonds')) {
+                    stats.diamonds = 100;
+                    localStorage.setItem(key, JSON.stringify(stats));
+                }
+            }
+            
+            return stats;
+        }
+        
+        // ===== CẬP NHẬT DIAMONDS VÀ AUTO-FILL INPUT TỪ totalPoints =====
+        let currentUser = localStorage.getItem('currentUser');
+        let stats = {};
+        let diamonds = 100; // Giá trị mặc định nếu chưa login
+        
+        if (currentUser) {
+            stats = getUserStats(currentUser);
+            diamonds = stats.diamonds;
+            
+            // Hiển thị điểm hiện tại và auto-fill input
+            const currentPointsElem = document.getElementById('current-points');
+            const pointsInput = document.getElementById('points-input');
+            currentPointsElem.textContent = `Điểm hiện tại của bạn: ${stats.totalPoints} điểm ⭐`;
+            pointsInput.value = stats.totalPoints; // Auto-fill với totalPoints từ trang chủ
+        } else {
+            document.getElementById('current-points').textContent = 'Vui lòng đăng nhập để xem và đổi điểm!';
+            document.querySelector('.convert-btn').disabled = true;
+        }
+        
+        updateDiamonds();
+        
+        function updateDiamonds() {
+            document.getElementById('diamonds').textContent = diamonds;
+        }
+        
+        // Hàm quy đổi điểm (manual, trừ từ totalPoints và thêm vào diamonds, lưu stats)
+        function convertPoints() {
+            if (!currentUser) {
+                showConvertResult('❌ Vui lòng đăng nhập để quy đổi!', 'red');
+                return;
+            }
+            
+            const input = document.getElementById('points-input');
+            const pointsToConvert = parseInt(input.value) || 0;
+            if (pointsToConvert <= 0) {
+                showConvertResult('❌ Vui lòng nhập số điểm hợp lệ!', 'red');
+                return;
+            }
+            
+            if (pointsToConvert > stats.totalPoints) {
+                showConvertResult(`❌ Bạn chỉ có ${stats.totalPoints} điểm! Không thể đổi ${pointsToConvert} điểm.`, 'red');
+                return;
+            }
+            
+            const newDiamonds = Math.floor(pointsToConvert / 10); // 10 điểm = 1 kim cương
+            if (newDiamonds > 0) {
+                // Cập nhật stats: trừ points đã đổi, thêm diamonds
+                stats.totalPoints -= pointsToConvert;
+                stats.diamonds += newDiamonds;
+                localStorage.setItem(`playerStats_${currentUser}`, JSON.stringify(stats));
+                
+                // Cập nhật UI
+                diamonds = stats.diamonds;
+                updateDiamonds();
+                
+                // Cập nhật hiển thị điểm hiện tại
+                document.getElementById('current-points').textContent = `Điểm hiện tại của bạn: ${stats.totalPoints} điểm ⭐`;
+                input.value = stats.totalPoints; // Auto-fill lại với số dư
+                
+                showConvertResult(`🎉 Quy đổi thành công! Đã đổi ${pointsToConvert} điểm thành +${newDiamonds} kim cương!`, '#ffd700');
+                
+                // Gọi API nếu cần: fetch('/api/convertPoints', { method: 'POST', body: JSON.stringify({points: pointsToConvert}) });
+            } else {
+                showConvertResult('😔 Số điểm chưa đủ để quy đổi (cần ít nhất 10 điểm)!', 'orange');
+            }
+        }
+        
+        function showConvertResult(message, color) {
+            const result = document.getElementById('convert-result');
+            result.textContent = message;
+            result.style.color = color;
+            result.classList.add('show');
+            setTimeout(() => {
+                result.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Hàm mua item (trừ diamonds và lưu stats)
+        function buyItem(item, price) {
+            if (!currentUser) {
+                showPopup('❌ Vui lòng đăng nhập!', 'Đăng nhập để mua hàng.');
+                return;
+            }
+            
+            if (diamonds >= price) {
+                // Cập nhật stats
+                stats.diamonds -= price;
+                localStorage.setItem(`playerStats_${currentUser}`, JSON.stringify(stats));
+                diamonds = stats.diamonds;
+                updateDiamonds();
+                showPopup(`Bạn đã mua ${item}!`, `Tiết kiệm ${price} kim cương.`);
+            } else {
+                showPopup('❌ Không Đủ Tiền!', 'Bạn cần thêm kim cương để mua.');
+                const cards = document.querySelectorAll('.item-card');
+                cards.forEach(card => {
+                    card.style.animation = 'shake 0.5s ease-in-out';
+                });
+                setTimeout(() => {
+                    cards.forEach(card => card.style.animation = '');
+                }, 500);
+            }
+        }
+        
+        function showPopup(title, message) {
+            document.getElementById('popup-title').textContent = title;
+            document.getElementById('popup-message').textContent = message;
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('popup').style.display = 'block';
+        }
+        
+        function closePopup() {
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('popup').style.display = 'none';
+        }
+        
+        // Thêm animation shake
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+                20%, 40%, 60%, 80% { transform: translateX(5px); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

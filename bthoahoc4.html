@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Bài kiểm tra Hóa học — Hóa vô cơ (20 phút)</title>
+  <style>
+    :root{--bg:#06121a;--card:#071827;--accent:#3b82f6;--muted:#94a3b8;--glass:rgba(255,255,255,0.03)}
+    *{box-sizing:border-box}
+    body{font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial;background:linear-gradient(180deg,#04121a 0%,#082430 100%);color:#eef6fb;padding:24px}
+    .wrap{max-width:900px;margin:0 auto}
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+    h1{font-size:20px;margin:0}
+    .meta{color:var(--muted);font-size:13px}
+    .card{background:var(--card);border-radius:12px;padding:18px;margin-bottom:14px;box-shadow:0 6px 18px rgba(2,6,23,0.6)}
+    .controls{display:flex;gap:8px;align-items:center}
+    button{background:var(--accent);border:none;color:#081019;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:700}
+    button.secondary{background:transparent;color:var(--accent);border:1px solid rgba(59,130,246,0.2)}
+    .timer{font-weight:700;font-size:18px}
+    form .question{margin-bottom:14px;padding:12px;border-radius:8px;background:var(--glass);border:1px solid rgba(255,255,255,0.03)}
+    .q-title{font-weight:700;margin-bottom:8px}
+    .options label{display:block;padding:8px;border-radius:6px;cursor:pointer}
+    input[type="radio"]{margin-right:8px}
+    textarea,input[type='text'],input[type='number']{width:100%;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:inherit}
+    .actions{display:flex;gap:8px;justify-content:flex-end}
+    .result{font-size:16px;font-weight:700}
+    .footnote{color:var(--muted);font-size:13px;margin-top:8px}
+    @media(max-width:600px){.controls{flex-direction:column;align-items:flex-start}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Bài kiểm tra: Hóa học — Hóa vô cơ (20 phút)</h1>
+        <div class="meta">8 câu trắc nghiệm + 5 câu tự luận / Thời gian: <span class="timer" id="display-timer">20:00</span></div>
+      </div>
+      <div class="controls">
+        <button id="start-btn">Bắt đầu</button>
+        <button id="submit-btn" class="secondary" disabled>Nộp bài</button>
+        <button id="cancel-btn" class="secondary" disabled>Bỏ bài</button>
+      </div>
+    </header>
+
+    <section class="card">
+      <div style="margin-bottom:8px">
+        Hướng dẫn: Nhấn "Bắt đầu" để bắt đầu đồng hồ 20 phút. Sau khi hết giờ, hệ thống sẽ tự nộp và chấm trắc nghiệm. Các câu tự luận có gợi ý đáp án để đối chiếu.
+      </div>
+
+      <form id="quiz-form">
+        <!-- 8 câu trắc nghiệm -->
+        <div class="question" data-qtype="mc">
+          <div class="q-title">1. Hóa vô cơ là ngành hóa học nghiên cứu về gì?</div>
+          <div class="options">
+            <label><input type="radio" name="q1" value="A">A. Các hợp chất của cacbon</label>
+            <label><input type="radio" name="q1" value="B">B. Các chất không chứa cacbon (trừ một số ngoại lệ)</label>
+            <label><input type="radio" name="q1" value="C">C. Các hợp chất hữu cơ</label>
+            <label><input type="radio" name="q1" value="D">D. Các chất trong sinh vật sống</label>
+          </div>
+        </div>
+
+        <div class="question" data-qtype="mc">
+          <div class="q-title">2. Oxit là hợp chất gồm hai nguyên tố, trong đó có một nguyên tố là:</div>
+          <div class="options">
+            <label><input type="radio" name="q2" value="A">A. Hidro</label>
+            <label><input type="radio" name="q2" value="B">B. Clo</label>
+            <label><input type="radio" name="q2" value="C">C. Oxi</label>
+            <label><input type="radio" name="q2" value="D">D. Lưu huỳnh</label>
+          </div>
+        </div>
+
+        <div class="question" data-qtype="mc">
+          <div class="q-title">3. Phản ứng hóa học nào sau đây là phản ứng trao đổi?</div>
+          <div class="options">
+            <label><input type="radio" name="q3" value="A">A. CaCO₃ → CaO + CO₂</label>
+            <label><input type="radio" name="q3" value="B">B. 2H₂ + O₂ → 2H₂O</label>
+            <label><input type="radio" name="q3" value="C">C. NaOH + HCl → NaCl + H₂O</label>
+            <label><input type="radio" name="q3" value="D">D. 2Mg + O₂ → 2MgO</label>
+          </div>
+        </div>
+
+        <div class="question" data-qtype="mc">
+          <div class="q-title">4. Dung dịch nào sau đây làm quỳ tím chuyển sang màu đỏ?</div>
+          <div class="options">
+            <label><input type="radio" name="q4" value="A">A. NaOH</label>
+            <label><input type="radio" name="q4" value="B">B. HCl</label>
+            <label><input type="radio" name="q4" value="C">C. NaCl</label>
+            <label><input type="radio" name="q4" value="D">D. Ba(OH)₂</label>
+          </div>
+        </div>
+
+        <div class="question" data-qtype="mc">
+          <div class="q-title">5. Chất nào sau đây là muối?</div>
+          <div class="options">
+            <label><input type="radio" name="q5" value="A">A. H₂SO₄</label>
+            <label><input type="radio" name="q5" value="B">B. Na₂SO₄</label>
+            <label><input type="radio" name="q5" value="C">C. H₂O</label>
+            <label><input type="radio" name="q5" value="D">D. NaOH</label>
+          </div>
+        </div>
+
+        <div class="question" data-qtype="mc">
+          <div class="q-title">6. Sản phẩm của phản ứng trung hòa là:</div>
+          <div class="options">
+            <label><input type="radio" name="q6" value="A">A. Muối và nước</label>
+            <label><input type="radio" name="q6" value="B">B. Oxi và nước</label>
+            <label><input type="radio" name="q6" value="C">C. Axit và bazơ</label>
+            <label><input type="radio" name="q6" value="D">D. Oxit và hidro</label>
+          </div>
+        </div>
+
+        <div class="question" data-qtype="mc">
+          <div class="q-title">7. Phản ứng nào sau đây là phản ứng phân hủy?</div>
+          <div class="options">
+            <label><input type="radio" name="q7" value="A">A. 2H₂ + O₂ → 2H₂O</label>
+            <label><input type="radio" name="q7" value="B">B. 2KClO₃ → 2KCl + 3O₂</label>
+            <label><input type="radio" name="q7" value="C">C. NaOH + HCl → NaCl + H₂O</label>
+            <label><input type="radio" name="q7" value="D">D. Zn + 2HCl → ZnCl₂ + H₂</label>
+          </div>
+        </div>
+
+        <div class="question" data-qtype="mc">
+          <div class="q-title">8. Dãy nào sau đây gồm toàn bazơ?</div>
+          <div class="options">
+            <label><input type="radio" name="q8" value="A">A. NaOH, Ca(OH)₂, KOH</label>
+            <label><input type="radio" name="q8" value="B">B. H₂SO₄, HCl, HNO₃</label>
+            <label><input type="radio" name="q8" value="C">C. NaCl, CaCO₃, MgSO₄</label>
+            <label><input type="radio" name="q8" value="D">D. CO₂, SO₂, NO₂</label>
+          </div>
+        </div>
+
+        <hr style="border:none;height:1px;background:rgba(255,255,255,0.03);margin:12px 0"/>
+
+        <!-- 5 câu tự luận -->
+        <div class="question" data-qtype="sa">
+          <div class="q-title">9. Viết phương trình phản ứng giữa NaOH và H₂SO₄.</div>
+          <input type="text" name="q9" placeholder="Nhập phương trình" />
+        </div>
+
+        <div class="question" data-qtype="sa">
+          <div class="q-title">10. Nêu khái niệm về muối trong hóa học vô cơ.</div>
+          <input type="text" name="q10" placeholder="Trả lời ngắn gọn" />
+        </div>
+
+        <div class="question" data-qtype="sa">
+          <div class="q-title">11. Viết phương trình phản ứng phân hủy CaCO₃ khi nung nóng.</div>
+          <input type="text" name="q11" placeholder="Nhập phương trình" />
+        </div>
+
+        <div class="question" data-qtype="sa">
+          <div class="q-title">12. Cho biết hiện tượng khi cho quỳ tím vào dung dịch NaOH.</div>
+          <input type="text" name="q12" placeholder="Trả lời ngắn" />
+        </div>
+
+        <div class="question" data-qtype="sa">
+          <div class="q-title">13. Phân biệt phản ứng hóa hợp và phản ứng phân hủy.</div>
+          <input type="text" name="q13" placeholder="Trả lời ngắn gọn" />
+        </div>
+      </form>
+
+      <div class="actions" style="margin-top:12px">
+        <button id="auto-check" class="secondary" disabled>Kiểm tra nhanh trắc nghiệm</button>
+      </div>
+      <div class="footnote">Trắc nghiệm chấm tự động. Tự luận có gợi ý để đối chiếu.</div>
+    </section>
+
+    <section class="card" id="result-card" style="display:none">
+      <div id="result-summary"></div>
+      <div id="answers"></div>
+    </section>
+  </div>
+
+  <script>
+    const startBtn=document.getElementById('start-btn');
+    const submitBtn=document.getElementById('submit-btn');
+    const cancelBtn=document.getElementById('cancel-btn');
+    const autoCheckBtn=document.getElementById('auto-check');
+    const timerDisplay=document.getElementById('display-timer');
+    const form=document.getElementById('quiz-form');
+    const resultCard=document.getElementById('result-card');
+    const resultSummary=document.getElementById('result-summary');
+    const answersDiv=document.getElementById('answers');
+
+    const MC_ANSWERS={q1:'B',q2:'C',q3:'C',q4:'B',q5:'B',q6:'A',q7:'B',q8:'A'};
+    const SA_ANSWERS={
+      q9:'2NaOH + H2SO4 → Na2SO4 + 2H2O',
+      q10:'Muối là hợp chất gồm kim loại liên kết với gốc axit.',
+      q11:'CaCO3 → CaO + CO2',
+      q12:'Quỳ tím chuyển sang màu xanh.',
+      q13:'Phản ứng hóa hợp: nhiều chất tạo một chất mới; phân hủy: một chất tạo nhiều chất mới.'
+    };
+
+    let timerInterval=null; let timeLeft=20*60; let started=false;
+    const startTime = performance.now();  // Để tính thời gian chơi cho stats
+    function formatTime(s){const m=Math.floor(s/60),ss=s%60;return `${String(m).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;}
+    timerDisplay.textContent=formatTime(timeLeft);
+
+    // ===== HÀM LẤY/INIT STATS RIÊNG CHO USER =====
+    function getUserStats(user) {
+      const key = `playerStats_${user}`;
+      let stats = localStorage.getItem(key);
+      
+      if (!stats) {
+        const now = Date.now();
+        stats = {
+          totalCorrect: 0,
+          totalWrong: 0,
+          totalQuizzes: 0,
+          quizStreak: 0,
+          totalPoints: 0,
+          playTime: 0,
+          firstPlayDate: now,
+          currentStreakDate: now
+        };
+        localStorage.setItem(key, JSON.stringify(stats));
+      } else {
+        stats = JSON.parse(stats);
+      }
+      
+      return stats;
+    }
+
+    // ===== HÀM CẬP NHẬT STATS KHI HOÀN THÀNH QUIZ =====
+    function updateQuizStats(correctCount, wrongCount, quizTimeSeconds, pointsEarned) {
+      const currentUser = localStorage.getItem('currentUser') || 'guest';
+      const stats = getUserStats(currentUser);
+      
+      // Cập nhật cơ bản
+      stats.totalCorrect += correctCount;
+      stats.totalWrong += wrongCount;
+      stats.totalQuizzes += 1;
+      stats.totalPoints += pointsEarned;
+      stats.playTime += quizTimeSeconds;
+      
+      // Cập nhật streak (nếu hoàn thành, tăng streak; nếu không, reset nếu cần)
+      const now = Date.now();
+      if (stats.currentStreakDate && (now - stats.currentStreakDate) < (24 * 60 * 60 * 1000)) {  // Trong ngày
+        stats.quizStreak += 1;
+      } else {
+        stats.quizStreak = 1;  // Bắt đầu streak mới
+      }
+      stats.currentStreakDate = now;
+      
+      // Lưu lại stats riêng user
+      const statsKey = `playerStats_${currentUser}`;
+      localStorage.setItem(statsKey, JSON.stringify(stats));
+      
+      // Lưu điểm riêng cho môn nếu cần (ví dụ: cho Hóa học - Hóa vô cơ)
+      const subject = new URLSearchParams(window.location.search).get('subject') || 'hoavoc';
+      localStorage.setItem(`diem_${subject}`, pointsEarned.toString());  // Để dùng ở trang chủ nếu cần
+      
+      alert(`Hoàn thành! Điểm: ${pointsEarned}. Stats đã cập nhật. Quay về trang chủ để xem.`);
+      window.location.href = 'skibdi.html';  // Redirect về trang chủ
+    }
+
+    // ===== NÚT BỎ QUIZ (RESET STREAK) =====
+    cancelBtn.addEventListener('click', () => {
+      if (confirm('Bạn có chắc muốn bỏ bài? Streak sẽ bị reset.')) {
+        const currentUser = localStorage.getItem('currentUser') || 'guest';
+        const stats = getUserStats(currentUser);
+        stats.quizStreak = 0;  // Reset streak nếu bỏ
+        const statsKey = `playerStats_${currentUser}`;
+        localStorage.setItem(statsKey, JSON.stringify(stats));
+        window.location.href = 'skibdi.html';
+      }
+    });
+
+    startBtn.addEventListener('click',()=>{
+      if(started)return; started=true;
+      startBtn.disabled=true; submitBtn.disabled=false; cancelBtn.disabled=false; autoCheckBtn.disabled=false;
+      timerInterval=setInterval(()=>{
+        timeLeft--; timerDisplay.textContent=formatTime(timeLeft);
+        if(timeLeft<=0){clearInterval(timerInterval);doSubmit(true);}
+      },1000);
+    });
+
+    submitBtn.addEventListener('click',()=>doSubmit(false));
+    autoCheckBtn.addEventListener('click',()=>gradeMCOnly());
+
+    function gradeMCOnly(){
+      const fd=new FormData(form);let correct=0,total=8;
+      for(let i=1;i<=8;i++){const k='q'+i;if(fd.get(k)===MC_ANSWERS[k])correct++;}
+      alert(`Trắc nghiệm: ${correct}/${total} đúng`);
+    }
+
+    function doSubmit(timeout){
+      if(timerInterval)clearInterval(timerInterval);
+      submitBtn.disabled=true; cancelBtn.disabled=true; autoCheckBtn.disabled=true;
+      const fd=new FormData(form);
+      let mcCorrect=0;for(let i=1;i<=8;i++){const k='q'+i;if(fd.get(k)===MC_ANSWERS[k])mcCorrect++;}
+      const saResults=[];
+      let saCorrect = 0;
+      for(let k=9;k<=13;k++){
+        const user=(fd.get(k)||'').trim();
+        let expected=SA_ANSWERS[k];
+        let ok=false,note='';
+        // text compare: lowercase contains key words
+        const u = user.toLowerCase();
+        if (k === 9) {
+          ok = u.length>0 && u.includes('naoh') && u.includes('h2so4') && u.includes('na2so4') && u.includes('h2o');
+          note = `Gợi ý đáp án: ${expected}`;
+        } else if (k === 10) {
+          ok = u.length>0 && (u.includes('muối') || u.includes('hợp chất')) && (u.includes('kim loại') || u.includes('gốc axit'));
+          note = `Gợi ý đáp án: ${expected}`;
+        } else if (k === 11) {
+          ok = u.length>0 && u.includes('caco3') && u.includes('cao') && u.includes('co2');
+          note = `Gợi ý đáp án: ${expected}`;
+        } else if (k === 12) {
+          ok = u.length>0 && u.includes('xanh') && (u.includes('quỳ') || u.includes('tím'));
+          note = `Gợi ý đáp án: ${expected}`;
+        } else if (k === 13) {
+          ok = u.length>0 && u.includes('hóa hợp') && u.includes('phân hủy') && (u.includes('nhiều') || u.includes('một'));
+          note = `Gợi ý đáp án: ${expected}`;
+        }
+        if (ok) saCorrect++;
+        saResults.push({q:k,user:user||'(trống)',ok,note});
+      }
+
+      // TÍNH TỔNG ĐIỂM CHO STATS
+      const totalCorrect = mcCorrect + saCorrect;
+      const totalQuestions = 13;  // 8 MC + 5 SA
+      const wrongCount = totalQuestions - totalCorrect;
+      const quizTimeSeconds = Math.floor((performance.now() - startTime) / 1000);
+      const pointsEarned = totalCorrect * 10;  // 10 điểm/câu đúng (tổng max 130)
+
+      // Cập nhật stats
+      updateQuizStats(totalCorrect, wrongCount, quizTimeSeconds, pointsEarned);
+
+      // Show result (trước khi redirect)
+      resultCard.style.display='block';
+      resultSummary.innerHTML=`<div class="result">Kết quả trắc nghiệm: ${mcCorrect}/8 đúng</div><div style="margin-top:8px;color:var(--muted)">(Gợi ý đáp án cho tự luận hiển thị bên dưới)</div>`;
+      let html='<h3>Chi tiết</h3><ol>';
+      for(let i=1;i<=8;i++){
+        const k='q'+i;const user=fd.get(k)||'(chưa chọn)';
+        const ok=user===MC_ANSWERS[k];
+        html+=`<li>Câu ${i}: Bạn chọn <b>${user}</b> — ${ok?'<span style="color:#57f287">Đúng</span>':'<span style="color:#ff8a8a">Sai</span>'} (Đáp án: <b>${MC_ANSWERS[k]}</b>)</li>`;
+      }
+      html+='</ol><h4>Các câu tự luận (gợi ý đáp án / chấm sơ bộ)</h4><ol>';
+      saResults.forEach(r=>{
+        html+=`<li>${r.q}: Bạn: <i>${escapeHtml(r.user)}</i> — ${r.ok?'<span style="color:#57f287">Được</span>':'<span style="color:#ff8a8a">Chưa được</span>'}<br/><small style="color:var(--muted)">${r.note}</small></li>`;
+      });
+      html+='</ol>';
+      answersDiv.innerHTML=html;
+      if(timeout)resultSummary.innerHTML+='<div style="color:#ffcc66;margin-top:8px">Hết giờ! Hệ thống đã nộp bài tự động.</div>';
+      resultCard.scrollIntoView({behavior:'smooth'});
+    }
+
+    function escapeHtml(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+    window.addEventListener('beforeunload',e=>{if(started&&!submitBtn.disabled){e.preventDefault();e.returnValue='';}});
+  </script>
+</body>
+</html>

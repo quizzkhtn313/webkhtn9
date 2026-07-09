@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Creative Quiz — Trang chủ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Outfit:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  <script src="https://js.puter.com/v2/"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#0b0b1f;--bg2:#080f1a;--bg3:#0d1726;--bg4:#111e30;
+      --accent:#67e8f9;--accent2:#c026d3;--accent3:#a855f7;
+      --green:#4ade80;--amber:#fbbf24;--red:#f87171;--blue:#38bdf8;--purple:#a78bfa;
+      --text:#e0f2fe;--text2:#7ba8c8;--text3:#3a6080;
+      --font:'Outfit',sans-serif;--mono:'DM Mono',monospace;
+      --border:rgba(103,232,249,0.12);--border2:rgba(103,232,249,0.3);
+    }
+    body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;position:relative;}
+    body::before{content:'';position:fixed;inset:0;background:radial-gradient(circle 900px at var(--mx,50%) var(--my,50%),rgba(103,232,249,0.13),transparent 65%);pointer-events:none;z-index:1;mix-blend-mode:screen;}
+    #bgCanvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;}
+    .neon-cursor{position:fixed;width:36px;height:36px;border:2px solid var(--accent);border-radius:50%;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);box-shadow:0 0 20px var(--accent),0 0 50px var(--accent2);mix-blend-mode:difference;display:none;}
+    .neon-cursor::after{content:'';position:absolute;top:50%;left:50%;width:8px;height:8px;background:#fff;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 10px var(--accent);}
+    @media(min-width:768px){.neon-cursor{display:block;}}
+
+    /* ── LAYOUT ── */
+    .app-wrap{display:flex;min-height:100vh;position:relative;z-index:10;}
+
+    /* ── SIDEBAR ── */
+    .sidebar{
+      width:260px;min-height:100vh;background:rgba(8,15,26,0.95);
+      border-right:1px solid var(--border);
+      display:flex;flex-direction:column;position:fixed;left:0;top:0;z-index:100;
+      backdrop-filter:blur(20px);
+      transition:transform 0.3s ease;
+    }
+    .sidebar.hidden{transform:translateX(-260px);}
+    .sb-logo{padding:20px;border-bottom:1px solid var(--border);}
+    .sb-logo-mark{font-family:'Orbitron',sans-serif;font-size:18px;font-weight:900;
+      background:linear-gradient(90deg,var(--accent),#fff,var(--accent2));
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    .sb-logo-tag{font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:1.5px;margin-top:3px;}
+
+    .sb-profile{padding:16px;border-bottom:1px solid var(--border);}
+    .sb-avatar{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));
+      display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#04080f;margin-bottom:10px;}
+    .sb-name{font-size:14px;font-weight:700;}
+    .sb-level{font-size:11px;color:var(--text2);font-family:var(--mono);margin-top:2px;}
+    .sb-xp-bar{height:4px;background:rgba(255,255,255,0.08);border-radius:99px;margin-top:8px;overflow:hidden;}
+    .sb-xp-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent3));border-radius:99px;transition:width 0.5s ease;}
+    .sb-xp-txt{font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:4px;text-align:center;}
+
+    /* Class badge in sidebar */
+    .sb-class-badge{margin:12px 16px;background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.2);
+      border-radius:10px;padding:12px;display:none;}
+    .sb-class-badge.show{display:block;}
+    .sb-class-name{font-size:13px;font-weight:700;color:var(--blue);}
+    .sb-class-teacher{font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:3px;}
+    .sb-class-code{font-size:9px;color:var(--text3);font-family:var(--mono);margin-top:2px;}
+    .sb-leave-btn{margin-top:8px;background:rgba(248,113,113,0.1);color:var(--red);border:1px solid rgba(248,113,113,0.2);
+      border-radius:6px;padding:4px 10px;font-size:10px;cursor:pointer;font-family:var(--mono);}
+
+    .sb-nav{padding:12px 8px;flex:1;}
+    .sb-nav-sec{font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;padding:8px 10px 5px;}
+    .sb-nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;cursor:pointer;
+      font-size:13px;color:var(--text2);transition:all 0.15s;margin-bottom:2px;}
+    .sb-nav-item:hover{background:rgba(103,232,249,0.06);color:var(--text);}
+    .sb-nav-item.active{background:rgba(103,232,249,0.1);color:var(--accent);border:1px solid rgba(103,232,249,0.15);}
+    .sb-nav-icon{font-size:15px;width:20px;text-align:center;}
+    .sb-nav-badge{margin-left:auto;background:var(--accent);color:#04080f;font-size:9px;font-weight:700;
+      padding:2px 6px;border-radius:999px;font-family:var(--mono);}
+
+    .sb-stats{padding:12px 16px;border-top:1px solid var(--border);}
+    .sb-stat{display:flex;justify-content:space-between;font-size:11px;color:var(--text2);padding:3px 0;}
+    .sb-stat b{color:var(--text);font-weight:600;}
+
+    /* ── MAIN CONTENT ── */
+    .main{margin-left:260px;flex:1;padding:30px 28px 100px;position:relative;z-index:10;}
+    .main.no-sidebar{margin-left:0;}
+
+    /* ── TOPBAR ── */
+    .topbar-right{position:fixed;top:16px;right:20px;display:flex;gap:10px;z-index:200;}
+    .top-btn{padding:8px 16px;border-radius:20px;border:none;cursor:pointer;font-family:var(--font);font-size:12px;font-weight:600;transition:all 0.2s;}
+    .top-btn-login{background:linear-gradient(135deg,var(--accent),var(--accent3));color:#04080f;}
+    .top-btn-logout{background:linear-gradient(90deg,#ec4899,#9333ea);color:white;}
+
+    /* ── HERO ── */
+    .hero-section{text-align:center;padding:20px 0 40px;}
+    .hero-title{
+      font-family:'Orbitron',sans-serif;font-size:clamp(3rem,8vw,6rem);font-weight:900;
+      background:linear-gradient(90deg,var(--accent),#ffffff,var(--accent2));
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+      animation:glow 4s ease-in-out infinite alternate;
+      margin-bottom:14px;
+    }
+    @keyframes glow{
+      from{filter:drop-shadow(0 0 20px rgba(103,232,249,0.7));}
+      to{filter:drop-shadow(0 0 40px rgba(103,232,249,0.9)) drop-shadow(0 0 80px rgba(192,38,211,0.6));}
+    }
+    .hero-sub{font-size:1.1rem;color:var(--text2);max-width:580px;margin:0 auto;}
+
+    /* ── CLASS PANEL (when joined) ── */
+    #classDashboard{display:none;}
+    #classDashboard.show{display:block;}
+    .class-hero{
+      background:linear-gradient(135deg,rgba(56,189,248,0.08),rgba(103,232,249,0.04));
+      border:1px solid rgba(56,189,248,0.2);border-radius:16px;padding:24px;
+      margin-bottom:24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;
+    }
+    .class-hero-icon{font-size:48px;}
+    .class-hero-info{flex:1;}
+    .class-hero-name{font-size:22px;font-weight:800;color:var(--blue);}
+    .class-hero-meta{font-size:12px;color:var(--text2);font-family:var(--mono);margin-top:4px;}
+    .class-hero-actions{display:flex;gap:10px;flex-wrap:wrap;}
+    .ch-btn{padding:9px 18px;border-radius:10px;border:none;cursor:pointer;font-family:var(--font);font-size:12px;font-weight:600;transition:all 0.2s;}
+    .ch-btn-primary{background:linear-gradient(135deg,var(--blue),var(--accent));color:#04080f;}
+    .ch-btn-outline{background:transparent;border:1px solid rgba(103,232,249,0.3);color:var(--accent);}
+    .ch-btn:hover{transform:scale(1.04);}
+
+    /* ── ASSIGNMENTS GRID ── */
+    .section-title{font-size:16px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+    .section-title .badge{background:rgba(103,232,249,0.1);border:1px solid rgba(103,232,249,0.2);
+      color:var(--accent);font-size:10px;font-family:var(--mono);padding:2px 8px;border-radius:999px;}
+    .assign-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin-bottom:30px;}
+    .assign-card{
+      background:rgba(8,15,26,0.85);border:1px solid var(--border);border-radius:14px;
+      padding:18px;cursor:pointer;transition:all 0.25s;position:relative;overflow:hidden;
+    }
+    .assign-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(103,232,249,0.04),transparent);opacity:0;transition:opacity 0.3s;}
+    .assign-card:hover{border-color:rgba(103,232,249,0.4);transform:translateY(-4px);box-shadow:0 12px 40px rgba(103,232,249,0.15);}
+    .assign-card:hover::before{opacity:1;}
+    .assign-card.done{opacity:0.6;}
+    .assign-subj{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-family:var(--mono);
+      padding:3px 9px;border-radius:999px;margin-bottom:10px;}
+    .subj-phys{background:rgba(251,191,36,0.12);color:var(--amber);border:1px solid rgba(251,191,36,0.2);}
+    .subj-chem{background:rgba(74,222,128,0.12);color:var(--green);border:1px solid rgba(74,222,128,0.2);}
+    .subj-bio{background:rgba(167,139,250,0.12);color:var(--purple);border:1px solid rgba(167,139,250,0.2);}
+    .subj-math{background:rgba(56,189,248,0.12);color:var(--blue);border:1px solid rgba(56,189,248,0.2);}
+    .assign-title{font-size:15px;font-weight:700;margin-bottom:6px;}
+    .assign-desc{font-size:11.5px;color:var(--text2);line-height:1.6;margin-bottom:12px;
+      display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+    .assign-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+    .assign-due{font-size:10px;font-family:var(--mono);}
+    .due-ok{color:var(--green);}
+    .due-soon{color:var(--amber);}
+    .due-late{color:var(--red);}
+    .assign-status{margin-left:auto;font-size:10px;font-family:var(--mono);padding:3px 9px;border-radius:999px;}
+    .status-pending{background:rgba(251,191,36,0.12);color:var(--amber);}
+    .status-done{background:rgba(74,222,128,0.12);color:var(--green);}
+
+    /* ── SEARCH / NORMAL MODE ── */
+    #normalMode{}
+    .search-row{max-width:700px;margin:0 auto;}
+    .search-box{display:flex;align-items:center;background:rgba(8,15,26,0.9);
+      border:1.5px solid var(--border2);border-radius:50px;padding:6px 8px 6px 20px;
+      gap:10px;margin-bottom:20px;backdrop-filter:blur(12px);transition:box-shadow 0.2s;}
+    .search-box:focus-within{box-shadow:0 0 30px rgba(103,232,249,0.2);}
+    .search-input{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-family:var(--font);font-size:14px;}
+    .search-input::placeholder{color:var(--text3);}
+    .btn-go{background:linear-gradient(135deg,var(--accent),var(--accent3));color:#04080f;
+      border:none;padding:10px 22px;border-radius:40px;font-family:var(--font);font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;}
+    .btn-go:hover{transform:scale(1.05);}
+
+    .results-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;}
+    .result-card{
+      background:rgba(15,23,42,0.75);border:1px solid rgba(103,232,249,0.2);
+      border-radius:14px;padding:18px;cursor:pointer;
+      transition:all 0.3s cubic-bezier(0.23,1,0.32,1);backdrop-filter:blur(16px);
+    }
+    .result-card:hover{transform:translateY(-10px) scale(1.03);
+      box-shadow:0 0 40px rgba(103,232,249,0.5),0 0 60px rgba(192,38,211,0.3);
+      border-color:var(--accent2);}
+    .result-title{font-size:16px;font-weight:700;margin-bottom:6px;}
+    .result-desc{font-size:12px;color:var(--text2);margin-bottom:8px;line-height:1.5;}
+    .result-meta{font-size:10px;color:var(--text3);font-family:var(--mono);}
+
+    /* ── JOIN CLASS MODAL ── */
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);
+      display:flex;align-items:center;justify-content:center;z-index:500;opacity:0;pointer-events:none;transition:opacity 0.25s;}
+    .overlay.open{opacity:1;pointer-events:all;}
+    .modal{background:var(--bg2);border:1px solid var(--border2);border-radius:18px;
+      padding:28px;width:460px;max-width:95vw;max-height:90vh;overflow-y:auto;
+      transform:scale(0.9) translateY(20px);transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);}
+    .overlay.open .modal{transform:scale(1) translateY(0);}
+    .modal-title{font-size:18px;font-weight:800;margin-bottom:18px;display:flex;align-items:center;gap:10px;}
+    .modal-close{margin-left:auto;background:rgba(255,255,255,0.06);border:none;color:var(--text2);
+      width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;}
+    .modal-close:hover{color:var(--text);}
+    .fc{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:11px 14px;
+      color:var(--text);font-family:var(--font);font-size:13px;outline:none;width:100%;transition:border-color 0.15s;}
+    .fc:focus{border-color:var(--accent);}
+    .fc::placeholder{color:var(--text3);}
+    .fg{display:flex;flex-direction:column;gap:5px;margin-bottom:14px;}
+    .fg label{font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;}
+    .btn-modal{width:100%;padding:12px;border-radius:10px;border:none;cursor:pointer;font-family:var(--font);font-size:14px;font-weight:700;transition:all 0.2s;}
+    .btn-modal-primary{background:linear-gradient(135deg,var(--blue),var(--accent));color:#04080f;}
+    .btn-modal-primary:hover{transform:scale(1.02);box-shadow:0 4px 20px rgba(56,189,248,0.3);}
+    .err-msg{color:var(--red);font-size:12px;font-family:var(--mono);padding:6px 0;display:none;}
+
+    /* ── QUIZ MODAL ── */
+    #quizOverlay{z-index:600;}
+    .quiz-modal{background:var(--bg);border:1px solid var(--border2);border-radius:20px;
+      padding:32px;width:640px;max-width:95vw;max-height:92vh;overflow-y:auto;
+      transform:scale(0.88);transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1);}
+    .overlay.open .quiz-modal{transform:scale(1);}
+    .quiz-header{margin-bottom:24px;}
+    .quiz-assign-title{font-size:20px;font-weight:800;margin-bottom:6px;}
+    .quiz-assign-meta{font-size:11px;color:var(--text2);font-family:var(--mono);}
+    .quiz-progress{height:4px;background:rgba(255,255,255,0.08);border-radius:99px;margin:16px 0;overflow:hidden;}
+    .quiz-prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent3));border-radius:99px;transition:width 0.4s ease;}
+
+    .quiz-question{font-size:16px;font-weight:600;line-height:1.6;margin-bottom:20px;}
+    .quiz-options{display:flex;flex-direction:column;gap:10px;}
+    .quiz-option{
+      background:rgba(13,23,38,0.9);border:1.5px solid var(--border);
+      border-radius:12px;padding:14px 18px;cursor:pointer;font-size:13.5px;
+      transition:all 0.2s;display:flex;align-items:center;gap:12px;
+    }
+    .quiz-option:hover:not(.disabled){border-color:rgba(103,232,249,0.5);background:rgba(103,232,249,0.05);}
+    .quiz-option.selected{border-color:var(--accent);background:rgba(103,232,249,0.1);}
+    .quiz-option.correct{border-color:var(--green);background:rgba(74,222,128,0.12);color:var(--green);}
+    .quiz-option.wrong{border-color:var(--red);background:rgba(248,113,113,0.12);color:var(--red);}
+    .quiz-option.disabled{cursor:default;}
+    .opt-letter{width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,0.06);
+      display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:700;flex-shrink:0;}
+
+    .quiz-nav{display:flex;gap:10px;margin-top:20px;align-items:center;}
+    .quiz-nav-btn{padding:10px 22px;border-radius:10px;border:none;cursor:pointer;font-family:var(--font);font-size:13px;font-weight:600;transition:all 0.2s;}
+    .qnb-primary{background:linear-gradient(135deg,var(--accent),var(--accent3));color:#04080f;}
+    .qnb-outline{background:transparent;border:1px solid var(--border2);color:var(--text2);}
+    .qnb-primary:hover{transform:scale(1.04);}
+    .quiz-q-count{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--text3);}
+
+    /* Result screen */
+    .quiz-result{text-align:center;padding:20px 0;}
+    .result-score{font-size:64px;font-weight:900;font-family:'Orbitron',sans-serif;
+      background:linear-gradient(90deg,var(--accent),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:16px 0;}
+    .result-msg{font-size:16px;font-weight:600;margin-bottom:8px;}
+    .result-sub{font-size:13px;color:var(--text2);}
+
+    /* Writing task */
+    .quiz-textarea{width:100%;min-height:160px;background:var(--bg3);border:1px solid var(--border);
+      border-radius:10px;padding:14px;color:var(--text);font-family:var(--font);font-size:13px;
+      outline:none;resize:vertical;line-height:1.7;transition:border-color 0.2s;}
+    .quiz-textarea:focus{border-color:var(--accent);}
+
+    /* ── FLOATING BUTTONS ── */
+    .fab-group{position:fixed;bottom:20px;right:20px;display:flex;gap:10px;z-index:400;align-items:flex-end;flex-direction:row;}
+    .fab{width:56px;height:56px;border-radius:50%;border:none;cursor:pointer;font-size:22px;
+      display:flex;align-items:center;justify-content:center;transition:all 0.3s;box-shadow:0 4px 15px rgba(0,0,0,0.4);}
+    .fab-chat{background:linear-gradient(135deg,#667eea,#764ba2);color:white;animation:fabpulse 2.5s infinite;}
+    .fab-class{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:white;}
+    .fab-create{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:white;}
+    .fab-shop{background:linear-gradient(135deg,#ffd700,#ffed4e);color:#ff6b6b;}
+    .fab:hover{transform:scale(1.12);}
+    @keyframes fabpulse{
+      0%{box-shadow:0 0 0 0 rgba(102,126,234,0.6);}
+      70%{box-shadow:0 0 0 16px rgba(102,126,234,0);}
+      100%{box-shadow:0 0 0 0 rgba(102,126,234,0);}
+    }
+    .fab-left-group{position:fixed;bottom:20px;left:20px;z-index:400;}
+
+    /* ── CHATBOX ── */
+    .chatbox{position:fixed;bottom:88px;right:20px;width:340px;height:480px;
+      background:white;border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,0.3);
+      overflow:hidden;display:none;flex-direction:column;z-index:450;}
+    .chatbox.show{display:flex;}
+    .chat-hdr{background:linear-gradient(135deg,#667eea,#764ba2);color:white;padding:14px 16px;
+      font-weight:700;font-size:15px;display:flex;align-items:center;gap:8px;}
+    .chat-close{margin-left:auto;background:none;border:none;color:white;font-size:18px;cursor:pointer;opacity:0.8;}
+    .chat-close:hover{opacity:1;}
+    .chat-msgs{flex:1;overflow-y:auto;padding:14px;background:#f8fafc;display:flex;flex-direction:column;gap:10px;}
+    .chat-msg{max-width:82%;padding:9px 13px;border-radius:16px;font-size:13px;animation:slideIn 0.3s ease;}
+    @keyframes slideIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+    .chat-msg.user{background:linear-gradient(135deg,#667eea,#764ba2);color:white;align-self:flex-end;margin-left:auto;}
+    .chat-msg.ai{background:white;color:#334155;border:1px solid #e2e8f0;align-self:flex-start;box-shadow:0 2px 6px rgba(0,0,0,0.06);}
+    .chat-inp-row{display:flex;padding:12px;background:white;gap:8px;border-top:1px solid #e2e8f0;}
+    .chat-inp{flex:1;padding:10px 14px;border:1px solid #e2e8f0;border-radius:20px;outline:none;font-size:13px;font-family:var(--font);}
+    .chat-inp:focus{border-color:#667eea;}
+    .chat-send{background:linear-gradient(135deg,#667eea,#764ba2);border:none;color:white;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:16px;}
+    .chat-send:disabled{opacity:0.5;}
+
+    /* ── TOAST ── */
+    .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);
+      background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:12px 20px;
+      display:flex;align-items:center;gap:12px;z-index:800;opacity:0;transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);pointer-events:none;min-width:260px;}
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+    .toast-icon{font-size:20px;}
+    .toast-title{font-size:13px;font-weight:700;}
+    .toast-sub{font-size:10px;color:var(--text3);font-family:var(--mono);}
+  </style>
+</head>
+<body>
+  <canvas id="bgCanvas"></canvas>
+  <div class="neon-cursor" id="neonCursor"></div>
+
+  <!-- Top buttons -->
+  <div class="topbar-right">
+    <button class="top-btn top-btn-login" id="loginBtn" onclick="location.href='login.html'">Đăng nhập</button>
+    <button class="top-btn top-btn-logout" id="logoutBtn" style="display:none" onclick="doLogout()">Đăng xuất</button>
+  </div>
+
+  <div class="app-wrap">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sb-logo">
+        <div class="sb-logo-mark">Creative Quiz</div>
+        <div class="sb-logo-tag">// KHTN LEARNING PLATFORM</div>
+      </div>
+
+      <div class="sb-profile" id="sbProfile" style="display:none">
+        <div class="sb-avatar" id="sbAvatar">?</div>
+        <div class="sb-name" id="sbName">—</div>
+        <div class="sb-level" id="sbLevel">Cấp 1 ⭐</div>
+        <div class="sb-xp-bar"><div class="sb-xp-fill" id="sbXpFill" style="width:0%"></div></div>
+        <div class="sb-xp-txt" id="sbXpTxt">0 / 100 XP</div>
+      </div>
+
+      <!-- Class badge -->
+      <div class="sb-class-badge" id="sbClassBadge">
+        <div class="sb-class-name" id="sbClassName">—</div>
+        <div class="sb-class-teacher" id="sbClassTeacher">—</div>
+        <div class="sb-class-code" id="sbClassCode">—</div>
+        <button class="sb-leave-btn" onclick="leaveClass()">Rời lớp</button>
+      </div>
+
+      <nav class="sb-nav">
+        <div class="sb-nav-sec">Học tập</div>
+        <div class="sb-nav-item active" onclick="showSection('home')"><span class="sb-nav-icon">🏠</span> Trang chủ</div>
+        <div class="sb-nav-item" id="navClass" onclick="showSection('class')" style="display:none">
+          <span class="sb-nav-icon">🏫</span> Lớp học
+          <span class="sb-nav-badge" id="navClassBadge" style="display:none">0</span>
+        </div>
+        <div class="sb-nav-item" onclick="showSection('home')"><span class="sb-nav-icon">🔭</span> Vật Lý</div>
+        <div class="sb-nav-item" onclick="showSection('home')"><span class="sb-nav-icon">⚗️</span> Hóa Học</div>
+        <div class="sb-nav-item" onclick="showSection('home')"><span class="sb-nav-icon">🧬</span> Sinh Học</div>
+
+        <div class="sb-nav-sec">Tài khoản</div>
+        <div class="sb-nav-item" onclick="openJoinModal()"><span class="sb-nav-icon">🔗</span> Vào lớp học</div>
+        <div class="sb-nav-item" onclick="location.href='tongket.html'"><span class="sb-nav-icon">📝</span> Soạn bài tập</div>
+      </nav>
+
+      <div class="sb-stats">
+        <div class="sb-stat"><span>Tổng điểm</span><b id="sbTotalPts">0</b></div>
+        <div class="sb-stat"><span>Thời gian</span><b id="sbPlayTime">0h</b></div>
+        <div class="sb-stat"><span>Quiz hoàn thành</span><b id="sbQuizzes">0</b></div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main" id="mainContent">
+      <!-- HERO -->
+      <div class="hero-section">
+        <h1 class="hero-title">Creative Quiz</h1>
+        <p class="hero-sub">Ôn tập Khoa học Tự nhiên — chọn chủ đề bạn muốn học ngay</p>
+      </div>
+
+      <!-- CLASS DASHBOARD (khi đã vào lớp) -->
+      <div id="classDashboard">
+        <div class="class-hero" id="classHeroCard">
+          <div class="class-hero-icon">🏫</div>
+          <div class="class-hero-info">
+            <div class="class-hero-name" id="chName">—</div>
+            <div class="class-hero-meta" id="chMeta">—</div>
+          </div>
+          <div class="class-hero-actions">
+            <button class="ch-btn ch-btn-primary" onclick="sdLoadAssignments()">🔄 Làm mới bài tập</button>
+            <button class="ch-btn ch-btn-outline" onclick="leaveClass()">Rời lớp</button>
+          </div>
+        </div>
+
+        <div class="section-title">
+          📋 Bài tập của bạn
+          <span class="badge" id="assignBadge">0 bài</span>
+        </div>
+        <div class="assign-grid" id="assignGrid">
+          <div style="color:var(--text3);font-size:13px;padding:20px;font-family:var(--mono);">Đang tải bài tập...</div>
+        </div>
+      </div>
+
+      <!-- NORMAL MODE -->
+      <div id="normalMode">
+        <div class="search-row">
+          <div class="search-box" id="searchBox">
+            <span>🔎</span>
+            <input id="searchInput" class="search-input" type="text" placeholder="Tìm môn học: Vật lý, Hóa học, Sinh học..." autocomplete="off"/>
+            <button class="btn-go" id="goBtn">Bắt đầu</button>
+          </div>
+          <div class="results-grid" id="subjectGrid">
+            <div class="result-card" data-key="vatly" onclick="selectSubject(this)">
+              <div class="result-title">🔭 Vật Lý</div>
+              <div class="result-desc">Cơ học, điện — cơ bản đến nâng cao cho lớp 9</div>
+              <div class="result-meta">Số quiz: 12 • TB: 8 phút</div>
+            </div>
+            <div class="result-card" data-key="hoahoc" onclick="selectSubject(this)">
+              <div class="result-title">⚗️ Hóa Học</div>
+              <div class="result-desc">Nguyên tử — phản ứng, phương trình & bài tập</div>
+              <div class="result-meta">Số quiz: 10 • TB: 10 phút</div>
+            </div>
+            <div class="result-card" data-key="sinhhoc" onclick="selectSubject(this)">
+              <div class="result-title">🧬 Sinh Học</div>
+              <div class="result-desc">Sinh vật & cơ chế — dễ hiểu, có hình minh họa</div>
+              <div class="result-meta">Số quiz: 8 • TB: 6 phút</div>
+            </div>
+            <div class="result-card" data-key="datkhi" onclick="selectSubject(this)">
+              <div class="result-title">🌍 Khoa học Trái Đất</div>
+              <div class="result-desc">Địa chất, khí tượng, môi trường — gần gũi thực tế</div>
+              <div class="result-meta">Số quiz: 6 • TB: 5 phút</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- FAB buttons -->
+  <div class="fab-group">
+    <button class="fab fab-create" title="Tạo bài kiểm tra" onclick="location.href='giaovien.html'">📝</button>
+    <button class="fab fab-class" title="Vào lớp học" onclick="openJoinModal()">🏫</button>
+    <button class="fab fab-chat" title="Hỏi AI" id="chatBtn">💬</button>
+  </div>
+  <div class="fab-left-group">
+    <button class="fab fab-shop" title="Shop" onclick="location.href='shop.html'">🛒</button>
+  </div>
+
+  <!-- CHATBOX -->
+  <div id="chatbox" class="chatbox">
+    <div class="chat-hdr">🤖 Trợ lý AI Học tập<button class="chat-close" onclick="closeChatbox()">✕</button></div>
+    <div class="chat-msgs" id="chatMsgs">
+      <div class="chat-msg ai">Chào bạn! Hỏi mình bất cứ điều gì về Vật lý, Hóa học, Sinh học hoặc Khoa học Trái Đất nhé! 🔭</div>
+    </div>
+    <div class="chat-inp-row">
+      <input class="chat-inp" id="chatInput" placeholder="Nhập câu hỏi..." maxlength="500" onkeypress="if(event.key==='Enter')sendChat()"/>
+      <button class="chat-send" id="chatSend" onclick="sendChat()">→</button>
+    </div>
+  </div>
+
+  <!-- JOIN CLASS MODAL -->
+  <div class="overlay" id="joinOverlay" onclick="if(event.target===this)closeJoin()">
+    <div class="modal">
+      <div class="modal-title">🏫 Vào lớp học <button class="modal-close" onclick="closeJoin()">✕</button></div>
+      <div class="fg">
+        <label>Mã lớp từ giáo viên (6 ký tự)</label>
+        <input class="fc" id="joinCodeInput" placeholder="VD: A3B7C9" maxlength="6"
+          style="text-transform:uppercase;font-family:var(--mono);font-size:18px;letter-spacing:6px;text-align:center;"
+          oninput="this.value=this.value.toUpperCase()"
+          onkeydown="if(event.key==='Enter')doJoinClass()"/>
+      </div>
+      <p class="err-msg" id="joinErr"></p>
+      <button class="btn-modal btn-modal-primary" onclick="doJoinClass()" id="joinBtn">✅ Tham gia lớp</button>
+    </div>
+  </div>
+
+  <!-- QUIZ MODAL -->
+  <div class="overlay" id="quizOverlay">
+    <div class="quiz-modal">
+      <div class="quiz-header">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+          <button onclick="closeQuiz()" style="background:rgba(255,255,255,0.06);border:none;color:var(--text2);padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;">← Đóng</button>
+          <div class="quiz-assign-title" id="qTitle">—</div>
+        </div>
+        <div class="quiz-assign-meta" id="qMeta">—</div>
+        <div class="quiz-progress"><div class="quiz-prog-fill" id="qProgFill" style="width:0%"></div></div>
+      </div>
+      <div id="quizBody"></div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast">
+    <span class="toast-icon" id="toastIcon">✅</span>
+    <div><div class="toast-title" id="toastTitle">—</div><div class="toast-sub" id="toastSub">—</div></div>
+  </div>
+
+  <script>
+  // ══════════════════════════════════════════════════════
+  // STORAGE HELPERS
+  // ══════════════════════════════════════════════════════
+ // Thay 2 hàm này:
+async function sdGet(key, shared=false){
+    try{
+        const data = localStorage.getItem(key);
+        return data ? JSON.parse(data) : null;
+    }catch(e){ return null; }
+}
+
+async function sdSet(key, val, shared=false){
+    try{
+        localStorage.setItem(key, JSON.stringify(val));
+    }catch(e){}
+}
+  // ══════════════════════════════════════════════════════
+  // USER
+  // ══════════════════════════════════════════════════════
+  function getCurrentUser(){
+    try{
+      const q9a = localStorage.getItem('q9a-current');
+      if(q9a){ const u=JSON.parse(q9a); if(u&&u.username){ localStorage.setItem('currentUser',u.username); return u.username; } }
+    }catch(e){}
+    return localStorage.getItem('currentUser');
+  }
+  function getUserStats(user){
+    if(!user) return null;
+    let s = null;
+    try{ s = JSON.parse(localStorage.getItem('playerStats_'+user)); }catch(e){}
+    if(!s) s = {totalCorrect:0,totalWrong:0,totalQuizzes:0,quizStreak:0,totalPoints:0,playTime:0,firstPlayDate:Date.now()};
+    s.totalPoints=Number(s.totalPoints)||0;
+    s.playTime=Number(s.playTime)||0;
+    return s;
+  }
+  function saveStats(user, s){ localStorage.setItem('playerStats_'+user, JSON.stringify(s)); }
+
+  function doLogout(){
+    if(!confirm('Bạn có chắc muốn đăng xuất?')) return;
+    localStorage.removeItem('q9a-current');
+    localStorage.removeItem('currentUser');
+    showToast('👋','Đã đăng xuất!','Hẹn gặp lại bạn');
+    setTimeout(()=>location.href='login.html', 1200);
+  }
+
+  // ══════════════════════════════════════════════════════
+  // SIDEBAR / UI UPDATE
+  // ══════════════════════════════════════════════════════
+  function updateUI(){
+    const user = getCurrentUser();
+    document.getElementById('loginBtn').style.display = user ? 'none' : '';
+    document.getElementById('logoutBtn').style.display = user ? '' : 'none';
+    document.getElementById('sbProfile').style.display = user ? '' : 'none';
+
+    if(user){
+      const s = getUserStats(user);
+      const init = user.split(' ').slice(-2).map(w=>w[0]).join('').toUpperCase()||user[0].toUpperCase();
+      document.getElementById('sbAvatar').textContent = init;
+      document.getElementById('sbName').textContent = user;
+      const level = Math.floor(s.totalPoints/100)+1;
+      document.getElementById('sbLevel').textContent = `Cấp ${level} ⭐`;
+      const xp = s.totalPoints%100;
+      document.getElementById('sbXpFill').style.width = xp+'%';
+      document.getElementById('sbXpTxt').textContent = `${xp} / 100 XP`;
+      document.getElementById('sbTotalPts').textContent = s.totalPoints;
+      document.getElementById('sbPlayTime').textContent = ((s.playTime||0)/3600).toFixed(1)+'h';
+      document.getElementById('sbQuizzes').textContent = s.totalQuizzes||0;
+    }
+
+    // Check class
+    const classCode = localStorage.getItem('sd-myClass');
+    if(classCode){
+      const classInfo = JSON.parse(localStorage.getItem('sd-classInfo-'+classCode)||'{}');
+      document.getElementById('sbClassBadge').classList.add('show');
+      document.getElementById('sbClassName').textContent = classInfo.name||classCode;
+      document.getElementById('sbClassTeacher').textContent = 'GV: '+(classInfo.teacher||'—')+' • '+(classInfo.subject||'');
+      document.getElementById('sbClassCode').textContent = 'Mã: '+classCode;
+      document.getElementById('navClass').style.display = 'flex';
+      document.getElementById('classDashboard').classList.add('show');
+      document.getElementById('chName').textContent = classInfo.name||classCode;
+      document.getElementById('chMeta').textContent = 'GV: '+(classInfo.teacher||'—')+' • Mã lớp: '+classCode;
+    } else {
+      document.getElementById('sbClassBadge').classList.remove('show');
+      document.getElementById('navClass').style.display = 'none';
+      document.getElementById('classDashboard').classList.remove('show');
+    }
+  }
+
+  // ══════════════════════════════════════════════════════
+  // JOIN CLASS
+  // ══════════════════════════════════════════════════════
+  function openJoinModal(){
+    const classCode = localStorage.getItem('sd-myClass');
+    if(classCode){ showToast('🏫','Bạn đã trong lớp!','Xem bài tập bên dưới'); sdLoadAssignments(); return; }
+    document.getElementById('joinOverlay').classList.add('open');
+    document.getElementById('joinCodeInput').value='';
+    document.getElementById('joinErr').style.display='none';
+    setTimeout(()=>document.getElementById('joinCodeInput').focus(),200);
+  }
+  function closeJoin(){ document.getElementById('joinOverlay').classList.remove('open'); }
+
+  async function doJoinClass(){
+    const code = document.getElementById('joinCodeInput').value.trim().toUpperCase();
+    const errEl = document.getElementById('joinErr');
+    const btn = document.getElementById('joinBtn');
+    errEl.style.display='none';
+
+    if(code.length!==6){
+      errEl.textContent='❌ Mã lớp phải đúng 6 ký tự!';
+      errEl.style.display='block'; return;
+    }
+
+    const user = getCurrentUser();
+    if(!user){
+      errEl.textContent='❌ Bạn cần đăng nhập trước!';
+      errEl.style.display='block'; return;
+    }
+
+    btn.textContent='⏳ Đang kiểm tra...'; btn.disabled=true;
+
+    // Check class exists
+    const classInfo = await sdGet('class-'+code, true);
+    if(!classInfo){
+      errEl.innerHTML=`❌ Không tìm thấy lớp <b>${code}</b>. Kiểm tra lại mã!`;
+      errEl.style.display='block';
+      btn.textContent='✅ Tham gia lớp'; btn.disabled=false; return;
+    }
+
+    const username = '@'+user.replace(/\s+/g,'').toLowerCase();
+
+    // Register student
+    let students = await sdGet('students-'+code, true)||[];
+    if(!students.some(s=>s.username===username)){
+      students.push({name:user, username, joinedAt:Date.now(), score:null});
+      await sdSet('students-'+code, students, true);
+    }
+
+    // Save locally
+    localStorage.setItem('sd-myClass', code);
+    localStorage.setItem('sd-myName', user);
+    localStorage.setItem('sd-myUsername', username);
+    localStorage.setItem('sd-classInfo-'+code, JSON.stringify(classInfo));
+
+    btn.textContent='✅ Tham gia lớp'; btn.disabled=false;
+    closeJoin();
+    showToast('🎉',`Đã vào lớp "${classInfo.name||code}"!`,'Bài tập đang tải...');
+    updateUI();
+    await sdLoadAssignments();
+  }
+
+  function leaveClass(){
+    if(!confirm('Bạn có chắc muốn rời lớp này không?')) return;
+    localStorage.removeItem('sd-myClass');
+    localStorage.removeItem('sd-myName');
+    localStorage.removeItem('sd-myUsername');
+    showToast('👋','Đã rời lớp!','Bạn có thể vào lại bất cứ lúc nào');
+    updateUI();
+  }
+
+  // ══════════════════════════════════════════════════════
+  // LOAD ASSIGNMENTS
+  // ══════════════════════════════════════════════════════
+  let _allAssignments = [];
+  let _mySubmits = [];
+
+  async function sdLoadAssignments(){
+    const code = localStorage.getItem('sd-myClass');
+    const myName = localStorage.getItem('sd-myName');
+    const username = localStorage.getItem('sd-myUsername')||'';
+    const grid = document.getElementById('assignGrid');
+    grid.innerHTML='<div style="color:var(--text3);font-size:13px;padding:20px;font-family:var(--mono);">⏳ Đang tải bài tập...</div>';
+
+    const allAssign = await sdGet('assignments-'+code, true)||[];
+    const allPersonal = await sdGet('assign-personal-'+code, true)||[];
+    const myPersonal = allPersonal.filter(a=>a.targetUsername===username||a.targetUsername==='all');
+    const usedIds = new Set(allAssign.map(a=>a.id));
+    const combined = [
+      ...allAssign.map(a=>({...a,isPersonal:false})),
+      ...myPersonal.filter(a=>!usedIds.has(a.id)).map(a=>({...a,isPersonal:true}))
+    ];
+    _allAssignments = combined;
+
+    const submits = await sdGet('submits-'+code, true)||[];
+    _mySubmits = submits.filter(s=>s.studentName===myName);
+
+    const pending = combined.filter(a=>!_mySubmits.find(s=>s.assignId===a.id));
+    document.getElementById('assignBadge').textContent = combined.length+' bài';
+    document.getElementById('navClassBadge').textContent = pending.length;
+    document.getElementById('navClassBadge').style.display = pending.length ? '' : 'none';
+
+    if(!combined.length){
+      grid.innerHTML='<div style="text-align:center;padding:40px;color:var(--text3);font-size:13px;font-family:var(--mono);">📭 Chưa có bài tập nào từ giáo viên.<br>Kiểm tra lại sau nhé!</div>';
+      return;
+    }
+
+    grid.innerHTML = [...combined].reverse().map(a=>{
+      const submitted = _mySubmits.find(s=>s.assignId===a.id);
+      const subjClass = {Toán:'subj-math','Vật Lý':'subj-phys','Hóa Học':'subj-chem','Sinh Học':'subj-bio'}[a.subject]||'subj-math';
+      const subjIcon = {Toán:'∫','Vật Lý':'⚡','Hóa Học':'⚗','Sinh Học':'🧬'}[a.subject]||'🔭';
+      let dueStr='', dueCls='due-ok';
+      if(a.due){
+        const diff = Math.ceil((new Date(a.due)-new Date())/86400000);
+        if(diff<0){dueStr='Quá hạn';dueCls='due-late';}
+        else if(diff===0){dueStr='Hôm nay';dueCls='due-soon';}
+        else{dueStr=`Còn ${diff} ngày`;dueCls='due-ok';}
+      }
+      return `
+        <div class="assign-card${submitted?' done':''}" onclick="openQuiz(${a.id})">
+          ${a.isPersonal?'<div style="font-size:9px;color:var(--purple);font-family:var(--mono);margin-bottom:6px;">🔒 Riêng cho bạn</div>':''}
+          <div class="assign-subj ${subjClass}">${subjIcon} ${a.subject||'KHTN'}</div>
+          <div class="assign-title">${a.title}</div>
+          <div class="assign-desc">${a.desc||'Không có mô tả.'}</div>
+          <div class="assign-meta">
+            ${a.due?`<span class="assign-due ${dueCls}">📅 ${dueStr}</span>`:''}
+            <span class="assign-status ${submitted?'status-done':'status-pending'}">${submitted?'✅ Đã nộp':'⏳ Chưa làm'}</span>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  // ══════════════════════════════════════════════════════
+  // QUIZ ENGINE
+  // ══════════════════════════════════════════════════════
+  let _quizAssign = null;
+  let _quizQuestions = [];
+  let _quizIdx = 0;
+  let _quizAnswers = [];
+  let _quizGenerating = false;
+
+  function openQuiz(assignId){
+    const a = _allAssignments.find(x=>x.id===assignId);
+    if(!a) return;
+    _quizAssign = a;
+    _quizIdx = 0;
+    _quizAnswers = [];
+    _quizQuestions = [];
+
+    document.getElementById('qTitle').textContent = a.title;
+    document.getElementById('qMeta').textContent = `${a.subject||'KHTN'} • ${a.desc?a.desc.slice(0,60)+'...':''}`;
+    document.getElementById('qProgFill').style.width = '0%';
+    document.getElementById('quizBody').innerHTML = `
+      <div style="text-align:center;padding:40px 20px;">
+        <div style="font-size:40px;margin-bottom:16px;">✦</div>
+        <div style="font-size:15px;font-weight:600;margin-bottom:8px;">AI đang soạn bài tập cho bạn...</div>
+        <div style="font-size:12px;color:var(--text3);font-family:var(--mono);">Dựa trên nội dung bài: "${a.title}"</div>
+      </div>`;
+    document.getElementById('quizOverlay').classList.add('open');
+
+    generateQuizQuestions(a);
+  }
+
+  async function generateQuizQuestions(a){
+    if(_quizGenerating) return;
+    _quizGenerating = true;
+    const prompt = `Bạn là giáo viên KHTN Việt Nam. Dựa trên bài tập sau, hãy tạo 5 câu hỏi trắc nghiệm (4 đáp án A B C D, có 1 đáp án đúng).
+
+BÀI TẬP:
+Tiêu đề: ${a.title}
+Môn học: ${a.subject||'Khoa học tự nhiên'}
+Nội dung: ${a.desc||'Không có mô tả cụ thể. Hãy tạo câu hỏi phù hợp với tiêu đề.'}
+
+Trả lời CHỈ bằng JSON hợp lệ, không có gì thêm:
+[
+  {
+    "q": "Câu hỏi?",
+    "opts": ["A. ...", "B. ...", "C. ...", "D. ..."],
+    "ans": 0,
+    "explain": "Giải thích ngắn gọn"
+  }
+]
+Trong đó "ans" là index của đáp án đúng (0=A, 1=B, 2=C, 3=D).`;
+
+    try{
+      const res = await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          model:'claude-sonnet-4-20250514',
+          max_tokens:1500,
+          messages:[{role:'user',content:prompt}]
+        })
+      });
+      const data = await res.json();
+      const text = (data.content||[]).map(c=>c.text||'').join('');
+      const clean = text.replace(/```json|```/g,'').trim();
+      const questions = JSON.parse(clean);
+      _quizQuestions = questions;
+      renderQuizQuestion();
+    }catch(e){
+      // Fallback: writing task
+      _quizQuestions = [{type:'write',q:`Hãy trả lời câu hỏi liên quan đến bài: "${a.title}"\n\nNội dung: ${a.desc||''}`,q2:'Viết câu trả lời của bạn:'}];
+      renderQuizQuestion();
+    }finally{
+      _quizGenerating = false;
+    }
+  }
+
+  function renderQuizQuestion(){
+    const q = _quizQuestions[_quizIdx];
+    if(!q) return;
+    const total = _quizQuestions.length;
+    const pct = (((_quizIdx))/total)*100;
+    document.getElementById('qProgFill').style.width = pct+'%';
+
+    if(q.type==='write'){
+      document.getElementById('quizBody').innerHTML = `
+        <div class="quiz-question">${q.q}</div>
+        <p style="font-size:12px;color:var(--text2);margin-bottom:10px;">${q.q2||''}</p>
+        <textarea class="quiz-textarea" id="writeAnswer" placeholder="Viết câu trả lời của bạn tại đây..."></textarea>
+        <div class="quiz-nav">
+          <button class="quiz-nav-btn qnb-primary" onclick="submitWriting()">📤 Nộp bài</button>
+          <span class="quiz-q-count">Tự luận</span>
+        </div>`;
+      return;
+    }
+
+    const answered = _quizAnswers[_quizIdx];
+    const letters = ['A','B','C','D'];
+    document.getElementById('quizBody').innerHTML = `
+      <div class="quiz-question">Câu ${_quizIdx+1}/${total}: ${q.q}</div>
+      <div class="quiz-options">
+        ${q.opts.map((opt,i)=>{
+          let cls = '';
+          if(answered!==undefined){
+            if(i===q.ans) cls='correct';
+            else if(i===answered) cls='wrong';
+            cls += ' disabled';
+          }
+          return `<div class="quiz-option${cls?' '+cls:''}" onclick="selectAnswer(${i})" id="opt${i}">
+            <div class="opt-letter">${letters[i]}</div>
+            <span>${opt}</span>
+          </div>`;
+        }).join('')}
+      </div>
+      ${answered!==undefined?`<div style="margin-top:16px;background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.15);border-radius:10px;padding:12px;font-size:12px;color:var(--text2);line-height:1.6;">
+        💡 <b>Giải thích:</b> ${q.explain||''}
+      </div>`:''}
+      <div class="quiz-nav">
+        ${_quizIdx>0?`<button class="quiz-nav-btn qnb-outline" onclick="prevQuestion()">← Trước</button>`:''}
+        ${answered!==undefined?`<button class="quiz-nav-btn qnb-primary" onclick="nextQuestion()">${_quizIdx===total-1?'🏁 Xem kết quả':'Câu tiếp →'}</button>`:''}
+        <span class="quiz-q-count">${_quizIdx+1} / ${total}</span>
+      </div>`;
+  }
+
+  function selectAnswer(idx){
+    if(_quizAnswers[_quizIdx]!==undefined) return;
+    _quizAnswers[_quizIdx] = idx;
+    renderQuizQuestion();
+  }
+  function prevQuestion(){ if(_quizIdx>0){_quizIdx--;renderQuizQuestion();} }
+  function nextQuestion(){
+    if(_quizIdx<_quizQuestions.length-1){ _quizIdx++; renderQuizQuestion(); }
+    else { showQuizResult(); }
+  }
+
+  async function submitWriting(){
+    const text = (document.getElementById('writeAnswer')||{}).value||'';
+    if(!text.trim()){ showToast('⚠️','Bạn chưa viết gì!','Hãy nhập câu trả lời'); return; }
+    await doSubmitAssignment(_quizAssign, text);
+    showQuizResult(true);
+  }
+
+  async function showQuizResult(isWriting=false){
+    const total = _quizQuestions.length;
+    let correct = 0;
+    if(!isWriting){
+      _quizAnswers.forEach((ans,i)=>{ if(_quizQuestions[i]&&ans===_quizQuestions[i].ans) correct++; });
+    }
+    const pct = isWriting ? 100 : Math.round(correct/total*100);
+    document.getElementById('qProgFill').style.width = '100%';
+
+    let emoji='🎯', msg='', sub='';
+    if(isWriting){emoji='📝';msg='Đã nộp bài tự luận!';sub='Giáo viên sẽ xem xét và chấm điểm cho bạn.';}
+    else if(pct>=80){emoji='🏆';msg='Xuất sắc!';sub=`Bạn đã trả lời đúng ${correct}/${total} câu hỏi.`;}
+    else if(pct>=60){emoji='👍';msg='Khá tốt!';sub=`Đúng ${correct}/${total} câu. Cố gắng thêm nhé!`;}
+    else{emoji='💪';msg='Cố gắng hơn nhé!';sub=`Đúng ${correct}/${total} câu. Ôn lại bài và thử lại!`;}
+
+    document.getElementById('quizBody').innerHTML = `
+      <div class="quiz-result">
+        <div style="font-size:52px;">${emoji}</div>
+        ${!isWriting?`<div class="result-score">${pct}%</div>`:''}
+        <div class="result-msg">${msg}</div>
+        <div class="result-sub">${sub}</div>
+        <div style="margin-top:24px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+          <button class="quiz-nav-btn qnb-primary" onclick="closeQuiz()">✅ Đóng</button>
+          ${!isWriting?`<button class="quiz-nav-btn qnb-outline" onclick="retryQuiz()">🔄 Làm lại</button>`:''}
+        </div>
+      </div>`;
+
+    // Submit & add XP
+    if(!isWriting) await doSubmitAssignment(_quizAssign, `Quiz: ${correct}/${total} đúng (${pct}%)`);
+    const xpGain = isWriting ? 30 : Math.round(pct/10)*10;
+    addXP(xpGain);
+    showToast(emoji, msg, `+${xpGain} XP!`);
+  }
+
+  function retryQuiz(){ if(_quizAssign){ _quizIdx=0;_quizAnswers=[];renderQuizQuestion(); } }
+
+  function closeQuiz(){
+    document.getElementById('quizOverlay').classList.remove('open');
+    _quizAssign=null;_quizQuestions=[];_quizIdx=0;_quizAnswers=[];
+  }
+
+  async function doSubmitAssignment(a, note=''){
+    const code = localStorage.getItem('sd-myClass');
+    const myName = localStorage.getItem('sd-myName');
+    if(!code||!myName||!a) return;
+    const existing = await sdGet('submits-'+code, true)||[];
+    if(existing.find(s=>s.assignId===a.id&&s.studentName===myName)) return;
+    existing.push({assignId:a.id,assignTitle:a.title,studentName:myName,note,submittedAt:Date.now()});
+    await sdSet('submits-'+code, existing, true);
+    // Reload list
+    sdLoadAssignments();
+  }
+
+  function addXP(pts){
+    const user = getCurrentUser();
+    if(!user) return;
+    const s = getUserStats(user);
+    s.totalPoints += pts;
+    s.totalQuizzes = (s.totalQuizzes||0)+1;
+    saveStats(user, s);
+    updateUI();
+  }
+
+  // ══════════════════════════════════════════════════════
+  // SEARCH
+  // ══════════════════════════════════════════════════════
+  const searchInput = document.getElementById('searchInput');
+  searchInput.addEventListener('input',()=>{
+    const k = searchInput.value.toLowerCase().trim();
+    document.querySelectorAll('.result-card').forEach(c=>{
+      const t = c.querySelector('.result-title').textContent.toLowerCase();
+      c.style.display = !k||t.includes(k) ? '': 'none';
+    });
+  });
+  document.getElementById('goBtn').addEventListener('click',()=>{
+    const visible = [...document.querySelectorAll('.result-card')].filter(c=>c.style.display!=='none');
+    if(visible.length===1) selectSubject(visible[0]);
+    else if(visible.length===0) showToast('⚠️','Không tìm thấy!','Hãy chọn môn học từ danh sách');
+  });
+  function selectSubject(card){
+    const key = card.getAttribute('data-key');
+    location.href = 'choice.html?subject='+key;
+  }
+
+  // ══════════════════════════════════════════════════════
+  // CHATBOX
+  // ══════════════════════════════════════════════════════
+  document.getElementById('chatBtn').addEventListener('click',()=>{
+    document.getElementById('chatbox').classList.toggle('show');
+  });
+  function closeChatbox(){ document.getElementById('chatbox').classList.remove('show'); }
+
+  function addChatMsg(text, isUser=false){
+    const m = document.createElement('div');
+    m.className='chat-msg '+(isUser?'user':'ai');
+    m.innerHTML = text;
+    document.getElementById('chatMsgs').appendChild(m);
+    document.getElementById('chatMsgs').scrollTop=99999;
+  }
+
+  async function sendChat(){
+    const inp = document.getElementById('chatInput');
+    const text = inp.value.trim();
+    if(!text) return;
+    addChatMsg(text,true);
+    inp.value='';
+    const snd = document.getElementById('chatSend');
+    snd.disabled=true; snd.textContent='⏳';
+    addChatMsg('AI đang trả lời...',false);
+
+    try{
+      const res = await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          model:'claude-sonnet-4-20250514',max_tokens:600,
+          system:'Bạn là trợ lý học tập KHTN thân thiện cho học sinh Việt Nam. Trả lời ngắn gọn, dễ hiểu.',
+          messages:[{role:'user',content:text}]
+        })
+      });
+      const data = await res.json();
+      const answer = (data.content||[]).map(c=>c.text||'').join('')||'Xin lỗi, mình chưa trả lời được. Thử lại nhé!';
+      document.getElementById('chatMsgs').lastElementChild.innerHTML = answer;
+    }catch(e){
+      document.getElementById('chatMsgs').lastElementChild.innerHTML='❌ Lỗi kết nối. Thử lại sau.';
+    }finally{ snd.disabled=false; snd.textContent='→'; }
+  }
+
+  // ══════════════════════════════════════════════════════
+  // TOAST
+  // ══════════════════════════════════════════════════════
+  let _toastTimer;
+  function showToast(icon,title,sub){
+    clearTimeout(_toastTimer);
+    document.getElementById('toastIcon').textContent=icon;
+    document.getElementById('toastTitle').textContent=title;
+    document.getElementById('toastSub').textContent=sub;
+    document.getElementById('toast').classList.add('show');
+    _toastTimer=setTimeout(()=>document.getElementById('toast').classList.remove('show'),3500);
+  }
+
+  // ══════════════════════════════════════════════════════
+  // SECTION SWITCH
+  // ══════════════════════════════════════════════════════
+  function showSection(sec){
+    document.querySelectorAll('.sb-nav-item').forEach(el=>el.classList.remove('active'));
+    if(sec==='class'){
+      document.getElementById('classDashboard').classList.add('show');
+      document.getElementById('navClass').classList.add('active');
+      sdLoadAssignments();
+    } else {
+      document.getElementById('classDashboard').classList.remove('show');
+      document.querySelector('.sb-nav-item').classList.add('active');
+    }
+  }
+
+  // ══════════════════════════════════════════════════════
+  // PARTICLE BG
+  // ══════════════════════════════════════════════════════
+  const canvas=document.getElementById('bgCanvas');
+  const ctx=canvas.getContext('2d');
+  let W=canvas.width=window.innerWidth,H=canvas.height=window.innerHeight;
+  window.addEventListener('resize',()=>{W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;});
+  const mouse={x:W/2,y:H/2};
+  document.addEventListener('mousemove',e=>{
+    mouse.x=e.clientX;mouse.y=e.clientY;
+    document.documentElement.style.setProperty('--mx',e.clientX+'px');
+    document.documentElement.style.setProperty('--my',e.clientY+'px');
+    document.getElementById('neonCursor').style.left=e.clientX+'px';
+    document.getElementById('neonCursor').style.top=e.clientY+'px';
+  });
+  class Particle{constructor(){this.reset();}reset(){this.x=Math.random()*W;this.y=Math.random()*H;this.s=Math.random()*2+0.5;this.vx=Math.random()-0.5;this.vy=Math.random()-0.5;}
+  update(){this.x+=this.vx;this.y+=this.vy;const dx=mouse.x-this.x,dy=mouse.y-this.y,d=Math.hypot(dx,dy);if(d<160&&d>0){const f=(160-d)/160;this.vx+=(dx/d)*f*1.5;this.vy+=(dy/d)*f*1.5;}this.vx*=0.97;this.vy*=0.97;if(this.x<0||this.x>W)this.vx*=-1;if(this.y<0||this.y>H)this.vy*=-1;}
+  draw(){ctx.fillStyle='rgba(103,232,249,0.85)';ctx.beginPath();ctx.arc(this.x,this.y,this.s,0,Math.PI*2);ctx.fill();}}
+  const particles=Array.from({length:120},()=>new Particle());
+  function animate(){ctx.fillStyle='rgba(11,11,31,0.15)';ctx.fillRect(0,0,W,H);particles.forEach(p=>{p.update();p.draw();});requestAnimationFrame(animate);}
+  animate();
+
+  // ══════════════════════════════════════════════════════
+  // AUTO JOIN FROM URL
+  // ══════════════════════════════════════════════════════
+  (function(){
+    const code = new URLSearchParams(location.search).get('join');
+    if(code){
+      setTimeout(()=>{
+        document.getElementById('joinCodeInput').value=code.toUpperCase();
+        openJoinModal();
+      },600);
+    }
+  })();
+
+  // ══════════════════════════════════════════════════════
+  // INIT
+  // ══════════════════════════════════════════════════════
+  updateUI();
+  const classCode = localStorage.getItem('sd-myClass');
+  if(classCode) sdLoadAssignments();
+  </script>
+</body>
+</html>

@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>Bài Tập Soạn | Hệ thống chương trình học</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+/* ========== NỀN CHUYỂN ĐỘNG + PARTICLES ========== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  min-height: 100vh;
+  background: radial-gradient(circle at 10% 20%, #1e3c72, #0a1a2f);
+  font-family: 'Segoe UI', 'Poppins', system-ui, sans-serif;
+  position: relative;
+  overflow-x: hidden;
+}
+.gradient-bg {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: linear-gradient(-45deg, #2563eb, #7c3aed, #06b6d4, #3b82f6);
+  background-size: 400% 400%;
+  animation: gradientFlow 15s ease infinite;
+  z-index: -2;
+}
+@keyframes gradientFlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+#particleCanvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0.45;
+}
+/* ========== CONTAINER CHÍNH ========== */
+.glass-container {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(16px);
+  border-radius: 2.5rem;
+  box-shadow: 0 25px 45px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.25);
+  transition: all 0.3s;
+  margin: 2rem auto;
+  max-width: 1000px;
+}
+.glow-text {
+  text-shadow: 0 0 12px #60a5fa, 0 0 25px #3b82f6;
+  background: linear-gradient(135deg, #ffffff, #bfdbfe);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.search-bar {
+  background: rgba(255,255,255,0.15);
+  border-radius: 60px;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.3);
+  transition: 0.2s;
+  color: white;
+  width: 100%;
+  padding: 12px 20px;
+  font-size: 1rem;
+}
+.search-bar:focus {
+  background: rgba(255,255,255,0.25);
+  border-color: #ffffff;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(96,165,250,0.3);
+}
+/* ========== CARD NÚT CHƯƠNG ========== */
+.chapter-card {
+  position: relative;
+  background: linear-gradient(145deg, #1e2b47, #0f1a2f);
+  border-radius: 1.8rem;
+  padding: 1.2rem 1rem;
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: white;
+  cursor: pointer;
+  transition: all 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+  overflow: hidden;
+  border: 1px solid rgba(96, 165, 250, 0.3);
+  box-shadow: 0 12px 18px -8px rgba(0,0,0,0.4);
+  z-index: 1;
+}
+.chapter-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transition: left 0.6s;
+  z-index: 0;
+}
+.chapter-card:hover::before { left: 100%; }
+.chapter-card::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(135deg, #3b82f6, #a855f7, #06b6d4);
+  border-radius: 1.8rem;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+.chapter-card:hover::after { opacity: 1; }
+.chapter-card:hover {
+  transform: translateY(-12px) scale(1.02);
+  box-shadow: 0 28px 32px -12px black;
+  border-color: rgba(255,255,255,0.6);
+}
+.chapter-number {
+  display: inline-block;
+  background: rgba(255,215,0,0.2);
+  border-radius: 50px;
+  padding: 4px 12px;
+  font-size: 0.7rem;
+  margin-bottom: 8px;
+  backdrop-filter: blur(4px);
+}
+.chapter-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  background: linear-gradient(90deg, #f0f9ff, #bae6fd);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.chapter-card.completed {
+  background: linear-gradient(145deg, #0f3b2c, #064e3b);
+  border-color: #10b981;
+  box-shadow: 0 0 15px #10b98166;
+}
+.chapter-card.completed .chapter-title {
+  background: linear-gradient(90deg, #a7f3d0, #6ee7b7);
+  -webkit-background-clip: text;
+}
+/* ========== THỐNG KÊ ========== */
+.stats-panel {
+  background: rgba(0,0,0,0.4);
+  border-radius: 2rem;
+  padding: 12px 18px;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.2);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-top: 20px;
+}
+.stat-value {
+  font-size: 2rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #fde047, #facc15);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  line-height: 1;
+}
+.stat-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: #cbd5e1;
+}
+/* ========== MODAL & TOAST ========== */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(12px);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+}
+.modal-content {
+  background: rgba(20,30,55,0.95);
+  border-radius: 2rem;
+  padding: 2rem;
+  max-width: 400px;
+  text-align: center;
+  border: 2px solid gold;
+  animation: bounceModal 0.4s cubic-bezier(0.34,1.2,0.64,1);
+}
+@keyframes bounceModal {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.toast {
+  position: fixed;
+  bottom: 30px; left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.8);
+  backdrop-filter: blur(12px);
+  color: white;
+  padding: 10px 24px;
+  border-radius: 60px;
+  font-size: 0.9rem;
+  z-index: 1100;
+  opacity: 0;
+  transition: 0.3s;
+  pointer-events: none;
+  white-space: nowrap;
+  border: 1px solid #facc15;
+}
+.toast.show { opacity: 1; bottom: 50px; }
+.hidden { display: none; }
+</style>
+</head>
+<body>
+<div class="gradient-bg"></div>
+<canvas id="particleCanvas"></canvas>
+
+<div class="glass-container w-full px-6 py-10 md:px-10">
+  <h1 class="text-4xl md:text-5xl font-extrabold text-center glow-text mb-4">📘 BÀI TẬP SOẠN</h1>
+  <p class="text-center text-white/70 mb-8">Chọn chương để bắt đầu làm bài tập</p>
+
+  <!-- Thanh tìm kiếm -->
+  <div class="max-w-md mx-auto mb-10">
+    <input type="text" id="searchInput" class="search-bar" placeholder="🔍 Tìm kiếm chương (VD: Chương 1, cơ học...)" autocomplete="off">
+  </div>
+
+  <!-- Grid các chương -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6" id="chaptersGrid">
+    <!-- Dữ liệu sẽ được JavaScript tạo động -->
+  </div>
+
+  <!-- Bảng thống kê tiến độ -->
+  <div class="stats-panel">
+    <div class="stat-item"><div class="stat-value" id="completedCount">0</div><div class="stat-label">Chương đã học</div></div>
+    <div class="stat-item"><div class="stat-value" id="totalCount">8</div><div class="stat-label">Tổng chương</div></div>
+    <div class="stat-item"><div class="stat-value" id="progressPercent">0%</div><div class="stat-label">Hoàn thành</div></div>
+  </div>
+  <p class="text-center text-white/50 text-xs mt-6">✨ Click vào chương để vào bài tập • Đã mở chương nào sẽ được lưu lại ✨</p>
+</div>
+
+<!-- Modal hoàn thành -->
+<div id="completionModal" class="modal">
+  <div class="modal-content">
+    <div class="text-6xl mb-3">🏆</div>
+    <h2 class="text-2xl font-bold text-yellow-300 mb-2">Chúc mừng!</h2>
+    <p class="text-white mb-4">Bạn đã hoàn thành tất cả 8 chương bài tập!</p>
+    <button id="closeModalBtn" class="bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-2 px-6 rounded-full transition">Tiếp tục</button>
+  </div>
+</div>
+
+<div id="toastMsg" class="toast">📢 Thông báo</div>
+
+<script>
+  // Danh sách chương (có thể mở rộng mô tả)
+  const chapters = [
+    { id: 1, name: "Chương 1", title: "Cơ học căn bản", desc: "Chuyển động, lực, khối lượng", href: "soan1.html" },
+    { id: 2, name: "Chương 2", title: "Nhiệt học", desc: "Nhiệt năng, sự truyền nhiệt", href: "soan2.html" },
+    { id: 3, name: "Chương 3", title: "Điện học", desc: "Dòng điện, mạch điện", href: "soan3.html" },
+    { id: 4, name: "Chương 4", title: "Quang học", desc: "Ánh sáng, thấu kính", href: "soan4.html" },
+    { id: 5, name: "Chương 5", title: "Âm học", desc: "Sóng âm, tần số", href: "soan5.html" },
+    { id: 6, name: "Chương 6", title: "Từ học", desc: "Nam châm, từ trường", href: "soan6.html" },
+    { id: 7, name: "Chương 7", title: "Vật lý hiện đại", desc: "Thuyết tương đối, lượng tử", href: "soan7.html" },
+    { id: 8, name: "Chương 8", title: "Thiên văn", desc: "Hệ Mặt Trời, vũ trụ", href: "soan8.html" }
+  ];
+
+  // Lấy danh sách chương đã mở từ localStorage
+  let completedChapters = JSON.parse(localStorage.getItem("completedChapters")) || [];
+
+  // Cập nhật giao diện thống kê
+  function updateStats() {
+    const completedCount = completedChapters.length;
+    const total = chapters.length;
+    const percent = Math.round((completedCount / total) * 100);
+    document.getElementById("completedCount").innerText = completedCount;
+    document.getElementById("totalCount").innerText = total;
+    document.getElementById("progressPercent").innerText = percent + "%";
+    // Nếu hoàn thành 8/8 và modal chưa hiển thị trong phiên này (dùng session flag)
+    if (completedCount === total && !sessionStorage.getItem("congratsShown")) {
+      document.getElementById("completionModal").style.display = "flex";
+      sessionStorage.setItem("congratsShown", "true");
+    }
+  }
+
+  // Lưu trạng thái hoàn thành khi click vào chương
+  function markChapterCompleted(chapterId) {
+    if (!completedChapters.includes(chapterId)) {
+      completedChapters.push(chapterId);
+      localStorage.setItem("completedChapters", JSON.stringify(completedChapters));
+      updateStats();
+      showToast(`🎉 Hoàn thành ${chapters.find(c => c.id === chapterId).name}!`);
+      renderChapters(); // render lại để cập nhật giao diện nút
+    }
+  }
+
+  // Hiển thị toast nhỏ
+  function showToast(message, duration = 2000) {
+    const toast = document.getElementById("toastMsg");
+    toast.innerText = message;
+    toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), duration);
+  }
+
+  // Tạo các card chương (có lọc tìm kiếm)
+  function renderChapters() {
+    const grid = document.getElementById("chaptersGrid");
+    const keyword = document.getElementById("searchInput").value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    
+    const filtered = chapters.filter(ch => {
+      const searchStr = `${ch.name} ${ch.title} ${ch.desc}`.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      return searchStr.includes(keyword);
+    });
+
+    if (filtered.length === 0) {
+      grid.innerHTML = `<div class="col-span-full text-center text-white/70 py-10">🔍 Không tìm thấy chương phù hợp</div>`;
+      return;
+    }
+
+    grid.innerHTML = filtered.map(ch => {
+      const isCompleted = completedChapters.includes(ch.id);
+      return `
+        <div class="chapter-card ${isCompleted ? 'completed' : ''}" data-id="${ch.id}" data-href="${ch.href}">
+          <div class="chapter-number">${ch.name}</div>
+          <div class="chapter-title">${ch.title}</div>
+          <div class="text-xs text-white/50 mt-2">${ch.desc}</div>
+        </div>
+      `;
+    }).join("");
+
+    // Gắn sự kiện click cho từng card (dùng event delegation cũng được)
+    document.querySelectorAll(".chapter-card").forEach(card => {
+      card.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const id = parseInt(card.dataset.id);
+        const href = card.dataset.href;
+        // Đánh dấu đã mở (trừ khi đã có)
+        markChapterCompleted(id);
+        // Chuyển hướng sang file bài tập
+        if (href) window.location.href = href;
+        else showToast("⚠️ Chưa có nội dung bài tập cho chương này", 1500);
+      });
+    });
+  }
+
+  // Tìm kiếm realtime
+  document.getElementById("searchInput").addEventListener("input", () => renderChapters());
+
+  // Đóng modal
+  document.getElementById("closeModalBtn").addEventListener("click", () => {
+    document.getElementById("completionModal").style.display = "none";
+  });
+  // Click ra ngoài modal cũng đóng
+  window.onclick = (e) => {
+    const modal = document.getElementById("completionModal");
+    if (e.target === modal) modal.style.display = "none";
+  };
+
+  // Particle background (đơn giản, nhẹ)
+  const canvas = document.getElementById("particleCanvas");
+  const ctx = canvas.getContext("2d");
+  let width = window.innerWidth, height = window.innerHeight;
+  let particles = [];
+
+  function resizeCanvas() {
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
+  }
+  window.addEventListener("resize", resizeCanvas);
+  resizeCanvas();
+
+  class Particle {
+    constructor() {
+      this.x = Math.random() * width;
+      this.y = Math.random() * height;
+      this.size = Math.random() * 3 + 1;
+      this.speedX = (Math.random() - 0.5) * 0.8;
+      this.speedY = (Math.random() - 0.5) * 0.5;
+    }
+    update() {
+      this.x += this.speedX;
+      this.y += this.speedY;
+      if (this.x < 0) this.x = width;
+      if (this.x > width) this.x = 0;
+      if (this.y < 0) this.y = height;
+      if (this.y > height) this.y = 0;
+    }
+    draw() {
+      ctx.fillStyle = `rgba(255, 255, 255, ${Math.random() * 0.3 + 0.1})`;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  function initParticles(count = 100) {
+    for (let i = 0; i < count; i++) particles.push(new Particle());
+  }
+  function animateParticles() {
+    ctx.clearRect(0, 0, width, height);
+    particles.forEach(p => { p.update(); p.draw(); });
+    requestAnimationFrame(animateParticles);
+  }
+  initParticles(120);
+  animateParticles();
+
+  // Khởi chạy lần đầu
+  renderChapters();
+  updateStats();
+</script>
+</body>
+</html>

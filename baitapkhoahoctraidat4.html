@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Bài kiểm tra Trái Đất & Môi trường — 20 phút</title>
+  <style>
+    :root{--bg:#06121a;--card:#071827;--accent:#10b981;--muted:#94a3b8;--glass:rgba(255,255,255,0.03)}
+    *{box-sizing:border-box}
+    body{font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial; background:linear-gradient(180deg,#04121a 0%, #082430 100%); color:#eef6fb; padding:24px}
+    .wrap{max-width:900px;margin:0 auto}
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+    h1{font-size:20px;margin:0}
+    .meta{color:var(--muted);font-size:13px}
+    .card{background:var(--card);border-radius:12px;padding:18px;margin-bottom:14px;box-shadow:0 6px 18px rgba(2,6,23,0.6)}
+    .controls{display:flex;gap:8px;align-items:center}
+    button{background:var(--accent);border:none;color:#081019;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:700}
+    button.secondary{background:transparent;color:var(--accent);border:1px solid rgba(16,185,129,0.2)}
+    .timer{font-weight:700;font-size:18px}
+    form .question{margin-bottom:14px;padding:12px;border-radius:8px;background:var(--glass);border:1px solid rgba(255,255,255,0.03)}
+    .q-title{font-weight:700;margin-bottom:8px}
+    .options label{display:block;padding:8px;border-radius:6px;cursor:pointer}
+    input[type="radio"]{margin-right:8px}
+    textarea,input[type='text'],input[type='number']{width:100%;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:inherit}
+    .actions{display:flex;gap:8px;justify-content:flex-end}
+    .result{font-size:16px;font-weight:700}
+    .footnote{color:var(--muted);font-size:13px;margin-top:8px}
+    @media (max-width:600px){.controls{flex-direction:column;align-items:flex-start}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Bài kiểm tra: Trái Đất & Môi trường (20 phút)</h1>
+        <div class="meta">8 câu trắc nghiệm + 5 câu tự luận / Thời gian: <span class="timer" id="display-timer">20:00</span></div>
+      </div>
+      <div class="controls">
+        <button id="start-btn">Bắt đầu</button>
+        <button id="submit-btn" class="secondary" disabled>Nộp bài</button>
+        <button id="cancel-btn" class="secondary" disabled>Bỏ bài</button>
+      </div>
+    </header>
+
+    <section class="card">
+      <div style="margin-bottom:8px">Hướng dẫn: Nhấn "Bắt đầu" để bắt đầu đồng hồ 20 phút. Sau khi hết giờ, hệ thống sẽ tự nộp và chấm trắc nghiệm. Các câu tự luận có gợi ý đáp án để giáo viên/học sinh đối chiếu.</div>
+
+      <form id="quiz-form">
+        <div class="question" data-qtype="mc">
+          <div class="q-title">1. Biến đổi khí hậu chủ yếu do nguyên nhân nào?</div>
+          <div class="options">
+            <label><input type="radio" name="q1" value="A">A. Hoạt động địa chất tự nhiên</label>
+            <label><input type="radio" name="q1" value="B">B. Hoạt động của con người (phát thải khí nhà kính)</label>
+            <label><input type="radio" name="q1" value="C">C. Sự thay đổi quỹ đạo Trái Đất</label>
+            <label><input type="radio" name="q1" value="D">D. Thay đổi thủy triều</label>
+          </div>
+        </div>
+
+        <div class="question" data-qtype="mc">
+          <div class="q-title">2. Khí nào sau đây là khí nhà kính chủ yếu?</div>
+          <div class="options">
+            <label><input type="radio" name="q2" value="A">A. O₂</label>
+            <label><input type="radio" name="q2" value="B">B. CO₂</label>
+            <label><input type="radio" name="q2" value="C">C. N₂</label>
+            <label><input type="radio" name="q2" value="D">D. H₂</label>
+          </div>
+        </div>
+
+        <div class="question" data-qtype="mc">
+          <div class="q-title">3. Suy thoái đất nông canh có thể gây ra gì?</div>
+          <div class="options">
+            <label><input type="radio" name="q3" value="A">A. Tăng năng suất</label>
+            <label><input type="radio" name="q3" value="B">B. Xói mòn, giảm độ phì nhiêu</label>
+            <label><input type="radio" name="q3" value="C">C. Tăng đa dạng sinh học</label>
+            <label><input type="radio" name="q3" value="D">D. Không thay đổi gì</label>
+          </div>
+        </div>
+
+        <div class="question" data-qtype="mc">
+          <div class="q-title">4. Phương pháp nào giúp giảm phát thải CO₂?</div>
+          <div class="options">
+            <label><input type="radio" name="q4" value="A">A. Trồng rừng</label>
+            <label><input type="radio" name="q4" value="B">B. Đốt nhiều nhiên liệu hoá thạch hơn</label>
+            <label><input type="radio" name="q4" value="C">C. Phá rừng</label>
+            <label><input type="radio" name="q4" value="D">D. Tăng sử dụng than đá</label>
+          </div>
+        </div>
+
+        <div class="question" data-qtype="mc">
+          <div class="q-title">5. Ô nhiễm nguồn nước có thể dẫn tới?</div>
+          <div class="options">
+            <label><input type="radio" name="q5" value="A">A. Tăng chất lượng nước</label>
+            <label><input type="radio" name="q5" value="B">B. Mất đa dạng sinh học và bệnh tật</label>
+            <label><input type="radio" name="q5" value="C">C. Tăng lượng cá</label>
+            <label><input type="radio" name="q5" value="D">D. Không ảnh hưởng</label>
+          </div>
+        </div>
+
+        <div class="question" data-qtype="mc">
+          <div class="q-title">6. Hệ sinh thái nào thường bị ảnh hưởng nặng bởi axit hóa đại dương?</div>
+          <div class="options">
+            <label><input type="radio" name="q6" value="A">A. Rạn san hô</label>
+            <label><input type="radio" name="q6" value="B">B. Rừng nhiệt đới</label>
+            <label><input type="radio" name="q6" value="C">C. Sa mạc</label>
+            <label><input type="radio" name="q6" value="D">D. Đồng cỏ</label>
+          </div>
+        </div>
+
+        <div class="question" data-qtype="mc">
+          <div class="q-title">7. Quá trình nào góp phần tái tạo đất (tăng độ phì nhiêu)?</div>
+          <div class="options">
+            <label><input type="radio" name="q7" value="A">A. Tái trồng rừng và canh tác bền vững</label>
+            <label><input type="radio" name="q7" value="B">B. Phá rừng</label>
+            <label><input type="radio" name="q7" value="C">C. Sử dụng thuốc trừ sâu nhiều</label>
+            <label><input type="radio" name="q7" value="D">D. Xâm nhập mặn</label>
+          </div>
+        </div>
+
+        <div class="question" data-qtype="mc">
+          <div class="q-title">8. Tái chế rác thải giúp gì cho môi trường?</div>
+          <div class="options">
+            <label><input type="radio" name="q8" value="A">A. Giảm lượng rác đổ và tiết kiệm tài nguyên</label>
+            <label><input type="radio" name="q8" value="B">B. Tăng ô nhiễm</label>
+            <label><input type="radio" name="q8" value="C">C. Tăng phát thải CO₂</label>
+            <label><input type="radio" name="q8" value="D">D. Không có tác dụng</label>
+          </div>
+        </div>
+
+        <hr style="border:none;height:1px;background:rgba(255,255,255,0.03);margin:12px 0" />
+
+        <div class="question" data-qtype="sa">
+          <div class="q-title">9. (Ngắn) Nêu 1 biện pháp giảm biến đổi khí hậu ở mức cá nhân.</div>
+          <input type="text" name="q9" placeholder="Viết 1 câu" />
+        </div>
+
+        <div class="question" data-qtype="sa">
+          <div class="q-title">10. (Ngắn) Vai trò của rừng trong chu trình carbon (1–2 câu).</div>
+          <input type="text" name="q10" placeholder="Trả lời" />
+        </div>
+
+        <div class="question" data-qtype="sa">
+          <div class="q-title">11. (Tính) Nếu một ô tô thải 120 g CO₂/km, đi 50 km, tổng CO₂ là bao nhiêu (kg)?</div>
+          <input type="text" name="q11" placeholder="Nhập đáp án" />
+        </div>
+
+        <div class="question" data-qtype="sa">
+          <div class="q-title">12. (Ngắn) Nêu 2 nguyên nhân gây ô nhiễm không khí.</div>
+          <input type="text" name="q12" placeholder="Trả lời ngắn" />
+        </div>
+
+        <div class="question" data-qtype="sa">
+          <div class="q-title">13. (Ngắn) Vì sao đa dạng sinh học quan trọng cho hệ sinh thái?</div>
+          <input type="text" name="q13" placeholder="Trả lời" />
+        </div>
+
+      </form>
+
+      <div class="actions" style="margin-top:12px">
+        <button id="auto-check" class="secondary" disabled>Kiểm tra nhanh trắc nghiệm</button>
+      </div>
+      <div class="footnote">Ghi chú: Trắc nghiệm chấm tự động. Các bài tính so sánh với sai số ±0.5 nếu là số thập phân. Tự luận có gợi ý đáp án để đối chiếu.</div>
+    </section>
+
+    <section class="card" id="result-card" style="display:none">
+      <div id="result-summary"></div>
+      <div id="answers"></div>
+    </section>
+  </div>
+
+  <script>
+    const startBtn=document.getElementById('start-btn');
+    const submitBtn=document.getElementById('submit-btn');
+    const cancelBtn=document.getElementById('cancel-btn');
+    const autoCheckBtn=document.getElementById('auto-check');
+    const timerDisplay=document.getElementById('display-timer');
+    const form=document.getElementById('quiz-form');
+    const resultCard=document.getElementById('result-card');
+    const resultSummary=document.getElementById('result-summary');
+    const answersDiv=document.getElementById('answers');
+
+    const MC_ANSWERS={q1:'B',q2:'B',q3:'B',q4:'A',q5:'B',q6:'A',q7:'A',q8:'A'};
+    const SA_ANSWERS={
+      q9:'Sử dụng phương tiện công cộng, tiết kiệm điện, ăn ít thịt đỏ... (ví dụ cá nhân).',
+      q10:'Rừng hấp thụ CO₂, lưu giữ cacbon trong sinh khối và đất, giảm CO₂ khí quyển.',
+      q11: function(){ return 6; },
+      q12:'Đốt nhiên liệu hoá thạch, hoạt động công nghiệp và giao thông; nông nghiệp (metan).',
+      q13:'Đa dạng sinh học giúp hệ sinh thái ổn định, cung cấp dịch vụ sinh thái và khả năng phục hồi.'
+    };
+
+    let timerInterval=null; let timeLeft=20*60; let started=false;
+    const startTime = performance.now();  // Để tính thời gian chơi cho stats
+    function formatTime(s){const m=Math.floor(s/60),ss=s%60;return `${String(m).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;}
+    timerDisplay.textContent=formatTime(timeLeft);
+
+    // ===== HÀM LẤY/INIT STATS RIÊNG CHO USER =====
+    function getUserStats(user) {
+      const key = `playerStats_${user}`;
+      let stats = localStorage.getItem(key);
+      
+      if (!stats) {
+        const now = Date.now();
+        stats = {
+          totalCorrect: 0,
+          totalWrong: 0,
+          totalQuizzes: 0,
+          quizStreak: 0,
+          totalPoints: 0,
+          playTime: 0,
+          firstPlayDate: now,
+          currentStreakDate: now
+        };
+        localStorage.setItem(key, JSON.stringify(stats));
+      } else {
+        stats = JSON.parse(stats);
+      }
+      
+      return stats;
+    }
+
+    // ===== HÀM CẬP NHẬT STATS KHI HOÀN THÀNH QUIZ =====
+    function updateQuizStats(correctCount, wrongCount, quizTimeSeconds, pointsEarned) {
+      const currentUser = localStorage.getItem('currentUser') || 'guest';
+      const stats = getUserStats(currentUser);
+      
+      // Cập nhật cơ bản
+      stats.totalCorrect += correctCount;
+      stats.totalWrong += wrongCount;
+      stats.totalQuizzes += 1;
+      stats.totalPoints += pointsEarned;
+      stats.playTime += quizTimeSeconds;
+      
+      // Cập nhật streak (nếu hoàn thành, tăng streak; nếu không, reset nếu cần)
+      const now = Date.now();
+      if (stats.currentStreakDate && (now - stats.currentStreakDate) < (24 * 60 * 60 * 1000)) {  // Trong ngày
+        stats.quizStreak += 1;
+      } else {
+        stats.quizStreak = 1;  // Bắt đầu streak mới
+      }
+      stats.currentStreakDate = now;
+      
+      // Lưu lại stats riêng user
+      const statsKey = `playerStats_${currentUser}`;
+      localStorage.setItem(statsKey, JSON.stringify(stats));
+      
+      // Lưu điểm riêng cho môn nếu cần (ví dụ: cho Trái Đất & Môi trường)
+      const subject = new URLSearchParams(window.location.search).get('subject') || 'traidatmoiTruong';
+      localStorage.setItem(`diem_${subject}`, pointsEarned.toString());  // Để dùng ở trang chủ nếu cần
+      
+      alert(`Hoàn thành! Điểm: ${pointsEarned}. Stats đã cập nhật. Quay về trang chủ để xem.`);
+      window.location.href = 'skibdi.html';  // Redirect về trang chủ
+    }
+
+    // ===== NÚT BỎ QUIZ (RESET STREAK) =====
+    cancelBtn.addEventListener('click', () => {
+      if (confirm('Bạn có chắc muốn bỏ bài? Streak sẽ bị reset.')) {
+        const currentUser = localStorage.getItem('currentUser') || 'guest';
+        const stats = getUserStats(currentUser);
+        stats.quizStreak = 0;  // Reset streak nếu bỏ
+        const statsKey = `playerStats_${currentUser}`;
+        localStorage.setItem(statsKey, JSON.stringify(stats));
+        window.location.href = 'skibdi.html';
+      }
+    });
+
+    startBtn.addEventListener('click',()=>{
+      if(started)return; started=true;
+      startBtn.disabled=true; submitBtn.disabled=false; cancelBtn.disabled=false; autoCheckBtn.disabled=false;
+      timerInterval=setInterval(()=>{
+        timeLeft--; timerDisplay.textContent=formatTime(timeLeft);
+        if(timeLeft<=0){clearInterval(timerInterval);doSubmit(true);}
+      },1000);
+    });
+
+    submitBtn.addEventListener('click',()=>doSubmit(false));
+    autoCheckBtn.addEventListener('click',()=>gradeMCOnly());
+
+    function gradeMCOnly(){
+      const formData = new FormData(form);let correct=0; let total=0;
+      for(let i=1;i<=8;i++){const key='q'+i;total++; if(formData.get(key)===MC_ANSWERS[key]) correct++;}
+      alert(`Trắc nghiệm: ${correct}/${total} đúng`);
+    }
+
+    function doSubmit(timeout){
+      if(timerInterval)clearInterval(timerInterval);
+      submitBtn.disabled=true; cancelBtn.disabled=true; autoCheckBtn.disabled=true;
+      const formData = new FormData(form);
+      let mcCorrect=0;for(let i=1;i<=8;i++){const key='q'+i;const ans=formData.get(key);if(ans===MC_ANSWERS[key])mcCorrect++;}
+      const saResults=[];
+      let saCorrect = 0;
+      for(let k=9;k<=13;k++){
+        const key='q'+k; const user=(formData.get(key)||'').trim(); let expected=SA_ANSWERS[key]; let ok=false,note='';
+        if(typeof expected === 'function') expected = expected();
+        // numeric compare if expected is number
+        if(!isNaN(expected)){
+          const num = parseFloat(user.replace(/,/g, '.'));
+          if(!isNaN(num)){
+            const tol = 0.5; // tolerance
+            ok = Math.abs(num - expected) <= tol;
+            note = `Đáp chuẩn: ${expected}`;
+          } else {
+            ok = false; note = `Đáp chuẩn (số): ${expected}`;
+          }
+        } else {
+          // text compare: lowercase contains key words
+          const exp = String(expected).toLowerCase(); const u = user.toLowerCase();
+          if (key==='q9') {
+            ok = u.length>0 && (u.includes('tiết kiệm') || u.includes('công cộng') || u.includes('xe đạp') || u.includes('giảm') || u.includes('nhựa'));
+          } else if (key==='q10') {
+            ok = u.length>0 && u.includes('rừng') && (u.includes('co2') || u.includes('cacbon') || u.includes('hấp thụ'));
+          } else if (key==='q12') {
+            ok = u.length>0 && (u.includes('ô nhiễm') || u.includes('không khí')) && (u.includes('công nghiệp') || u.includes('xe cộ') || u.includes('đốt'));
+          } else if (key==='q13') {
+            ok = u.length>0 && u.includes('đa dạng') && (u.includes('sinh học') || u.includes('hệ sinh thái')) && (u.includes('ổn định') || u.includes('phục hồi'));
+          }
+          note = `Gợi ý đáp án: ${expected}`;
+          // if empty, mark false
+        }
+        if (ok) saCorrect++;
+        saResults.push({q:key,user:user||'(trống)',ok,note});
+      }
+
+      // TÍNH TỔNG ĐIỂM CHO STATS
+      const totalCorrect = mcCorrect + saCorrect;
+      const totalQuestions = 13;  // 8 MC + 5 SA
+      const wrongCount = totalQuestions - totalCorrect;
+      const quizTimeSeconds = Math.floor((performance.now() - startTime) / 1000);
+      const pointsEarned = totalCorrect * 10;  // 10 điểm/câu đúng (tổng max 130)
+
+      // Show result (trước khi cập nhật stats và redirect)
+      resultCard.style.display='block';
+      let totalMc = 8; let totalSa = 5;
+      resultSummary.innerHTML=`<div class="result">Kết quả trắc nghiệm: ${mcCorrect}/${totalMc} đúng</div><div style="margin-top:8px;color:var(--muted)">(Các câu tự luận hiển thị gợi ý đáp án bên dưới — giáo viên hoặc học sinh tự đối chiếu để chấm)</div>`;
+      let html='<h3>Chi tiết</h3><ol>';
+      for(let i=1;i<=8;i++){
+        const key='q'+i;const user=formData.get(key)||'(chưa chọn)';
+        const ok=user===MC_ANSWERS[key];
+        html+=`<li>Trắc nghiệm ${i}: Bạn chọn <b>${user}</b> — ${ok?'<span style="color:#57f287">Đúng</span>':'<span style="color:#ff8a8a">Sai</span>'} (Đáp án: <b>${MC_ANSWERS[key]}</b>)</li>`;
+      }
+      html+='</ol><h4>Các câu tự luận (gợi ý đáp án / chấm sơ bộ)</h4><ol>';
+      saResults.forEach(r=>{
+        html+=`<li>${r.q}: Bạn: <i>${escapeHtml(r.user)}</i> — ${r.ok?'<span style="color:#57f287">Được</span>':'<span style="color:#ff8a8a">Chưa được</span>'}<br/><small style="color:var(--muted)">${r.note}</small></li>`;
+      });
+      html+='</ol>';
+      answersDiv.innerHTML=html;
+      if(timeout)resultSummary.innerHTML+='<div style="color:#ffcc66;margin-top:8px">Hết giờ! Hệ thống đã nộp bài tự động.</div>';
+      resultCard.scrollIntoView({behavior:'smooth'});
+
+      // Cập nhật stats sau khi hiển thị kết quả
+      updateQuizStats(totalCorrect, wrongCount, quizTimeSeconds, pointsEarned);
+    }
+
+    function escapeHtml(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+    window.addEventListener('beforeunload',e=>{if(started&&!submitBtn.disabled){e.preventDefault();e.returnValue='';}});
+  </script>
+</body>
+</html>
