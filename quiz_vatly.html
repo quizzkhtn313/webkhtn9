@@ -107,6 +107,36 @@
         .filter-group select:focus { border-color: #3b82f6; }
         .filter-group select option { background: #1e2f3a; color: #e8f0f8; }
 
+        /* ---------- NÚT "ĐỒ THỊ ĐỘNG" ---------- */
+        .btn-chart {
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+            border: none;
+            border-radius: 40px;
+            padding: 12px 24px;
+            font-weight: 700;
+            color: #0f2027;
+            text-decoration: none;
+            font-size: 16px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 16px rgba(59, 130, 246, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+            white-space: nowrap;
+            cursor: pointer;
+            margin-left: auto; /* đẩy sang phải */
+        }
+        .btn-chart:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 28px rgba(59, 130, 246, 0.6);
+        }
+        .btn-chart:active {
+            transform: scale(0.95);
+        }
+        .btn-chart i {
+            font-size: 18px;
+        }
+
         /* ========== DASHBOARD ========== */
         .dashboard {
             display: grid;
@@ -614,6 +644,12 @@
             .header-controls { flex-direction: column; align-items: stretch; }
             .filter-group { flex-wrap: wrap; }
             .filter-group select { flex: 1; min-width: 100px; }
+            /* Nút chiếm toàn bộ chiều ngang, căn giữa */
+            .btn-chart {
+                margin-left: 0;
+                justify-content: center;
+                width: 100%;
+            }
             .dashboard {
                 grid-template-columns: 1fr 1fr;
                 padding: 16px;
@@ -667,6 +703,10 @@
                             <option value="easiest">Dễ nhất</option>
                         </select>
                     </div>
+                    <!-- NÚT "ĐỒ THỊ ĐỘNG" -->
+                    <a href="vlch.html" class="btn-chart">
+                        <i class="fas fa-chart-line"></i> Đồ thị động
+                    </a>
                 </div>
             </header>
 
