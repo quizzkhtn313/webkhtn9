@@ -107,6 +107,36 @@
         .filter-group select:focus { border-color: #10b981; }
         .filter-group select option { background: #1e2f2a; color: #e8f0f8; }
 
+        /* ---------- NÚT "MẠNG LƯỚI SINH HỌC" ---------- */
+        .btn-bio {
+            background: linear-gradient(135deg, #10b981, #34d399);
+            border: none;
+            border-radius: 40px;
+            padding: 12px 24px;
+            font-weight: 700;
+            color: #0f2027;
+            text-decoration: none;
+            font-size: 16px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+            white-space: nowrap;
+            cursor: pointer;
+            margin-left: auto; /* đẩy sang phải */
+        }
+        .btn-bio:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 28px rgba(16, 185, 129, 0.6);
+        }
+        .btn-bio:active {
+            transform: scale(0.95);
+        }
+        .btn-bio i {
+            font-size: 18px;
+        }
+
         /* ========== DASHBOARD ========== */
         .dashboard {
             display: grid;
@@ -614,6 +644,12 @@
             .header-controls { flex-direction: column; align-items: stretch; }
             .filter-group { flex-wrap: wrap; }
             .filter-group select { flex: 1; min-width: 100px; }
+            /* Nút chiếm toàn bộ chiều ngang, căn giữa */
+            .btn-bio {
+                margin-left: 0;
+                justify-content: center;
+                width: 100%;
+            }
             .dashboard {
                 grid-template-columns: 1fr 1fr;
                 padding: 16px;
@@ -667,6 +703,10 @@
                             <option value="easiest">Dễ nhất</option>
                         </select>
                     </div>
+                    <!-- NÚT "MẠNG LƯỚI SINH HỌC" -->
+                    <a href="sinhhoc.html" class="btn-bio">
+                        <i class="fas fa-dna"></i> Mạng lưới sinh học
+                    </a>
                 </div>
             </header>
 
