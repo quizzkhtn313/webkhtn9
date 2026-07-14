@@ -1,0 +1,1500 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Phòng Thí Nghiệm Hóa Học Ảo · Mô phỏng phản ứng thật</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-0: #070a12;
+      --bg-1: #0c1120;
+      --glass: rgba(255, 255, 255, 0.035);
+      --glass-strong: rgba(255, 255, 255, 0.06);
+      --border: rgba(255, 255, 255, 0.09);
+      --border-soft: rgba(255, 255, 255, 0.05);
+      --text-0: #eef1f6;
+      --text-1: #a7b0c0;
+      --text-2: #6b7385;
+      --teal: #2dd9b9;
+      --teal-dim: #1a8f79;
+      --amber: #f5b942;
+      --magenta: #ef6bb0;
+      --violet: #8b7cf6;
+      --danger: #ef5b5b;
+      --font-display: 'Space Grotesk', sans-serif;
+      --font-body: 'Inter', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --radius: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html,
+    body {
+      height: 100%;
+    }
+    body {
+      background:
+        radial-gradient(ellipse 900px 500px at 12% -10%, rgba(45, 217, 185, 0.10), transparent 60%),
+        radial-gradient(ellipse 700px 500px at 100% 10%, rgba(139, 124, 246, 0.09), transparent 55%),
+        var(--bg-0);
+      color: var(--text-0);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    .molecule-field {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.35;
+    }
+    .molecule-field svg {
+      position: absolute;
+    }
+    .m1 {
+      top: 6%;
+      left: 4%;
+      animation: drift 22s ease-in-out infinite;
+    }
+    .m2 {
+      top: 60%;
+      left: 88%;
+      animation: drift 26s ease-in-out infinite reverse;
+    }
+    .m3 {
+      top: 80%;
+      left: 8%;
+      animation: drift 30s ease-in-out infinite;
+    }
+    .m4 {
+      top: 15%;
+      left: 80%;
+      animation: drift 18s ease-in-out infinite reverse;
+    }
+    @keyframes drift {
+      0%,
+      100% {
+        transform: translate(0, 0) rotate(0deg);
+      }
+      50% {
+        transform: translate(18px, -24px) rotate(8deg);
+      }
+    }
+
+    .wrap {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 56px 24px 80px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      color: var(--teal);
+      text-transform: uppercase;
+      margin-bottom: 22px;
+    }
+    .eyebrow .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--teal);
+      box-shadow: 0 0 0 0 rgba(45, 217, 185, 0.6);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(45, 217, 185, 0.55);
+      }
+      70% {
+        box-shadow: 0 0 0 9px rgba(45, 217, 185, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(45, 217, 185, 0);
+      }
+    }
+    h1 {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: clamp(34px, 5.4vw, 58px);
+      line-height: 1.04;
+      letter-spacing: -0.02em;
+      margin-bottom: 18px;
+    }
+    h1 span {
+      background: linear-gradient(100deg, var(--teal), var(--violet) 70%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .lede {
+      color: var(--text-1);
+      font-size: 16.5px;
+      line-height: 1.65;
+      max-width: 640px;
+      margin-bottom: 34px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+    .tab {
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 15px;
+      padding: 13px 22px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--glass);
+      color: var(--text-1);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      transition: all .22s ease;
+    }
+    .tab:hover {
+      border-color: rgba(255, 255, 255, 0.18);
+      color: var(--text-0);
+    }
+    .tab.active {
+      background: linear-gradient(135deg, var(--teal), var(--teal-dim));
+      color: #052622;
+      border-color: transparent;
+      font-weight: 700;
+      box-shadow: 0 8px 24px -8px rgba(45, 217, 185, 0.5);
+    }
+
+    .panel {
+      display: none;
+    }
+    .panel.active {
+      display: block;
+      animation: fadeIn .35s ease;
+    }
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .stage {
+      background: var(--glass);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 34px;
+      backdrop-filter: blur(18px);
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 36px;
+    }
+    @media (max-width: 880px) {
+      .stage {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .beaker-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+    .beaker-shell {
+      position: relative;
+      width: 220px;
+      height: 280px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .beaker-glow {
+      position: absolute;
+      inset: -30px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--glow-color, rgba(45, 217, 185, 0.18)), transparent 68%);
+      transition: background 0.6s ease;
+      filter: blur(6px);
+      z-index: 0;
+    }
+    svg.beaker {
+      position: relative;
+      z-index: 1;
+      filter: drop-shadow(0 18px 30px rgba(0, 0, 0, 0.45));
+    }
+    .liquid-fill {
+      transition: fill 0.6s ease, y 0.6s ease, height 0.6s ease;
+    }
+    .bubble {
+      fill: rgba(255, 255, 255, 0.75);
+      animation: rise 1.8s ease-in infinite;
+      opacity: 0;
+    }
+    @keyframes rise {
+      0% {
+        transform: translateY(0);
+        opacity: 0;
+      }
+      12% {
+        opacity: 0.9;
+      }
+      90% {
+        opacity: 0.15;
+      }
+      100% {
+        transform: translateY(-95px);
+        opacity: 0;
+      }
+    }
+    .smoke-particle {
+      fill: rgba(200, 200, 210, 0.7);
+      animation: smokeRise 2.2s ease-out forwards;
+      opacity: 0;
+    }
+    @keyframes smokeRise {
+      0% {
+        transform: translateY(0) scale(1);
+        opacity: 0.8;
+      }
+      100% {
+        transform: translateY(-55px) scale(2.5);
+        opacity: 0;
+      }
+    }
+    .precip-particle {
+      fill: var(--precip-color, #fff);
+      opacity: 0;
+      animation: settle 1.4s ease-in forwards;
+    }
+    @keyframes settle {
+      0% {
+        transform: translateY(-40px);
+        opacity: 0.9;
+      }
+      100% {
+        transform: translateY(0px);
+        opacity: 0.95;
+      }
+    }
+    .precip-bed {
+      transition: height 0.6s ease, fill 0.6s ease;
+    }
+
+    .beaker-caption {
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      color: var(--text-2);
+      letter-spacing: 0.03em;
+      text-align: center;
+    }
+
+    .step-label {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--violet);
+      margin-bottom: 12px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .step-label::before {
+      content: '';
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--violet);
+    }
+    .block {
+      margin-bottom: 28px;
+    }
+
+    .chip-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+    }
+    .chip {
+      font-family: var(--font-body);
+      font-size: 13.5px;
+      font-weight: 600;
+      padding: 10px 15px;
+      border-radius: 11px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.02);
+      color: var(--text-1);
+      cursor: pointer;
+      transition: all .18s ease;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .chip .swatch {
+      width: 9px;
+      height: 9px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+    .chip:hover {
+      border-color: rgba(255, 255, 255, 0.22);
+      color: var(--text-0);
+      transform: translateY(-1px);
+    }
+    .chip.selected {
+      background: rgba(45, 217, 185, 0.14);
+      border-color: var(--teal);
+      color: #bdf5e8;
+    }
+    .chip.selected-b {
+      background: rgba(139, 124, 246, 0.14);
+      border-color: var(--violet);
+      color: #d8d3fb;
+    }
+    .chip.warning-chip {
+      position: relative;
+    }
+    .chip.warning-chip::after {
+      content: '⚠️';
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      font-size: 10px;
+      filter: drop-shadow(0 0 3px rgba(255, 180, 0, 0.7));
+      opacity: 0.85;
+      pointer-events: none;
+    }
+
+    .slider-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .slider-row .val {
+      font-family: var(--font-mono);
+      color: var(--teal);
+      font-weight: 600;
+      font-size: 14px;
+    }
+    input[type=range] {
+      width: 100%;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 5px;
+      border-radius: 4px;
+      background: linear-gradient(90deg, var(--danger), var(--amber) 45%, var(--teal) 65%, var(--violet));
+      outline: none;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 19px;
+      height: 19px;
+      border-radius: 50%;
+      background: #fff;
+      border: 4px solid var(--magenta);
+      cursor: pointer;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+    }
+    input[type=range]::-moz-range-thumb {
+      width: 19px;
+      height: 19px;
+      border-radius: 50%;
+      background: #fff;
+      border: 4px solid var(--magenta);
+      cursor: pointer;
+    }
+
+    .readout {
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid var(--border-soft);
+      border-radius: 14px;
+      padding: 18px 20px;
+      margin-top: 6px;
+    }
+    .readout-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 8px 0;
+      font-size: 13.5px;
+      border-bottom: 1px solid var(--border-soft);
+    }
+    .readout-row:last-child {
+      border-bottom: none;
+    }
+    .readout-row .k {
+      color: var(--text-2);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      letter-spacing: .02em;
+      padding-top: 2px;
+    }
+    .readout-row .v {
+      color: var(--text-0);
+      font-weight: 600;
+      text-align: right;
+      max-width: 64%;
+    }
+    .readout-row .v.eq {
+      font-family: var(--font-mono);
+      font-weight: 500;
+      color: var(--teal);
+    }
+    .tag {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 6px;
+      margin-left: 6px;
+      font-weight: 600;
+    }
+    .tag.gas {
+      background: rgba(245, 185, 66, 0.15);
+      color: var(--amber);
+    }
+    .tag.precip {
+      background: rgba(239, 107, 176, 0.15);
+      color: var(--magenta);
+    }
+    .tag.none {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-2);
+    }
+    .tag.exo {
+      background: rgba(255, 120, 80, 0.18);
+      color: #ff9a76;
+    }
+    .tag.endo {
+      background: rgba(100, 180, 255, 0.18);
+      color: #8fc8ff;
+    }
+    .tag.warning {
+      background: rgba(255, 180, 0, 0.2);
+      color: #ffb347;
+    }
+
+    .hint {
+      display: flex;
+      gap: 11px;
+      margin-top: 22px;
+      padding: 15px 17px;
+      background: rgba(139, 124, 246, 0.06);
+      border-left: 3px solid var(--violet);
+      border-radius: 0 10px 10px 0;
+      font-size: 13.5px;
+      color: var(--text-1);
+      line-height: 1.55;
+    }
+    .hint .icon {
+      flex-shrink: 0;
+    }
+
+    .btn-primary {
+      margin-top: 6px;
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--magenta), var(--violet));
+      color: #fff;
+      font-family: var(--font-body);
+      font-weight: 700;
+      font-size: 14.5px;
+      cursor: pointer;
+      letter-spacing: 0.01em;
+      box-shadow: 0 10px 28px -10px rgba(239, 107, 176, 0.5);
+      transition: transform .18s ease, box-shadow .18s ease;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 32px -8px rgba(239, 107, 176, 0.6);
+    }
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+    .btn-primary:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-1);
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: 9px;
+      cursor: pointer;
+      transition: all .2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-ghost:hover {
+      border-color: var(--teal);
+      color: var(--teal);
+    }
+    .btn-small-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+
+    .swap-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-1);
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .2s;
+    }
+    .swap-btn:hover {
+      border-color: var(--teal);
+      color: var(--teal);
+      transform: rotate(180deg);
+    }
+
+    .history-list {
+      max-height: 130px;
+      overflow-y: auto;
+      margin-top: 10px;
+      font-size: 12px;
+      font-family: var(--font-mono);
+      color: var(--text-2);
+      padding-right: 4px;
+    }
+    .history-list::-webkit-scrollbar {
+      width: 4px;
+    }
+    .history-list::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 3px;
+    }
+    .history-item {
+      padding: 5px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .history-item .eq-mini {
+      color: var(--teal);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 70%;
+    }
+    .history-item .time-mini {
+      color: var(--text-2);
+      flex-shrink: 0;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 60px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-2);
+      letter-spacing: 0.04em;
+    }
+
+    ::selection {
+      background: rgba(45, 217, 185, 0.3);
+    }
+
+    .legend {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+      font-size: 11.5px;
+      color: var(--text-2);
+      font-family: var(--font-mono);
+    }
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .legend i {
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+      display: inline-block;
+    }
+
+    .thermo-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-2);
+      margin-top: 4px;
+    }
+    .thermo-bar {
+      width: 60px;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--border);
+      overflow: hidden;
+    }
+    .thermo-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.6s ease, background 0.6s ease;
+      width: 0%;
+      background: var(--teal);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="molecule-field">
+    <svg class="m1" width="90" height="90" viewBox="0 0 90 90"><g stroke="var(--teal)" stroke-width="1.4" fill="none"><line x1="15" y1="15" x2="45" y2="35" /><line x1="45" y1="35" x2="75" y2="20" /><line x1="45" y1="35" x2="50" y2="70" /></g><circle cx="15" cy="15" r="5" fill="var(--teal)" /><circle cx="45" cy="35" r="6" fill="var(--violet)" /><circle cx="75" cy="20" r="4" fill="var(--teal)" /><circle cx="50" cy="70" r="4" fill="var(--magenta)" /></svg>
+    <svg class="m2" width="70" height="70" viewBox="0 0 70 70"><g stroke="var(--violet)" stroke-width="1.4" fill="none"><line x1="10" y1="50" x2="35" y2="20" /><line x1="35" y1="20" x2="60" y2="45" /></g><circle cx="10" cy="50" r="4" fill="var(--magenta)" /><circle cx="35" cy="20" r="5" fill="var(--teal)" /><circle cx="60" cy="45" r="4" fill="var(--violet)" /></svg>
+    <svg class="m3" width="80" height="80" viewBox="0 0 80 80"><g stroke="var(--amber)" stroke-width="1.4" fill="none"><line x1="10" y1="10" x2="40" y2="40" /><line x1="40" y1="40" x2="20" y2="65" /><line x1="40" y1="40" x2="70" y2="30" /></g><circle cx="10" cy="10" r="4" fill="var(--amber)" /><circle cx="40" cy="40" r="6" fill="var(--teal)" /><circle cx="20" cy="65" r="4" fill="var(--violet)" /><circle cx="70" cy="30" r="4" fill="var(--magenta)" /></svg>
+    <svg class="m4" width="60" height="60" viewBox="0 0 60 60"><g stroke="var(--magenta)" stroke-width="1.4" fill="none"><line x1="10" y1="45" x2="35" y2="15" /></g><circle cx="10" cy="45" r="4" fill="var(--teal)" /><circle cx="35" cy="15" r="5" fill="var(--magenta)" /></svg>
+  </div>
+
+  <div class="wrap">
+    <div class="eyebrow"><span class="dot"></span>MÔ PHỎNG PHẢN ỨNG THẬT · HÓA HỌC</div>
+    <h1>Phòng Thí Nghiệm<br><span>Hóa Học Ảo</span></h1>
+    <p class="lede">17 hóa chất, hơn 25 phản ứng có thật được cân bằng phương trình — trộn hai dung dịch và quan sát kết tủa, sủi bọt khí, đổi màu diễn ra ngay trong cốc thủy tinh. Hoặc thử pH và chỉ thị màu như phòng thí nghiệm thật.</p>
+
+    <div class="tabs">
+      <button class="tab active" data-panel="ph">🧪 Thử pH &amp; chỉ thị màu</button>
+      <button class="tab" data-panel="mix">⚗️ Trộn phản ứng hóa học</button>
+    </div>
+
+    <!-- ================= PANEL 1: pH & INDICATOR ================= -->
+    <div class="panel active" id="panel-ph">
+      <div class="stage">
+        <div class="beaker-col">
+          <div class="beaker-shell">
+            <div class="beaker-glow" id="glow1"></div>
+            <svg class="beaker" width="200" height="260" viewBox="0 0 200 260">
+              <rect x="82" y="8" width="36" height="34" rx="3" fill="none" stroke="#4b5568" stroke-width="4" />
+              <path d="M92 40 L92 120 L38 218 Q30 234 48 234 L152 234 Q170 234 162 218 L108 120 L108 40 Z" fill="rgba(255,255,255,0.035)" stroke="#5b6577" stroke-width="4" stroke-linejoin="round" />
+              <clipPath id="clipFlask1">
+                <path d="M92 40 L92 120 L38 218 Q30 234 48 234 L152 234 Q170 234 162 218 L108 120 L108 40 Z" />
+              </clipPath>
+              <g clip-path="url(#clipFlask1)">
+                <rect id="liquid1" class="liquid-fill" x="20" y="150" width="160" height="100" fill="#3a4358" />
+                <g id="bubbles1"></g>
+              </g>
+            </svg>
+          </div>
+          <div class="beaker-caption" id="caption1">Cốc thí nghiệm — chưa chọn dung dịch</div>
+          <div class="thermo-indicator" id="thermo1" style="opacity:0; pointer-events:none;">
+            🌡️ Nhiệt: <span id="thermoLabel1">—</span>
+            <div class="thermo-bar"><div class="thermo-fill" id="thermoFill1"></div></div>
+          </div>
+          <div class="legend">
+            <span><i style="background:var(--danger)"></i>Axit</span>
+            <span><i style="background:var(--violet)"></i>Bazơ</span>
+            <span><i style="background:var(--teal)"></i>Trung tính</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="block">
+            <div class="step-label">Bước 1 — Chọn dung dịch</div>
+            <div class="chip-grid" id="phChips"></div>
+            <div class="btn-small-row">
+              <button class="btn-ghost" id="randomPhBtn">🎲 Ngẫu nhiên</button>
+              <button class="btn-ghost" id="resetPhBtn">↺ Làm mới</button>
+            </div>
+          </div>
+
+          <div class="block">
+            <div class="slider-row"><span class="step-label" style="margin-bottom:0">Bước 2 — Nồng độ pha loãng</span><span class="val" id="concVal">100%</span></div>
+            <input type="range" id="concSlider" min="5" max="100" value="100">
+            <div class="beaker-caption" style="margin-top:8px">Pha loãng kéo pH về gần 7 (trung tính) — đúng bản chất hóa học thật.</div>
+          </div>
+
+          <div class="block">
+            <div class="step-label">Bước 3 — Nhỏ chất chỉ thị</div>
+            <div class="chip-grid" id="indicatorChips">
+              <button class="chip" data-ind="none">◯ Không dùng</button>
+              <button class="chip" data-ind="litmus">🟣 Quỳ tím</button>
+              <button class="chip" data-ind="phenol">💧 Phenolphtalein</button>
+              <button class="chip" data-ind="methyl">🟠 Metyl da cam</button>
+            </div>
+          </div>
+
+          <div class="readout" id="phReadout">
+            <div class="readout-row"><span class="k">DUNG DỊCH</span><span class="v" id="r-name">— chưa chọn —</span></div>
+            <div class="readout-row"><span class="k">ĐỘ pH (SAU PHA LOÃNG)</span><span class="v" id="r-ph">—</span></div>
+            <div class="readout-row"><span class="k">CHẤT CHỈ THỊ</span><span class="v" id="r-ind">chưa nhỏ</span></div>
+            <div class="readout-row"><span class="k">MÀU DUNG DỊCH</span><span class="v" id="r-color">Không màu</span></div>
+            <div class="readout-row"><span class="k">KẾT LUẬN</span><span class="v" id="r-conclusion">—</span></div>
+            <div class="readout-row"><span class="k">CẢNH BÁO</span><span class="v" id="r-warning">—</span></div>
+          </div>
+
+          <div class="hint"><span class="icon">💡</span><span>Chọn HCl rồi kéo nồng độ xuống 10% để thấy quỳ tím nhạt dần từ đỏ sang tím — mô phỏng đúng nguyên lý pha loãng axit.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= PANEL 2: MIXING REACTOR ================= -->
+    <div class="panel" id="panel-mix">
+      <div class="stage">
+        <div class="beaker-col">
+          <div class="beaker-shell">
+            <div class="beaker-glow" id="glow2" style="--glow-color:rgba(139,124,246,0.16)"></div>
+            <svg class="beaker" width="200" height="260" viewBox="0 0 200 260">
+              <rect x="82" y="8" width="36" height="34" rx="3" fill="none" stroke="#4b5568" stroke-width="4" />
+              <path d="M92 40 L92 120 L38 218 Q30 234 48 234 L152 234 Q170 234 162 218 L108 120 L108 40 Z" fill="rgba(255,255,255,0.035)" stroke="#5b6577" stroke-width="4" stroke-linejoin="round" />
+              <clipPath id="clipFlask2">
+                <path d="M92 40 L92 120 L38 218 Q30 234 48 234 L152 234 Q170 234 162 218 L108 120 L108 40 Z" />
+              </clipPath>
+              <g clip-path="url(#clipFlask2)">
+                <rect id="liquid2" class="liquid-fill" x="20" y="220" width="160" height="30" fill="#232a3a" />
+                <rect id="precipBed" class="precip-bed" x="20" y="250" width="160" height="0" fill="#fff" />
+                <g id="bubbles2"></g>
+                <g id="smoke2"></g>
+                <g id="precip2"></g>
+              </g>
+            </svg>
+          </div>
+          <div class="beaker-caption" id="caption2">Cốc phản ứng — trống</div>
+          <div class="thermo-indicator" id="thermo2" style="opacity:0; pointer-events:none;">
+            🌡️ Nhiệt: <span id="thermoLabel2">—</span>
+            <div class="thermo-bar"><div class="thermo-fill" id="thermoFill2"></div></div>
+          </div>
+          <div class="legend">
+            <span><i style="background:var(--amber)"></i>Sủi bọt khí</span>
+            <span><i style="background:var(--magenta)"></i>Kết tủa</span>
+            <span><i style="background:var(--teal)"></i>Trung hòa</span>
+            <span><i style="background:#ff9a76"></i>Tỏa nhiệt</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="block">
+            <div class="step-label">Bước 1 — Dung dịch A (trong cốc)</div>
+            <div class="chip-grid" id="mixChipsA"></div>
+          </div>
+
+          <div class="block" style="position:relative">
+            <div class="step-label">Bước 2 — Dung dịch B (đổ thêm vào)</div>
+            <div class="chip-grid" id="mixChipsB"></div>
+            <div class="btn-small-row">
+              <button class="btn-ghost" id="randomMixBtn">🎲 Cặp ngẫu nhiên</button>
+              <button class="btn-ghost" id="swapMixBtn">⇄ Hoán đổi A ↔ B</button>
+              <button class="btn-ghost" id="resetMixBtn">↺ Làm mới</button>
+            </div>
+          </div>
+
+          <div class="block">
+            <div class="slider-row"><span class="step-label" style="margin-bottom:0">Nồng độ phản ứng</span><span class="val" id="mixConcVal">100%</span></div>
+            <input type="range" id="mixConcSlider" min="10" max="100" value="100">
+            <div class="beaker-caption" style="margin-top:8px">Nồng độ thấp hơn → phản ứng nhẹ hơn, ít kết tủa / ít bọt khí hơn.</div>
+          </div>
+
+          <button class="btn-primary" id="reactBtn" disabled>⚗️ Tiến hành trộn &amp; phản ứng</button>
+
+          <div class="readout" id="mixReadout" style="margin-top:20px">
+            <div class="readout-row"><span class="k">PHƯƠNG TRÌNH</span><span class="v eq" id="m-eq">chưa trộn</span></div>
+            <div class="readout-row"><span class="k">HIỆN TƯỢNG</span><span class="v" id="m-phenom">—</span></div>
+            <div class="readout-row"><span class="k">SẢN PHẨM</span><span class="v" id="m-product">—</span></div>
+            <div class="readout-row"><span class="k">PHÂN LOẠI</span><span class="v" id="m-type">—</span></div>
+            <div class="readout-row"><span class="k">NHIỆT PHẢN ỨNG</span><span class="v" id="m-thermo">—</span></div>
+            <div class="readout-row"><span class="k">CẢNH BÁO</span><span class="v" id="m-warning">—</span></div>
+          </div>
+
+          <div style="margin-top:16px;">
+            <div class="step-label" style="margin-bottom:6px;">📜 Lịch sử phản ứng</div>
+            <div class="history-list" id="historyList">
+              <div style="color:var(--text-2); font-style:italic;">Chưa có phản ứng nào được thực hiện.</div>
+            </div>
+            <button class="btn-ghost" id="clearHistoryBtn" style="margin-top:6px;">🗑️ Xóa lịch sử</button>
+          </div>
+
+          <div class="hint"><span class="icon">🧪</span><span id="mixHintText">Thử trộn CuSO₄ (xanh lam) với NaOH để thấy kết tủa Cu(OH)₂ màu xanh lam đậm lắng xuống đáy cốc.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <footer>Phòng Thí Nghiệm Hóa Học Ảo — mô phỏng phản ứng dựa trên phương trình hóa học thật, chỉ dùng cho mục đích minh họa &amp; học tập</footer>
+  </div>
+
+  <script>
+    /* ============================ DATA ============================ */
+    const SUBSTANCES = {
+      hcl: { name: "Axit clohidric", formula: "HCl", type: "acid", ph: 1, color: "#3a4358", label: "Không màu",
+        hazard: "Ăn mòn mạnh" },
+      h2so4: { name: "Axit sunfuric loãng", formula: "H₂SO₄", type: "acid", ph: 1, color: "#3a4358",
+        label: "Không màu", hazard: "Ăn mòn rất mạnh, nguy hiểm" },
+      ch3cooh: { name: "Axit axetic (giấm)", formula: "CH₃COOH", type: "acid", ph: 3, color: "#3a4358",
+      label: "Không màu", hazard: "Kích ứng nhẹ" },
+      naoh: { name: "Natri hidroxit", formula: "NaOH", type: "base", ph: 13, color: "#3a4358", label: "Không màu",
+        hazard: "Ăn mòn mạnh, tỏa nhiệt khi tan" },
+      caoh2: { name: "Nước vôi trong", formula: "Ca(OH)₂", type: "base", ph: 12, color: "#4a5266", label: "Trắng đục",
+        hazard: "Kích ứng da" },
+      nh3: { name: "Amoniac", formula: "NH₃", type: "base", ph: 11, color: "#3a4358", label: "Không màu",
+        hazard: "Hơi độc, kích ứng hô hấp" },
+      nahco3: { name: "Baking soda", formula: "NaHCO₃", type: "salt", ph: 8, color: "#3a4358", label: "Không màu",
+        hazard: "An toàn" },
+      na2co3: { name: "Soda (Na₂CO₃)", formula: "Na₂CO₃", type: "salt", ph: 11, color: "#3a4358", label: "Không màu",
+        hazard: "Kích ứng nhẹ" },
+      nacl: { name: "Muối ăn", formula: "NaCl", type: "salt", ph: 7, color: "#3a4358", label: "Không màu",
+      hazard: "An toàn" },
+      bacl2: { name: "Bari clorua", formula: "BaCl₂", type: "salt", ph: 7, color: "#3a4358", label: "Không màu",
+        hazard: "Độc nếu nuốt phải" },
+      agno3: { name: "Bạc nitrat", formula: "AgNO₃", type: "salt", ph: 6, color: "#3a4358", label: "Không màu",
+        hazard: "Ăn mòn, gây bỏng da" },
+      cuso4: { name: "Đồng(II) sunfat", formula: "CuSO₄", type: "salt", ph: 4, color: "#1f7fb0", label: "Xanh lam",
+        hazard: "Độc hại, nguy hiểm cho thủy sinh" },
+      na2so4: { name: "Natri sunfat", formula: "Na₂SO₄", type: "salt", ph: 7, color: "#3a4358", label: "Không màu",
+        hazard: "An toàn" },
+      fecl3: { name: "Sắt(III) clorua", formula: "FeCl₃", type: "salt", ph: 3, color: "#a3701f", label: "Vàng nâu",
+        hazard: "Ăn mòn, kích ứng" },
+      water: { name: "Nước cất", formula: "H₂O", type: "water", ph: 7, color: "#3a4358", label: "Không màu",
+      hazard: "An toàn" },
+      zn: { name: "Kẽm (kim loại)", formula: "Zn", type: "metal", ph: 7, color: "#3a4358", label: "Không màu",
+        hazard: "Bột kẽm dễ cháy" },
+      cu: { name: "Đồng (kim loại)", formula: "Cu", type: "metal", ph: 7, color: "#3a4358", label: "Không màu",
+        hazard: "An toàn ở dạng khối" },
+    };
+
+    function rk(a, b) { return [a, b].sort().join('_'); }
+
+    const REACTIONS = {};
+
+    function addRx(a, b, data) { REACTIONS[rk(a, b)] = data; }
+
+    addRx('hcl', 'naoh', { eq: "HCl + NaOH → NaCl + H₂O", phenomenon: "Phản ứng trung hòa, tỏa nhiệt nhẹ, dung dịch trở nên trung tính.",
+      product: "Natri clorua (muối ăn) + Nước", type: "neutral", color: "#374057", thermo: "Tỏa nhiệt nhẹ (~57 kJ/mol)",
+      exo: true });
+    addRx('h2so4', 'naoh', { eq: "H₂SO₄ + 2NaOH → Na₂SO₄ + 2H₂O",
+      phenomenon: "Phản ứng trung hòa, tỏa nhiệt mạnh.", product: "Natri sunfat + Nước", type: "neutral",
+      color: "#374057", thermo: "Tỏa nhiệt mạnh (~114 kJ/mol)", exo: true });
+    addRx('hcl', 'na2co3', { eq: "2HCl + Na₂CO₃ → 2NaCl + H₂O + CO₂↑",
+      phenomenon: "Sủi bọt khí mạnh (khí CO₂ thoát ra khỏi dung dịch).", product: "Natri clorua + Nước + Khí CO₂",
+      type: "gas", gas: true, color: "#374057", thermo: "Tỏa nhiệt nhẹ", exo: true });
+    addRx('hcl', 'nahco3', { eq: "HCl + NaHCO₃ → NaCl + H₂O + CO₂↑",
+      phenomenon: "Sủi bọt khí (giống phản ứng giấm + baking soda).", product: "Natri clorua + Nước + Khí CO₂",
+      type: "gas", gas: true, color: "#374057", thermo: "Tỏa nhiệt nhẹ", exo: true });
+    addRx('hcl', 'caoh2', { eq: "2HCl + Ca(OH)₂ → CaCl₂ + 2H₂O",
+      phenomenon: "Trung hòa, dung dịch trắng đục dần trong lại.", product: "Canxi clorua + Nước", type: "neutral",
+      color: "#3a4358", thermo: "Tỏa nhiệt nhẹ", exo: true });
+    addRx('agno3', 'hcl', { eq: "HCl + AgNO₃ → AgCl↓ + HNO₃",
+      phenomenon: "Xuất hiện kết tủa trắng, vón cục, không tan.", product: "Kết tủa Bạc clorua (AgCl) + Axit nitric",
+      type: "precip", precipColor: "#f4f4f4", precipLabel: "trắng", color: "#4a5266", thermo: "Tỏa nhiệt nhẹ",
+      exo: true });
+    addRx('bacl2', 'na2so4', { eq: "BaCl₂ + Na₂SO₄ → BaSO₄↓ + 2NaCl",
+      phenomenon: "Xuất hiện kết tủa trắng, lắng xuống đáy cốc.",
+      product: "Kết tủa Bari sunfat (BaSO₄) + Natri clorua", type: "precip", precipColor: "#f4f4f4",
+      precipLabel: "trắng", color: "#4a5266", thermo: "Tỏa nhiệt nhẹ", exo: true });
+    addRx('bacl2', 'h2so4', { eq: "BaCl₂ + H₂SO₄ → BaSO₄↓ + 2HCl",
+      phenomenon: "Kết tủa trắng dạng keo xuất hiện ngay lập tức.", product: "Kết tủa Bari sunfat + Axit clohidric",
+      type: "precip", precipColor: "#f4f4f4", precipLabel: "trắng", color: "#4a5266", thermo: "Tỏa nhiệt", exo: true });
+    addRx('cuso4', 'naoh', { eq: "CuSO₄ + 2NaOH → Cu(OH)₂↓ + Na₂SO₄",
+      phenomenon: "Kết tủa keo màu xanh lam đậm xuất hiện rõ rệt.",
+      product: "Kết tủa Đồng(II) hidroxit (xanh lam) + Natri sunfat", type: "precip", precipColor: "#2f6fb3",
+      precipLabel: "xanh lam", color: "#2a5a86", thermo: "Tỏa nhiệt nhẹ", exo: true });
+    addRx('bacl2', 'cuso4', { eq: "CuSO₄ + BaCl₂ → BaSO₄↓ + CuCl₂",
+      phenomenon: "Kết tủa trắng xuất hiện, dung dịch còn lại ánh xanh nhạt (CuCl₂).",
+      product: "Kết tủa Bari sunfat + Đồng(II) clorua", type: "precip", precipColor: "#f4f4f4", precipLabel: "trắng",
+      color: "#3e6f8f", thermo: "Tỏa nhiệt nhẹ", exo: true });
+    addRx('fecl3', 'naoh', { eq: "FeCl₃ + 3NaOH → Fe(OH)₃↓ + 3NaCl",
+      phenomenon: "Kết tủa keo nâu đỏ xuất hiện ngay khi nhỏ vào.",
+      product: "Kết tủa Sắt(III) hidroxit (nâu đỏ) + Natri clorua", type: "precip", precipColor: "#a6541f",
+      precipLabel: "nâu đỏ", color: "#7a5233", thermo: "Tỏa nhiệt", exo: true });
+    addRx('agno3', 'nacl', { eq: "AgNO₃ + NaCl → AgCl↓ + NaNO₃",
+      phenomenon: "Kết tủa trắng xuất hiện tức thì, đục cả dung dịch.", product: "Kết tủa Bạc clorua + Natri nitrat",
+      type: "precip", precipColor: "#f4f4f4", precipLabel: "trắng", color: "#4a5266", thermo: "Tỏa nhiệt nhẹ",
+      exo: true });
+    addRx('caoh2', 'na2co3', { eq: "Na₂CO₃ + Ca(OH)₂ → CaCO₃↓ + 2NaOH",
+      phenomenon: "Kết tủa trắng (đá vôi) xuất hiện, dung dịch trong dần.",
+      product: "Kết tủa Canxi cacbonat + Natri hidroxit", type: "precip", precipColor: "#eef0ee", precipLabel: "trắng",
+      color: "#4a5266", thermo: "Tỏa nhiệt nhẹ", exo: true });
+    addRx('ch3cooh', 'naoh', { eq: "CH₃COOH + NaOH → CH₃COONa + H₂O",
+      phenomenon: "Trung hòa êm dịu, không sủi bọt hay kết tủa.", product: "Natri axetat + Nước", type: "neutral",
+      color: "#374057", thermo: "Tỏa nhiệt nhẹ", exo: true });
+    addRx('ch3cooh', 'na2co3', { eq: "2CH₃COOH + Na₂CO₃ → 2CH₃COONa + H₂O + CO₂↑",
+      phenomenon: "Sủi bọt khí nhẹ (giống hiện tượng giấm + muối nở).", product: "Natri axetat + Nước + Khí CO₂",
+      type: "gas", gas: true, color: "#374057", thermo: "Tỏa nhiệt nhẹ", exo: true });
+    addRx('hcl', 'nh3', { eq: "HCl + NH₃ → NH₄Cl",
+      phenomenon: "Trung hòa tạo muối tan, không có hiện tượng đặc biệt trong dung dịch.", product: "Amoni clorua (muối tan)",
+      type: "neutral", color: "#374057", thermo: "Tỏa nhiệt", exo: true });
+    addRx('hcl', 'zn', { eq: "Zn + 2HCl → ZnCl₂ + H₂↑",
+      phenomenon: "Kim loại kẽm tan dần, sủi bọt khí mạnh trên bề mặt.", product: "Kẽm clorua + Khí Hidro", type: "gas",
+      gas: true, color: "#374057", thermo: "Tỏa nhiệt", exo: true, hazardNote: "Khí H₂ dễ cháy nổ!" });
+    addRx('h2so4', 'zn', { eq: "Zn + H₂SO₄ → ZnSO₄ + H₂↑",
+      phenomenon: "Kẽm tan dần, sủi bọt khí H₂ liên tục.", product: "Kẽm sunfat + Khí Hidro", type: "gas", gas: true,
+      color: "#374057", thermo: "Tỏa nhiệt", exo: true, hazardNote: "Khí H₂ dễ cháy nổ!" });
+    addRx('naoh', 'zn', { eq: "Zn + 2NaOH → Na₂ZnO₂ + H₂↑",
+      phenomenon: "Kẽm là kim loại lưỡng tính, tan trong kiềm đặc, sủi bọt khí nhẹ.",
+      product: "Natri zincat + Khí Hidro", type: "gas", gas: true, color: "#374057", thermo: "Tỏa nhiệt nhẹ", exo: true,
+      hazardNote: "Khí H₂ thoát ra!" });
+    addRx('cu', 'hcl', { eq: "Cu + HCl → không phản ứng",
+      phenomenon: "Không có hiện tượng — Cu đứng sau H trong dãy hoạt động hóa học nên không phản ứng với HCl loãng.",
+      product: "Không có sản phẩm mới", type: "none", color: "#3a4358", thermo: "Không có", exo: false });
+    addRx('cu', 'h2so4', { eq: "Cu + H₂SO₄ (loãng) → không phản ứng",
+      phenomenon: "Không có hiện tượng — đồng không phản ứng với axit sunfuric loãng.", product: "Không có sản phẩm mới",
+      type: "none", color: "#3a4358", thermo: "Không có", exo: false });
+    addRx('agno3', 'bacl2', { eq: "2AgNO₃ + BaCl₂ → 2AgCl↓ + Ba(NO₃)₂",
+      phenomenon: "Kết tủa trắng xuất hiện nhanh và nhiều.", product: "Kết tủa Bạc clorua + Bari nitrat", type: "precip",
+      precipColor: "#f4f4f4", precipLabel: "trắng", color: "#4a5266", thermo: "Tỏa nhiệt nhẹ", exo: true });
+    addRx('agno3', 'fecl3', { eq: "3AgNO₃ + FeCl₃ → 3AgCl↓ + Fe(NO₃)₃",
+      phenomenon: "Kết tủa trắng xuất hiện, dung dịch còn lại ánh vàng nâu nhạt.",
+      product: "Kết tủa Bạc clorua + Sắt(III) nitrat", type: "precip", precipColor: "#f4f4f4", precipLabel: "trắng",
+      color: "#8a6a3a", thermo: "Tỏa nhiệt nhẹ", exo: true });
+    addRx('agno3', 'na2co3', { eq: "2AgNO₃ + Na₂CO₃ → Ag₂CO₃↓ + 2NaNO₃",
+      phenomenon: "Kết tủa vàng nhạt xuất hiện, lắng xuống đáy.", product: "Kết tủa Bạc cacbonat + Natri nitrat",
+      type: "precip", precipColor: "#e8d98a", precipLabel: "vàng nhạt", color: "#4a5266", thermo: "Thu nhiệt nhẹ",
+      exo: false });
+    addRx('naoh', 'nahco3', { eq: "NaHCO₃ + NaOH → Na₂CO₃ + H₂O",
+      phenomenon: "Phản ứng trung hòa, không có hiện tượng nổi bật.", product: "Natri cacbonat + Nước", type: "neutral",
+      color: "#374057", thermo: "Tỏa nhiệt nhẹ", exo: true });
+
+    /* ============================ HELPERS ============================ */
+    function subChip(id, groupClass) {
+      const s = SUBSTANCES[id];
+      const dotColor = s.type === 'acid' ? 'var(--danger)' : s.type === 'base' ? 'var(--violet)' : s.type === 'metal' ?
+        'var(--amber)' : 'var(--teal)';
+      const warningClass = (s.hazard && s.hazard.toLowerCase().includes('mạnh') && !s.hazard.includes('An toàn')) ?
+        ' warning-chip' : '';
+      return `<button class="chip${warningClass}" data-id="${id}" data-group="${groupClass}"><span class="swatch" style="background:${dotColor}"></span>${s.name} <span style="opacity:.55">(${s.formula})</span></button>`;
+    }
+
+    const phChipsEl = document.getElementById('phChips');
+    Object.keys(SUBSTANCES).filter(id => SUBSTANCES[id].type !== 'metal').forEach(id => {
+      phChipsEl.insertAdjacentHTML('beforeend', subChip(id, 'ph'));
+    });
+    const mixAEl = document.getElementById('mixChipsA');
+    const mixBEl = document.getElementById('mixChipsB');
+    Object.keys(SUBSTANCES).forEach(id => {
+      mixAEl.insertAdjacentHTML('beforeend', subChip(id, 'mixA'));
+      mixBEl.insertAdjacentHTML('beforeend', subChip(id, 'mixB'));
+    });
+
+    /* ============================ TABS ============================ */
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('panel-' + tab.dataset.panel).classList.add('active');
+      });
+    });
+
+    /* ============================ PANEL 1 : pH & INDICATOR ============================ */
+    let phSelected = null;
+    let indSelected = 'none';
+
+    function getLitmusColor(ph) {
+      if (ph < 6.5) return { c: '#d64545', label: 'Đỏ' };
+      if (ph > 7.5) return { c: '#3b6fd1', label: 'Xanh' };
+      return { c: '#7c5fd1', label: 'Tím' };
+    }
+
+    function getPhenolColor(ph, baseColor) {
+      if (ph >= 8.2) return { c: '#e0559f', label: 'Hồng' };
+      return { c: baseColor, label: 'Không màu' };
+    }
+
+    function getMethylColor(ph) {
+      if (ph < 3.1) return { c: '#d13b3b', label: 'Đỏ' };
+      if (ph <= 4.4) return { c: '#e08a2e', label: 'Cam' };
+      return { c: '#dfc72e', label: 'Vàng' };
+    }
+
+    function renderBubbles(container, count) {
+      container.innerHTML = '';
+      for (let i = 0; i < count; i++) {
+        const cx = 45 + Math.random() * 110;
+        const r = 3 + Math.random() * 4;
+        const delay = (Math.random() * 1.8).toFixed(2);
+        const dur = (1.3 + Math.random() * 1).toFixed(2);
+        const b = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        b.setAttribute('cx', cx);
+        b.setAttribute('cy', 235);
+        b.setAttribute('r', r);
+        b.setAttribute('class', 'bubble');
+        b.style.animationDelay = delay + 's';
+        b.style.animationDuration = dur + 's';
+        container.appendChild(b);
+      }
+    }
+
+    function updatePhPanel() {
+      const concEl = document.getElementById('concSlider');
+      const conc = parseInt(concEl.value);
+      document.getElementById('concVal').textContent = conc + '%';
+
+      const nameEl = document.getElementById('r-name');
+      const phEl = document.getElementById('r-ph');
+      const indEl = document.getElementById('r-ind');
+      const colorEl = document.getElementById('r-color');
+      const conclEl = document.getElementById('r-conclusion');
+      const warningEl = document.getElementById('r-warning');
+      const liquid = document.getElementById('liquid1');
+      const caption = document.getElementById('caption1');
+      const glow = document.getElementById('glow1');
+      const bubbles = document.getElementById('bubbles1');
+      const thermoLabel = document.getElementById('thermoLabel1');
+      const thermoFill = document.getElementById('thermoFill1');
+      const thermo1 = document.getElementById('thermo1');
+
+      if (!phSelected) {
+        nameEl.textContent = '— chưa chọn —';
+        phEl.textContent = '—';
+        indEl.textContent = 'chưa nhỏ';
+        colorEl.textContent = 'Không màu';
+        conclEl.textContent = '—';
+        warningEl.textContent = '—';
+        liquid.setAttribute('fill', '#3a4358');
+        caption.textContent = 'Cốc thí nghiệm — chưa chọn dung dịch';
+        bubbles.innerHTML = '';
+        thermo1.style.opacity = '0';
+        return;
+      }
+
+      const s = SUBSTANCES[phSelected];
+      const displayedPh = 7 + (s.ph - 7) * (conc / 100);
+      const roundedPh = Math.round(displayedPh * 10) / 10;
+
+      nameEl.textContent = `${s.name} (${s.formula})`;
+      phEl.textContent = roundedPh;
+
+      let liquidColor = s.color;
+      let colorLabel = s.label;
+      let indName = 'Chưa nhỏ chất chỉ thị';
+
+      if (indSelected === 'litmus') {
+        const r = getLitmusColor(displayedPh);
+        liquidColor = r.c;
+        colorLabel = r.label;
+        indName = 'Quỳ tím';
+      } else if (indSelected === 'phenol') {
+        const r = getPhenolColor(displayedPh, s.color);
+        liquidColor = r.c;
+        colorLabel = r.label;
+        indName = 'Phenolphtalein';
+      } else if (indSelected === 'methyl') {
+        const r = getMethylColor(displayedPh);
+        liquidColor = r.c;
+        colorLabel = r.label;
+        indName = 'Metyl da cam';
+      }
+
+      indEl.textContent = indName;
+      colorEl.textContent = colorLabel;
+      liquid.setAttribute('fill', liquidColor);
+      glow.style.setProperty('--glow-color', liquidColor + '55');
+
+      let conclusion = '';
+      if (roundedPh < 6.5) conclusion = `Môi trường AXIT (pH ≈ ${roundedPh})`;
+      else if (roundedPh > 7.5) conclusion = `Môi trường BAZƠ (pH ≈ ${roundedPh})`;
+      else conclusion = `Môi trường TRUNG TÍNH (pH ≈ ${roundedPh})`;
+      conclEl.textContent = conclusion;
+
+      warningEl.textContent = s.hazard || 'Không có cảnh báo đặc biệt';
+      if (s.hazard && s.hazard.toLowerCase().includes('mạnh')) {
+        warningEl.innerHTML = `<span class="tag warning">⚠️ ${s.hazard}</span>`;
+      } else if (s.hazard && s.hazard !== 'An toàn') {
+        warningEl.innerHTML = `<span style="color:var(--amber)">⚠️ ${s.hazard}</span>`;
+      } else {
+        warningEl.textContent = '✅ An toàn';
+      }
+
+      caption.textContent = `Cốc thí nghiệm — ${s.name}, nồng độ ${conc}%`;
+
+      if (s.type === 'acid' && conc > 40) { renderBubbles(bubbles, 0); } else { bubbles.innerHTML = ''; }
+
+      // thermo indicator for pH panel (acids/bases dissolve with heat)
+      if ((s.type === 'acid' || s.type === 'base') && conc > 60) {
+        thermo1.style.opacity = '1';
+        thermoLabel.textContent = 'Tỏa nhiệt nhẹ khi pha';
+        thermoFill.style.width = '35%';
+        thermoFill.style.background = 'var(--amber)';
+      } else if (s.type === 'acid' || s.type === 'base') {
+        thermo1.style.opacity = '1';
+        thermoLabel.textContent = 'Nhiệt độ ổn định';
+        thermoFill.style.width = '10%';
+        thermoFill.style.background = 'var(--teal)';
+      } else {
+        thermo1.style.opacity = '0';
+      }
+    }
+
+    phChipsEl.addEventListener('click', (e) => {
+      const chip = e.target.closest('.chip');
+      if (!chip) return;
+      phChipsEl.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+      phSelected = chip.dataset.id;
+      updatePhPanel();
+    });
+    document.getElementById('indicatorChips').addEventListener('click', (e) => {
+      const chip = e.target.closest('.chip');
+      if (!chip) return;
+      document.querySelectorAll('#indicatorChips .chip').forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+      indSelected = chip.dataset.ind;
+      updatePhPanel();
+    });
+    document.getElementById('concSlider').addEventListener('input', updatePhPanel);
+    document.getElementById('randomPhBtn').addEventListener('click', () => {
+      const ids = Object.keys(SUBSTANCES).filter(id => SUBSTANCES[id].type !== 'metal');
+      const randomId = ids[Math.floor(Math.random() * ids.length)];
+      phChipsEl.querySelectorAll('.chip').forEach(c => {
+        c.classList.remove('selected');
+        if (c.dataset.id === randomId) c.classList.add('selected');
+      });
+      phSelected = randomId;
+      updatePhPanel();
+    });
+    document.getElementById('resetPhBtn').addEventListener('click', () => {
+      phSelected = null;
+      indSelected = 'none';
+      document.getElementById('concSlider').value = 100;
+      document.getElementById('concVal').textContent = '100%';
+      phChipsEl.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+      document.querySelectorAll('#indicatorChips .chip').forEach(c => c.classList.remove('selected'));
+      const noneChip = document.querySelector('#indicatorChips .chip[data-ind="none"]');
+      if (noneChip) noneChip.classList.add('selected');
+      updatePhPanel();
+    });
+
+    /* ============================ PANEL 2 : MIXING ============================ */
+    let mixA = null,
+      mixB = null;
+    let reactionHistory = [];
+
+    function refreshMixButton() {
+      document.getElementById('reactBtn').disabled = !(mixA && mixB);
+    }
+
+    mixAEl.addEventListener('click', (e) => {
+      const chip = e.target.closest('.chip');
+      if (!chip) return;
+      mixAEl.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+      mixA = chip.dataset.id;
+      updatePreMixBeaker();
+      refreshMixButton();
+    });
+    mixBEl.addEventListener('click', (e) => {
+      const chip = e.target.closest('.chip');
+      if (!chip) return;
+      mixBEl.querySelectorAll('.chip').forEach(c => c.classList.remove('selected-b'));
+      chip.classList.add('selected-b');
+      mixB = chip.dataset.id;
+      refreshMixButton();
+    });
+
+    function updatePreMixBeaker() {
+      const liquid = document.getElementById('liquid2');
+      const caption = document.getElementById('caption2');
+      if (mixA) {
+        const s = SUBSTANCES[mixA];
+        liquid.setAttribute('y', 220);
+        liquid.setAttribute('height', 30);
+        liquid.setAttribute('fill', s.color);
+        caption.textContent = `Cốc phản ứng — chứa ${s.name}`;
+      } else {
+        liquid.setAttribute('y', 220);
+        liquid.setAttribute('height', 30);
+        liquid.setAttribute('fill', '#232a3a');
+        caption.textContent = 'Cốc phản ứng — trống';
+      }
+      document.getElementById('precipBed').setAttribute('height', 0);
+      document.getElementById('bubbles2').innerHTML = '';
+      document.getElementById('smoke2').innerHTML = '';
+      document.getElementById('precip2').innerHTML = '';
+      document.getElementById('thermo2').style.opacity = '0';
+    }
+
+    function renderPrecipitate(container, color, count) {
+      container.innerHTML = '';
+      for (let i = 0; i < count; i++) {
+        const cx = 35 + Math.random() * 130;
+        const r = 2 + Math.random() * 3;
+        const delay = (Math.random() * 0.9).toFixed(2);
+        const p = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        p.setAttribute('cx', cx);
+        p.setAttribute('cy', 210 - Math.random() * 40);
+        p.setAttribute('r', r);
+        p.setAttribute('class', 'precip-particle');
+        p.setAttribute('fill', color);
+        p.style.animationDelay = delay + 's';
+        container.appendChild(p);
+      }
+    }
+
+    function renderSmoke(container, count) {
+      container.innerHTML = '';
+      for (let i = 0; i < count; i++) {
+        const cx = 50 + Math.random() * 100;
+        const r = 6 + Math.random() * 10;
+        const delay = (Math.random() * 0.6).toFixed(2);
+        const dur = (1.6 + Math.random() * 1.4).toFixed(2);
+        const p = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        p.setAttribute('cx', cx);
+        p.setAttribute('cy', 200);
+        p.setAttribute('r', r);
+        p.setAttribute('class', 'smoke-particle');
+        p.style.animationDelay = delay + 's';
+        p.style.animationDuration = dur + 's';
+        container.appendChild(p);
+      }
+    }
+
+    function addHistory(eq, timeStr) {
+      reactionHistory.unshift({ eq, time: timeStr });
+      if (reactionHistory.length > 10) reactionHistory.pop();
+      renderHistory();
+    }
+
+    function renderHistory() {
+      const list = document.getElementById('historyList');
+      if (reactionHistory.length === 0) {
+        list.innerHTML =
+          '<div style="color:var(--text-2); font-style:italic;">Chưa có phản ứng nào được thực hiện.</div>';
+        return;
+      }
+      list.innerHTML = reactionHistory.map(h =>
+        `<div class="history-item"><span class="eq-mini">${h.eq}</span><span class="time-mini">${h.time}</span></div>`
+      ).join('');
+    }
+
+    document.getElementById('clearHistoryBtn').addEventListener('click', () => {
+      reactionHistory = [];
+      renderHistory();
+    });
+
+    document.getElementById('reactBtn').addEventListener('click', () => {
+      if (!mixA || !mixB) return;
+      const key = rk(mixA, mixB);
+      const sA = SUBSTANCES[mixA],
+        sB = SUBSTANCES[mixB];
+      const concSlider = document.getElementById('mixConcSlider');
+      const conc = parseInt(concSlider.value) / 100;
+      const liquid = document.getElementById('liquid2');
+      const caption = document.getElementById('caption2');
+      const glow = document.getElementById('glow2');
+      const eqEl = document.getElementById('m-eq');
+      const phenomEl = document.getElementById('m-phenom');
+      const productEl = document.getElementById('m-product');
+      const typeEl = document.getElementById('m-type');
+      const thermoEl = document.getElementById('m-thermo');
+      const warningEl = document.getElementById('m-warning');
+      const bubbles2 = document.getElementById('bubbles2');
+      const smoke2 = document.getElementById('smoke2');
+      const precip2 = document.getElementById('precip2');
+      const precipBed = document.getElementById('precipBed');
+      const thermo2 = document.getElementById('thermo2');
+      const thermoLabel2 = document.getElementById('thermoLabel2');
+      const thermoFill2 = document.getElementById('thermoFill2');
+
+      bubbles2.innerHTML = '';
+      smoke2.innerHTML = '';
+      precip2.innerHTML = '';
+      precipBed.setAttribute('height', 0);
+      thermo2.style.opacity = '0';
+      liquid.setAttribute('y', 220);
+      liquid.setAttribute('height', 30);
+
+      let rx = REACTIONS[key];
+
+      if (!rx && (mixA === 'water' || mixB === 'water')) {
+        const other = mixA === 'water' ? sB : sA;
+        rx = { eq: `${other.formula} + H₂O → dung dịch pha loãng`,
+          phenomenon: "Chỉ là sự pha loãng vật lý, không xảy ra phản ứng hóa học.",
+          product: "Dung dịch loãng hơn của " + other.name, type: "none", color: other.color, thermo: "Không có",
+          exo: false };
+      }
+      if (!rx && sA.type === 'acid' && sB.type === 'base') {
+        rx = { eq: `${sA.formula} + ${sB.formula} → Muối + H₂O`,
+          phenomenon: "Phản ứng trung hòa axit - bazơ, dung dịch chuyển về gần trung tính.", product: "Muối tan + Nước",
+          type: "neutral", color: "#374057", thermo: "Tỏa nhiệt", exo: true };
+      }
+      if (!rx && sB.type === 'acid' && sA.type === 'base') {
+        rx = { eq: `${sB.formula} + ${sA.formula} → Muối + H₂O`,
+          phenomenon: "Phản ứng trung hòa axit - bazơ, dung dịch chuyển về gần trung tính.", product: "Muối tan + Nước",
+          type: "neutral", color: "#374057", thermo: "Tỏa nhiệt", exo: true };
+      }
+      if (!rx) {
+        rx = { eq: `${sA.formula} + ${sB.formula} → không có phản ứng`,
+          phenomenon: "Không có hiện tượng rõ rệt — hai dung dịch chỉ hòa trộn vào nhau, không sinh ra chất mới.",
+          product: "Không có sản phẩm mới", type: "none", color: sA.color, thermo: "Không có", exo: false };
+      }
+
+      eqEl.textContent = rx.eq;
+      phenomEl.textContent = rx.phenomenon;
+      productEl.textContent = rx.product;
+
+      let typeLabel = '',
+        typeTagClass = 'none';
+      if (rx.type === 'gas') { typeLabel = 'Sinh khí';
+        typeTagClass = 'gas'; } else if (rx.type === 'precip') { typeLabel = 'Kết tủa';
+        typeTagClass = 'precip'; } else if (rx.type === 'neutral') { typeLabel = 'Trung hòa';
+        typeTagClass = 'none'; } else { typeLabel = 'Không phản ứng';
+        typeTagClass = 'none'; }
+      typeEl.innerHTML =
+        `${typeLabel} <span class="tag ${typeTagClass}">${rx.type==='gas'?'KHÍ ↑':rx.type==='precip'?'↓ '+rx.precipLabel:'—'}</span>`;
+
+      thermoEl.textContent = rx.thermo || '—';
+      if (rx.exo) {
+        thermoEl.innerHTML += ' <span class="tag exo">Tỏa nhiệt</span>';
+      } else if (rx.thermo && rx.thermo.includes('Thu nhiệt')) {
+        thermoEl.innerHTML += ' <span class="tag endo">Thu nhiệt</span>';
+      }
+
+      warningEl.textContent = rx.hazardNote || 'Không có cảnh báo đặc biệt';
+      if (rx.hazardNote) {
+        warningEl.innerHTML = `<span class="tag warning">⚠️ ${rx.hazardNote}</span>`;
+      }
+
+      liquid.setAttribute('fill', rx.color || '#374057');
+      glow.style.setProperty('--glow-color', (rx.color || '#374057') + '66');
+      caption.textContent = `Cốc phản ứng — ${sA.name} + ${sB.name}`;
+
+      // Scale effects by concentration
+      const bubbleCount = rx.gas ? Math.floor(14 * conc) : 0;
+      const precipCount = rx.type === 'precip' ? Math.floor(22 * conc) : 0;
+      const smokeCount = rx.gas ? Math.floor(7 * conc) : 0;
+
+      if (bubbleCount > 0) {
+        renderBubbles(bubbles2, bubbleCount);
+      }
+      if (smokeCount > 0) {
+        renderSmoke(smoke2, smokeCount);
+      }
+      if (precipCount > 0) {
+        setTimeout(() => {
+          renderPrecipitate(precip2, rx.precipColor, precipCount);
+          precipBed.setAttribute('height', Math.floor(18 * conc));
+          precipBed.setAttribute('fill', rx.precipColor);
+        }, 150);
+      }
+
+      // Thermo indicator
+      if (rx.exo && rx.type !== 'none') {
+        thermo2.style.opacity = '1';
+        thermoLabel2.textContent = rx.thermo || 'Tỏa nhiệt';
+        thermoFill2.style.width = Math.min(90, 30 + bubbleCount * 3) + '%';
+        thermoFill2.style.background = 'var(--danger)';
+      } else if (rx.thermo && rx.thermo.includes('Thu nhiệt')) {
+        thermo2.style.opacity = '1';
+        thermoLabel2.textContent = rx.thermo;
+        thermoFill2.style.width = '25%';
+        thermoFill2.style.background = '#8fc8ff';
+      } else if (rx.type !== 'none') {
+        thermo2.style.opacity = '1';
+        thermoLabel2.textContent = 'Nhiệt độ ổn định';
+        thermoFill2.style.width = '10%';
+        thermoFill2.style.background = 'var(--teal)';
+      }
+
+      // Add to history
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      addHistory(rx.eq, timeStr);
+    });
+
+    document.getElementById('mixConcSlider').addEventListener('input', function() {
+      document.getElementById('mixConcVal').textContent = this.value + '%';
+    });
+
+    document.getElementById('randomMixBtn').addEventListener('click', () => {
+      const ids = Object.keys(SUBSTANCES);
+      const rA = ids[Math.floor(Math.random() * ids.length)];
+      let rB = ids[Math.floor(Math.random() * ids.length)];
+      while (rB === rA && ids.length > 1) { rB = ids[Math.floor(Math.random() * ids.length)]; }
+      mixAEl.querySelectorAll('.chip').forEach(c => {
+        c.classList.remove('selected');
+        if (c.dataset.id === rA) c.classList.add('selected');
+      });
+      mixBEl.querySelectorAll('.chip').forEach(c => {
+        c.classList.remove('selected-b');
+        if (c.dataset.id === rB) c.classList.add('selected-b');
+      });
+      mixA = rA;
+      mixB = rB;
+      updatePreMixBeaker();
+      refreshMixButton();
+    });
+
+    document.getElementById('swapMixBtn').addEventListener('click', () => {
+      if (!mixA || !mixB) return;
+      const temp = mixA;
+      mixA = mixB;
+      mixB = temp;
+      mixAEl.querySelectorAll('.chip').forEach(c => {
+        c.classList.remove('selected');
+        if (c.dataset.id === mixA) c.classList.add('selected');
+      });
+      mixBEl.querySelectorAll('.chip').forEach(c => {
+        c.classList.remove('selected-b');
+        if (c.dataset.id === mixB) c.classList.add('selected-b');
+      });
+      updatePreMixBeaker();
+      refreshMixButton();
+    });
+
+    document.getElementById('resetMixBtn').addEventListener('click', () => {
+      mixA = null;
+      mixB = null;
+      document.getElementById('mixConcSlider').value = 100;
+      document.getElementById('mixConcVal').textContent = '100%';
+      mixAEl.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+      mixBEl.querySelectorAll('.chip').forEach(c => c.classList.remove('selected-b'));
+      updatePreMixBeaker();
+      refreshMixButton();
+      document.getElementById('m-eq').textContent = 'chưa trộn';
+      document.getElementById('m-phenom').textContent = '—';
+      document.getElementById('m-product').textContent = '—';
+      document.getElementById('m-type').textContent = '—';
+      document.getElementById('m-thermo').textContent = '—';
+      document.getElementById('m-warning').textContent = '—';
+      document.getElementById('thermo2').style.opacity = '0';
+    });
+
+    updatePhPanel();
+    renderHistory();
+  </script>
+</body>
+</html>
