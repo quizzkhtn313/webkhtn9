@@ -137,6 +137,36 @@
             color: #e8f0f8;
         }
 
+        /* ---------- NÚT "PHÒNG THÍ NGHIỆM ẢO" ---------- */
+        .btn-lab {
+            background: linear-gradient(135deg, #f7971e, #ffd200);
+            border: none;
+            border-radius: 40px;
+            padding: 12px 24px;
+            font-weight: 700;
+            color: #0f2027;
+            text-decoration: none;
+            font-size: 16px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 16px rgba(247, 151, 30, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+            white-space: nowrap;
+            cursor: pointer;
+            margin-left: auto;  /* đẩy sang phải */
+        }
+        .btn-lab:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 28px rgba(247, 151, 30, 0.6);
+        }
+        .btn-lab:active {
+            transform: scale(0.95);
+        }
+        .btn-lab i {
+            font-size: 18px;
+        }
+
         /* ========== DASHBOARD ========== */
         .dashboard {
             display: grid;
@@ -745,6 +775,10 @@
                 flex: 1;
                 min-width: 100px;
             }
+            .btn-lab {
+                margin-left: 0;         /* căn giữa trên mobile */
+                justify-content: center;
+            }
             .dashboard {
                 grid-template-columns: 1fr 1fr;
                 padding: 16px;
@@ -812,6 +846,10 @@
                             <option value="easiest">Dễ nhất</option>
                         </select>
                     </div>
+                    <!-- NÚT "PHÒNG THÍ NGHIỆM ẢO" -->
+                    <a href="hoahocthuchanhnew.html" class="btn-lab">
+                        <i class="fas fa-flask"></i> Phòng thí nghiệm ảo
+                    </a>
                 </div>
             </header>
 
