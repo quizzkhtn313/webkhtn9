@@ -6,6 +6,9 @@
 <title>SciDesk — Giáo Viên KHTN</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://js.puter.com/v2/"></script>
+<!-- Firebase CDN -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <style>
   /* Nút đăng xuất */
 .logout-btn {
@@ -452,115 +455,250 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 </div>
 
 <script>
-  function logout() {
-  if (confirm('Bạn có chắc muốn đăng xuất? Dữ liệu chưa đồng bộ sẽ bị mất.')) {
-    localStorage.clear();   // Xóa toàn bộ dữ liệu của giáo viên
-    window.location.href = 'chxdangky.html';
+// ====================== FIRESTORE INIT ======================
+// Firebase config của bạn
+const firebaseConfig = {
+  apiKey: "AIzaSyC5O71ECa--ePtjpwaO04bnp23vGRXF8AU",
+  authDomain: "webhs-e8c97.firebaseapp.com",
+  projectId: "webhs-e8c97",
+  storageBucket: "webhs-e8c97.firebasestorage.app",
+  messagingSenderId: "885531426823",
+  appId: "1:885531426823:web:26a11c386f419c4fa5aaa2",
+  measurementId: "G-EBJG42QBL1"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// ============ FIRESTORE HELPERS ============
+async function saveClass(classData) {
+  const { code, ...data } = classData;
+  await db.collection('classes').doc(code).set(data);
+}
+
+async function getClass(classCode) {
+  const doc = await db.collection('classes').doc(classCode).get();
+  return doc.exists ? doc.data() : null;
+}
+
+async function addStudent(classCode, student) {
+  await db.collection('classes').doc(classCode).collection('students').doc(student.username).set({
+    ...student,
+    joinedAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+}
+
+async function getStudents(classCode) {
+  const snapshot = await db.collection('classes').doc(classCode).collection('students').get();
+  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+}
+
+function listenStudents(classCode, callback) {
+  return db.collection('classes').doc(classCode).collection('students')
+    .orderBy('joinedAt', 'asc')
+    .onSnapshot(snapshot => {
+      const students = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      callback(students);
+    });
+}
+
+async function saveAssignment(classCode, assignment) {
+  const id = assignment.id || Date.now().toString();
+  await db.collection('classes').doc(classCode).collection('assignments').doc(id).set({
+    ...assignment,
+    id: id,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+}
+
+async function getAssignments(classCode) {
+  const snapshot = await db.collection('classes').doc(classCode).collection('assignments').get();
+  return snapshot.docs.map(doc => doc.data());
+}
+
+function listenAssignments(classCode, callback) {
+  return db.collection('classes').doc(classCode).collection('assignments')
+    .orderBy('createdAt', 'desc')
+    .onSnapshot(snapshot => {
+      const assignments = snapshot.docs.map(doc => doc.data());
+      callback(assignments);
+    });
+}
+
+async function addSubmit(classCode, submit) {
+  await db.collection('classes').doc(classCode).collection('submits').add({
+    ...submit,
+    submittedAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+}
+
+async function getSubmits(classCode) {
+  const snapshot = await db.collection('classes').doc(classCode).collection('submits').get();
+  return snapshot.docs.map(doc => doc.data());
+}
+
+function listenSubmits(classCode, callback) {
+  return db.collection('classes').doc(classCode).collection('submits')
+    .orderBy('submittedAt', 'desc')
+    .onSnapshot(snapshot => {
+      const submits = snapshot.docs.map(doc => doc.data());
+      callback(submits);
+    });
+}
+
+async function saveQuiz(quiz) {
+  const id = quiz.id || Date.now().toString();
+  await db.collection('quizzes').doc(id).set({
+    ...quiz,
+    id: id,
+    savedAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+}
+
+async function getQuizzes() {
+  const snapshot = await db.collection('quizzes').orderBy('savedAt', 'desc').get();
+  return snapshot.docs.map(doc => doc.data());
+}
+
+async function deleteAssignment(classCode, assignId) {
+  await db.collection('classes').doc(classCode).collection('assignments').doc(assignId).delete();
+}
+
+// ====================== STATE ======================
+let teacher = null, classroom = null, assignments = [], students = [], activities = [], submits = [];
+let qCounter = 0, currentQuizId = null;
+
+// ====================== STORAGE LOCAL ======================
+const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } };
+const load = k => { try { const d = localStorage.getItem(k); return d ? JSON.parse(d) : null; } catch (e) { return null; } };
+const genCode = () => { const c = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let s = ''; for (let i = 0; i < 6; i++) s += c[Math.floor(Math.random() * c.length)]; return s; };
+
+// ====================== SETUP ======================
+function goStep1() { setStep('step1'); }
+function goStep2() { if (!document.getElementById('sName').value.trim()) { document.getElementById('sName').focus(); return; } setStep('step2'); }
+function setStep(id) { ['step1', 'step2', 'step3'].forEach(s => document.getElementById(s).classList.toggle('active', s === id)); }
+
+async function createClass() {
+  const cls = document.getElementById('sClass').value.trim();
+  if (!cls) { document.getElementById('sClass').focus(); return; }
+  const code = genCode();
+  const teacherData = {
+    name: document.getElementById('sName').value.trim(),
+    email: document.getElementById('sEmail').value.trim(),
+    subject: document.getElementById('sSubject').value
+  };
+  const classData = {
+    name: cls,
+    code: code,
+    grade: document.getElementById('sGrade').value,
+    year: document.getElementById('sYear').value,
+    teacher: teacherData.name,
+    subject: teacherData.subject
+  };
+  try {
+    await saveClass(classData);
+    teacher = teacherData;
+    classroom = { ...classData, code };
+    save('sd-teacher', teacher);
+    save('sd-classroom', classroom);
+    document.getElementById('displayCode').textContent = code;
+    document.getElementById('joinLink').textContent = `${location.origin}/newtrangchu.html?join=${code}`;
+    setStep('step3');
+  } catch (e) {
+    alert('Lỗi tạo lớp: ' + e.message);
   }
 }
-/* ══ STATE ══ */
-let teacher=null,classroom=null,assignments=[],students=[],activities=[];
-let qCounter=0,currentQuizId=null;
 
-/* ══ STORAGE ══ */
-const save=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));return true;}catch(e){return false;}};
-const load=k=>{try{const d=localStorage.getItem(k);return d?JSON.parse(d):null;}catch(e){return null;}};
-const genCode=()=>{const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let s='';for(let i=0;i<6;i++)s+=c[Math.floor(Math.random()*c.length)];return s;};
-
-/* ══ SETUP ══ */
-function goStep1(){setStep('step1');}
-function goStep2(){if(!document.getElementById('sName').value.trim()){document.getElementById('sName').focus();return;}setStep('step2');}
-function setStep(id){['step1','step2','step3'].forEach(s=>document.getElementById(s).classList.toggle('active',s===id));}
-function createClass(){
-  const cls=document.getElementById('sClass').value.trim();
-  if(!cls){document.getElementById('sClass').focus();return;}
-  const code=genCode();
-  teacher={name:document.getElementById('sName').value.trim(),email:document.getElementById('sEmail').value.trim(),subject:document.getElementById('sSubject').value};
-  classroom={name:cls,code,grade:document.getElementById('sGrade').value,year:document.getElementById('sYear').value};
-  save('sd-teacher',teacher);save('sd-classroom',classroom);
-  save('class-'+code,{name:cls,grade:classroom.grade,teacher:teacher.name,subject:teacher.subject,code});
-  document.getElementById('displayCode').textContent=code;
-  document.getElementById('joinLink').textContent=`${location.origin}/newtrangchu.html?join=${code}`;
-  setStep('step3');
-}
-function enterDashboard(){
-  const el=document.getElementById('setupScreen');
-  el.style.opacity='0';el.style.transition='opacity 0.4s';
-  setTimeout(()=>el.style.display='none',400);
-  applyTeacherUI();loadData();render();
-  setInterval(pollStudents,7000);
-}
-function confirmReset(){if(!confirm('Tạo lớp mới? Dữ liệu cũ sẽ mất.'))return;localStorage.clear();location.reload();}
-
-/* ══ TEACHER UI ══ */
-function applyTeacherUI(){
-  if(!teacher||!classroom)return;
-  const init=teacher.name.split(' ').slice(-2).map(w=>w[0]).join('').toUpperCase()||'?';
-  document.getElementById('sbAvatar').textContent=init;
-  document.getElementById('sbName').textContent=teacher.name;
-  document.getElementById('sbRole').textContent=teacher.subject;
-  document.getElementById('sbCode').textContent=classroom.code;
-  document.getElementById('navClass').textContent=classroom.name;
-  document.getElementById('tbTitle').textContent='Dashboard — '+classroom.name;
-  document.getElementById('tbCode').textContent=classroom.code;
-  document.getElementById('tbDate').textContent=new Date().toLocaleDateString('vi-VN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-  document.getElementById('inviteCode').textContent=classroom.code;
-  document.getElementById('inviteClassName').textContent=classroom.name;
-  document.getElementById('inviteLink2').textContent=`${location.origin}/newtrangchu.html?join=${classroom.code}`;
-  const d=new Date();d.setDate(d.getDate()+7);
-  document.getElementById('quizDue').value=d.toISOString().split('T')[0];
+function enterDashboard() {
+  const el = document.getElementById('setupScreen');
+  el.style.opacity = '0';
+  el.style.transition = 'opacity 0.4s';
+  setTimeout(() => el.style.display = 'none', 400);
+  applyTeacherUI();
+  listenClassData();
 }
 
-/* ══ DATA ══ */
-function loadData(){
-  assignments=load('sd-assignments')||[];
-  activities=load('sd-activities')||[];
-  if(classroom)students=load('students-'+classroom.code)||[];
-}
-function pollStudents(){
-  if(!classroom)return;
-  const shared=load('students-'+classroom.code)||[];
-  const before=students.length;students=shared;
-  if(students.length>before){
-    students.slice(before).forEach(s=>activities.unshift({text:`${s.name} đã tham gia lớp`,color:'var(--purple)',ts:Date.now()}));
-    save('sd-activities',activities.slice(0,30));
-  }
-  render();
-}
-function render(){renderStats();renderAssignments();renderStudents();renderActivity();renderProgress();}
+function confirmReset() { if (!confirm('Tạo lớp mới? Dữ liệu cũ sẽ mất.')) return; localStorage.clear(); location.reload(); }
 
-/* ══ RENDER ══ */
-function renderStats(){
-  document.getElementById('stOpen').textContent=assignments.filter(a=>a.status!=='done').length;
-  document.getElementById('navBadge').textContent=assignments.filter(a=>a.status!=='done').length;
-  document.getElementById('stStudents').textContent=students.length;
-  if(classroom){
-    const sub=load('submits-'+classroom.code)||[];
-    document.getElementById('stPct').textContent=sub.length;
-    const tot=assignments.length*(students.length||1);
-    document.getElementById('stAvg').textContent=tot>0?Math.round(sub.length/tot*100)+'%':'—';
+// ====================== TEACHER UI ======================
+function applyTeacherUI() {
+  if (!teacher || !classroom) return;
+  const init = teacher.name.split(' ').slice(-2).map(w => w[0]).join('').toUpperCase() || '?';
+  document.getElementById('sbAvatar').textContent = init;
+  document.getElementById('sbName').textContent = teacher.name;
+  document.getElementById('sbRole').textContent = teacher.subject;
+  document.getElementById('sbCode').textContent = classroom.code;
+  document.getElementById('navClass').textContent = classroom.name;
+  document.getElementById('tbTitle').textContent = 'Dashboard — ' + classroom.name;
+  document.getElementById('tbCode').textContent = classroom.code;
+  document.getElementById('tbDate').textContent = new Date().toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  document.getElementById('inviteCode').textContent = classroom.code;
+  document.getElementById('inviteClassName').textContent = classroom.name;
+  document.getElementById('inviteLink2').textContent = `${location.origin}/newtrangchu.html?join=${classroom.code}`;
+  const d = new Date(); d.setDate(d.getDate() + 7);
+  document.getElementById('quizDue').value = d.toISOString().split('T')[0];
+}
+
+// ====================== LISTEN FIRESTORE REALTIME ======================
+function listenClassData() {
+  if (!classroom) return;
+  const code = classroom.code;
+
+  if (window._unlistenStudents) window._unlistenStudents();
+  if (window._unlistenAssignments) window._unlistenAssignments();
+  if (window._unlistenSubmits) window._unlistenSubmits();
+
+  window._unlistenStudents = listenStudents(code, (data) => {
+    students = data;
+    renderStudents();
+    renderStats();
+  });
+
+  window._unlistenAssignments = listenAssignments(code, (data) => {
+    assignments = data;
+    renderAssignments();
+    renderStats();
+    renderProgress();
+    document.getElementById('navBadge').textContent = assignments.filter(a => a.status !== 'done').length;
+  });
+
+  window._unlistenSubmits = listenSubmits(code, (data) => {
+    submits = data;
+    renderStats();
+  });
+}
+
+// ====================== RENDER ======================
+function renderStats() {
+  document.getElementById('stOpen').textContent = assignments.filter(a => a.status !== 'done').length;
+  document.getElementById('navBadge').textContent = assignments.filter(a => a.status !== 'done').length;
+  document.getElementById('stStudents').textContent = students.length;
+  if (classroom) {
+    document.getElementById('stPct').textContent = submits.length;
+    const tot = assignments.length * (students.length || 1);
+    document.getElementById('stAvg').textContent = tot > 0 ? Math.round(submits.length / tot * 100) + '%' : '—';
   }
 }
-const subjCls=s=>({'Vật Lý':'subj-phys','Hóa Học':'subj-chem','Sinh Học':'subj-bio','Khoa học Trái Đất':'subj-math','KHTN':'subj-math'}[s]||'subj-math');
-const subjIcon=s=>({'Vật Lý':'⚡','Hóa Học':'⚗','Sinh Học':'🧬','Khoa học Trái Đất':'🌍','KHTN':'🔭'}[s]||'🔭');
-const dueTag=d=>{if(!d)return'';const diff=Math.ceil((new Date(d)-new Date())/86400000);if(diff<0)return'<span class="tag tag-r">Quá hạn</span>';if(diff<=1)return'<span class="tag tag-a">Hôm nay</span>';return`<span class="tag tag-g">${diff} ngày nữa</span>`;};
 
-function renderAssignments(){
-  document.getElementById('assignCount').textContent=assignments.length+' bài';
-  const el=document.getElementById('assignList');
-  if(!assignments.length){el.innerHTML='<div class="empty"><div class="empty-icon">📭</div>Chưa có bài tập nào.</div>';return;}
-  const sub=load('submits-'+(classroom?.code||''))||[];
-  el.innerHTML=[...assignments].reverse().map(a=>{
-    const cnt=sub.filter(s=>s.assignId===a.id).length;
-    const tot=students.length||1;
-    const pct=Math.round(cnt/tot*100);
-    const qc=a.questions?a.questions.length:0;
-    return`<div class="aitem" onclick="openDetail(${a.id})">
+const subjCls = s => ({ 'Vật Lý': 'subj-phys', 'Hóa Học': 'subj-chem', 'Sinh Học': 'subj-bio', 'Khoa học Trái Đất': 'subj-math', 'KHTN': 'subj-math' }[s] || 'subj-math');
+const subjIcon = s => ({ 'Vật Lý': '⚡', 'Hóa Học': '⚗', 'Sinh Học': '🧬', 'Khoa học Trái Đất': '🌍', 'KHTN': '🔭' }[s] || '🔭');
+const dueTag = d => { if (!d) return ''; const diff = Math.ceil((new Date(d) - new Date()) / 86400000); if (diff < 0) return '<span class="tag tag-r">Quá hạn</span>'; if (diff <= 1) return '<span class="tag tag-a">Hôm nay</span>'; return `<span class="tag tag-g">${diff} ngày nữa</span>`; };
+
+function renderAssignments() {
+  document.getElementById('assignCount').textContent = assignments.length + ' bài';
+  const el = document.getElementById('assignList');
+  if (!assignments.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">📭</div>Chưa có bài tập nào.</div>'; return; }
+  const sub = submits;
+  el.innerHTML = [...assignments].reverse().map(a => {
+    const cnt = sub.filter(s => s.assignId === a.id.toString()).length;
+    const tot = students.length || 1;
+    const pct = Math.round(cnt / tot * 100);
+    const qc = a.questions ? a.questions.length : 0;
+    return `<div class="aitem" onclick="openDetail(${a.id})">
       <div class="aitem-dot" style="background:var(--accent)"></div>
       <div class="aitem-info">
         <div class="aitem-name">${a.title}</div>
         <div class="aitem-sub"><span class="subj ${subjCls(a.subject)}">${subjIcon(a.subject)} ${a.subject}</span>&nbsp;
-          ${qc?`<span style="font-family:var(--mono);color:var(--text3)">${qc} câu</span>&nbsp;`:''} ${a.due||'Không có hạn'}
+          ${qc ? `<span style="font-family:var(--mono);color:var(--text3)">${qc} câu</span>&nbsp;` : ''} ${a.due || 'Không có hạn'}
         </div>
         <div class="pbar"><div class="pfill" style="background:var(--accent);width:${pct}%"></div></div>
       </div>
@@ -569,490 +707,391 @@ function renderAssignments(){
   }).join('');
 }
 
-function renderStudents(){
-  document.getElementById('studentCount').textContent=students.length+' hs';
-  const colors=[{c:'#38bdf8',bg:'rgba(56,189,248,0.12)'},{c:'#4ade80',bg:'rgba(74,222,128,0.12)'},{c:'#fbbf24',bg:'rgba(251,191,36,0.12)'},{c:'#a78bfa',bg:'rgba(167,139,250,0.12)'},{c:'#f87171',bg:'rgba(248,113,113,0.12)'}];
-  const el=document.getElementById('studentList');
-  if(!students.length){el.innerHTML=`<div class="empty"><div class="empty-icon">🔗</div>Chưa có học sinh.<br>Mã: <strong style="color:var(--accent)">${classroom?.code||'—'}</strong></div>`;
-  }else{
-    el.innerHTML=students.map((s,i)=>{const{c,bg}=colors[i%colors.length];const init=s.name.split(' ').slice(-2).map(w=>w[0]).join('');
-      return`<div class="sitem"><div class="savatar" style="background:${bg};color:${c}">${init}</div>
-      <div><div class="sname">${s.name}</div><div class="scls">${s.username||''} • ${timeAgo(s.joinedAt||Date.now())}</div></div>
-      <div class="sjoin">${timeAgo(s.joinedAt||Date.now())}</div></div>`;}).join('');
+function renderStudents() {
+  document.getElementById('studentCount').textContent = students.length + ' hs';
+  const colors = [{ c: '#38bdf8', bg: 'rgba(56,189,248,0.12)' }, { c: '#4ade80', bg: 'rgba(74,222,128,0.12)' }, { c: '#fbbf24', bg: 'rgba(251,191,36,0.12)' }, { c: '#a78bfa', bg: 'rgba(167,139,250,0.12)' }, { c: '#f87171', bg: 'rgba(248,113,113,0.12)' }];
+  const el = document.getElementById('studentList');
+  if (!students.length) { el.innerHTML = `<div class="empty"><div class="empty-icon">🔗</div>Chưa có học sinh.<br>Mã: <strong style="color:var(--accent)">${classroom?.code || '—'}</strong></div>`; } else {
+    el.innerHTML = students.map((s, i) => { const { c, bg } = colors[i % colors.length]; const init = s.name.split(' ').slice(-2).map(w => w[0]).join(''); return `<div class="sitem"><div class="savatar" style="background:${bg};color:${c}">${init}</div><div><div class="sname">${s.name}</div><div class="scls">${s.username || ''} • ${timeAgo(s.joinedAt || Date.now())}</div></div><div class="sjoin">${timeAgo(s.joinedAt || Date.now())}</div></div>`; }).join('');
   }
-  const el2=document.getElementById('inviteStudentList');
-  el2.innerHTML=students.length?students.map(s=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);">
-    <span style="font-size:13px">${s.name}</span><span style="font-family:var(--mono);font-size:9px;color:var(--text3);margin-left:auto">${timeAgo(s.joinedAt||Date.now())}</span>
-  </div>`).join(''):'<div class="empty" style="padding:12px 0;">Chờ học sinh nhập mã...</div>';
+  const el2 = document.getElementById('inviteStudentList');
+  el2.innerHTML = students.length ? students.map(s => `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);"><span style="font-size:13px">${s.name}</span><span style="font-family:var(--mono);font-size:9px;color:var(--text3);margin-left:auto">${timeAgo(s.joinedAt || Date.now())}</span></div>`).join('') : '<div class="empty" style="padding:12px 0;">Chờ học sinh nhập mã...</div>';
 }
 
-function renderActivity(){
-  const el=document.getElementById('actFeed');
-  if(!activities.length){el.innerHTML='<div class="empty" style="padding:12px 0;">Chưa có hoạt động</div>';return;}
-  el.innerHTML=activities.slice(0,8).map(a=>`<div class="feed-item">
-    <div class="feed-dot" style="background:${a.color}"></div>
-    <div><div class="feed-text">${a.text}</div><div class="feed-time">${timeAgo(a.ts)}</div></div>
-  </div>`).join('');
-}
-
-function renderProgress(){
-  if(!assignments.length)return;
-  const byS={};assignments.forEach(a=>{if(!byS[a.subject])byS[a.subject]=0;byS[a.subject]++;});
-  const entries=Object.entries(byS);
-  document.getElementById('progMeta').textContent=entries.length+' môn';
-  const sub=load('submits-'+(classroom?.code||''))||[];
-  document.getElementById('progBlock').innerHTML=entries.map(([s,cnt])=>{
-    const myA=assignments.filter(a=>a.subject===s);
-    const tot=myA.length*(students.length||1);
-    const done=sub.filter(x=>myA.some(a=>a.id===x.assignId)).length;
-    const pct=tot>0?Math.round(done/tot*100):0;
-    return`<div class="prog-row"><div class="prog-head">
-      <span style="font-size:12.5px"><span class="subj ${subjCls(s)}">${subjIcon(s)} ${s}</span></span>
-      <span style="font-family:var(--mono);font-size:10px;color:var(--text3)">${cnt} bài • ${pct}%</span>
-    </div><div class="pbar-bg"><div class="pbar-fill" style="background:var(--accent);width:${pct}%"></div></div></div>`;
+function renderProgress() {
+  if (!assignments.length) return;
+  const byS = {}; assignments.forEach(a => { if (!byS[a.subject]) byS[a.subject] = 0; byS[a.subject]++; });
+  const entries = Object.entries(byS);
+  document.getElementById('progMeta').textContent = entries.length + ' môn';
+  const sub = submits;
+  document.getElementById('progBlock').innerHTML = entries.map(([s, cnt]) => {
+    const myA = assignments.filter(a => a.subject === s);
+    const tot = myA.length * (students.length || 1);
+    const done = sub.filter(x => myA.some(a => a.id.toString() === x.assignId)).length;
+    const pct = tot > 0 ? Math.round(done / tot * 100) : 0;
+    return `<div class="prog-row"><div class="prog-head"><span style="font-size:12.5px"><span class="subj ${subjCls(s)}">${subjIcon(s)} ${s}</span></span><span style="font-family:var(--mono);font-size:10px;color:var(--text3)">${cnt} bài • ${pct}%</span></div><div class="pbar-bg"><div class="pbar-fill" style="background:var(--accent);width:${pct}%"></div></div></div>`;
   }).join('');
 }
 
-/* ══════════════════════════════════
-   QUIZ BUILDER
-   ══════════════════════════════════ */
-function openQuizModal(){document.getElementById('quizOverlay').classList.add('open');renderSavedQuizList();}
-function closeQuizModal(){document.getElementById('quizOverlay').classList.remove('open');}
+// ====================== QUIZ BUILDER ======================
+function openQuizModal() { document.getElementById('quizOverlay').classList.add('open'); renderSavedQuizList(); }
+function closeQuizModal() { document.getElementById('quizOverlay').classList.remove('open'); }
 
-function newQuiz(){
-  if(document.getElementById('questionsContainer').querySelector('.q-block')&&
-     !confirm('Tạo bài mới? Nội dung chưa lưu sẽ mất.'))return;
-  currentQuizId=null;
-  document.getElementById('quizTitle').value='';
-  document.getElementById('questionsContainer').innerHTML=`<div class="empty" id="qEmptyState" style="padding:30px 0;border:1px dashed var(--border2);border-radius:10px;">
-    <div class="empty-icon">🧩</div>Chưa có câu hỏi nào<br>
-    <span style="color:var(--accent);cursor:pointer;text-decoration:underline;" onclick="addMCQ()">+ Thêm câu trắc nghiệm</span>
-    &nbsp;hoặc&nbsp;
-    <span style="color:var(--purple);cursor:pointer;text-decoration:underline;" onclick="addEssayQ()">+ Câu tự luận</span>
-  </div>`;
-  qCounter=0;renderSavedQuizList();
+function newQuiz() {
+  if (document.getElementById('questionsContainer').querySelector('.q-block') && !confirm('Tạo bài mới? Nội dung chưa lưu sẽ mất.')) return;
+  currentQuizId = null;
+  document.getElementById('quizTitle').value = '';
+  document.getElementById('questionsContainer').innerHTML = `<div class="empty" id="qEmptyState" style="padding:30px 0;border:1px dashed var(--border2);border-radius:10px;"><div class="empty-icon">🧩</div>Chưa có câu hỏi nào<br><span style="color:var(--accent);cursor:pointer;text-decoration:underline;" onclick="addMCQ()">+ Thêm câu trắc nghiệm</span>&nbsp;hoặc&nbsp;<span style="color:var(--purple);cursor:pointer;text-decoration:underline;" onclick="addEssayQ()">+ Câu tự luận</span></div>`;
+  qCounter = 0; renderSavedQuizList();
 }
 
-function clearEmpty(){
-  const e=document.getElementById('qEmptyState');
-  if(e)e.remove();
-}
+function clearEmpty() { const e = document.getElementById('qEmptyState'); if (e) e.remove(); }
 
-/* Add multiple choice */
-function addMCQ(){
-  clearEmpty();qCounter++;
-  const id='q'+Date.now();
-  const block=document.createElement('div');
-  block.className='q-block';block.dataset.type='mc';block.dataset.qid=id;
-  const letters=['A','B','C','D'];
-  block.innerHTML=`
-    <div class="q-block-head">
-      <span class="q-badge q-badge-mc">TRẮC NGHIỆM</span>
-      <span class="q-num">Câu ${qCounter}</span>
-      <button class="q-del" onclick="deleteQ(this)">✕ Xóa</button>
-    </div>
+function addMCQ() {
+  clearEmpty(); qCounter++;
+  const id = 'q' + Date.now();
+  const block = document.createElement('div');
+  block.className = 'q-block'; block.dataset.type = 'mc'; block.dataset.qid = id;
+  const letters = ['A', 'B', 'C', 'D'];
+  block.innerHTML = `
+    <div class="q-block-head"><span class="q-badge q-badge-mc">TRẮC NGHIỆM</span><span class="q-num">Câu ${qCounter}</span><button class="q-del" onclick="deleteQ(this)">✕ Xóa</button></div>
     <textarea class="q-text" placeholder="Nhập nội dung câu hỏi trắc nghiệm..."></textarea>
-    <div class="q-ai-row">
-      <button class="btn btn-ai btn-xs" onclick="aiGenMC(this)">✦ AI tạo 4 đáp án</button>
-      <button class="btn btn-purple btn-xs" onclick="aiThinkMC(this)">✦ AI giải thích chi tiết</button>
-    </div>
+    <div class="q-ai-row"><button class="btn btn-ai btn-xs" onclick="aiGenMC(this)">✦ AI tạo 4 đáp án</button><button class="btn btn-purple btn-xs" onclick="aiThinkMC(this)">✦ AI giải thích chi tiết</button></div>
     <div class="ai-status" id="st_${id}"></div>
-    <div class="opts-grid">
-      ${letters.map(l=>`<div class="opt-row">
-        <input type="radio" name="ans_${id}" value="${l}">
-        <span class="opt-letter">${l}.</span>
-        <input type="text" class="opt-inp" placeholder="Đáp án ${l}...">
-      </div>`).join('')}
-    </div>
-    <div class="exp-panel" id="exp_${id}">
-      <div class="exp-label">GIẢI THÍCH TỪ AI</div>
-      <div class="exp-text"></div>
-    </div>`;
+    <div class="opts-grid">${letters.map(l => `<div class="opt-row"><input type="radio" name="ans_${id}" value="${l}"><span class="opt-letter">${l}.</span><input type="text" class="opt-inp" placeholder="Đáp án ${l}..."></div>`).join('')}</div>
+    <div class="exp-panel" id="exp_${id}"><div class="exp-label">GIẢI THÍCH TỪ AI</div><div class="exp-text"></div></div>`;
   document.getElementById('questionsContainer').appendChild(block);
   block.querySelector('.q-text').focus();
-  block.scrollIntoView({behavior:'smooth',block:'nearest'});
+  block.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-/* Add essay */
-function addEssayQ(){
-  clearEmpty();qCounter++;
-  const id='q'+Date.now();
-  const block=document.createElement('div');
-  block.className='q-block';block.dataset.type='essay';block.dataset.qid=id;
-  block.innerHTML=`
-    <div class="q-block-head">
-      <span class="q-badge q-badge-essay">TỰ LUẬN</span>
-      <span class="q-num">Câu ${qCounter}</span>
-      <button class="q-del" onclick="deleteQ(this)">✕ Xóa</button>
-    </div>
+function addEssayQ() {
+  clearEmpty(); qCounter++;
+  const id = 'q' + Date.now();
+  const block = document.createElement('div');
+  block.className = 'q-block'; block.dataset.type = 'essay'; block.dataset.qid = id;
+  block.innerHTML = `
+    <div class="q-block-head"><span class="q-badge q-badge-essay">TỰ LUẬN</span><span class="q-num">Câu ${qCounter}</span><button class="q-del" onclick="deleteQ(this)">✕ Xóa</button></div>
     <textarea class="q-text" placeholder="Nhập câu hỏi tự luận..."></textarea>
-    <div class="q-ai-row">
-      <button class="btn btn-purple btn-xs" onclick="aiEssay(this)">✦ AI gợi ý đáp án mẫu &amp; rubric</button>
-    </div>
+    <div class="q-ai-row"><button class="btn btn-purple btn-xs" onclick="aiEssay(this)">✦ AI gợi ý đáp án mẫu &amp; rubric</button></div>
     <div class="ai-status" id="st_${id}"></div>
     <textarea class="essay-box" placeholder="Đáp án mẫu sẽ xuất hiện ở đây (AI hoặc tự nhập)..."></textarea>
-    <div class="exp-panel" id="exp_${id}">
-      <div class="exp-label">RUBRIC TỪ AI</div>
-      <div class="exp-text"></div>
-    </div>`;
+    <div class="exp-panel" id="exp_${id}"><div class="exp-label">RUBRIC TỪ AI</div><div class="exp-text"></div></div>`;
   document.getElementById('questionsContainer').appendChild(block);
   block.querySelector('.q-text').focus();
-  block.scrollIntoView({behavior:'smooth',block:'nearest'});
+  block.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-function deleteQ(btn){
-  if(!confirm('Xóa câu hỏi này?'))return;
+function deleteQ(btn) {
+  if (!confirm('Xóa câu hỏi này?')) return;
   btn.closest('.q-block').remove();
   renumberQ();
-  if(!document.getElementById('questionsContainer').querySelector('.q-block')){
-    document.getElementById('questionsContainer').innerHTML=`<div class="empty" id="qEmptyState" style="padding:30px 0;border:1px dashed var(--border2);border-radius:10px;">
-      <div class="empty-icon">🧩</div>Chưa có câu hỏi nào<br>
-      <span style="color:var(--accent);cursor:pointer;text-decoration:underline;" onclick="addMCQ()">+ Thêm câu trắc nghiệm</span>
-      &nbsp;hoặc&nbsp;
-      <span style="color:var(--purple);cursor:pointer;text-decoration:underline;" onclick="addEssayQ()">+ Câu tự luận</span>
-    </div>`;
-    qCounter=0;
+  if (!document.getElementById('questionsContainer').querySelector('.q-block')) {
+    document.getElementById('questionsContainer').innerHTML = `<div class="empty" id="qEmptyState" style="padding:30px 0;border:1px dashed var(--border2);border-radius:10px;"><div class="empty-icon">🧩</div>Chưa có câu hỏi nào<br><span style="color:var(--accent);cursor:pointer;text-decoration:underline;" onclick="addMCQ()">+ Thêm câu trắc nghiệm</span>&nbsp;hoặc&nbsp;<span style="color:var(--purple);cursor:pointer;text-decoration:underline;" onclick="addEssayQ()">+ Câu tự luận</span></div>`;
+    qCounter = 0;
   }
 }
-function renumberQ(){
-  qCounter=0;
-  document.querySelectorAll('.q-block').forEach(b=>{qCounter++;const n=b.querySelector('.q-num');if(n)n.textContent='Câu '+qCounter;});
-}
+function renumberQ() { qCounter = 0; document.querySelectorAll('.q-block').forEach(b => { qCounter++; const n = b.querySelector('.q-num'); if (n) n.textContent = 'Câu ' + qCounter; }); }
 
 async function callGrok(prompt, statusEl) {
-    statusEl.className = 'ai-status';
-    statusEl.textContent = '✦ Grok đang suy nghĩ...';
-
-    try {
-        const response = await puter.ai.chat(prompt, { 
-            model: "x-ai/grok-4-1-fast"   // Hoặc grok-4-1 nếu muốn mạnh hơn
-        });
-        
-        const text = response.message?.content || response.toString();
-        
-        statusEl.className = 'ai-status ok';
-        statusEl.textContent = '✓ Grok hoàn thành!';
-        setTimeout(() => statusEl.textContent = '', 2500);
-        
-        return text;
-    } catch (e) {
-        console.error(e);
-        statusEl.className = 'ai-status err';
-        statusEl.textContent = '❌ Lỗi kết nối Grok';
-        return null;
-    }
+  statusEl.className = 'ai-status';
+  statusEl.textContent = '✦ Grok đang suy nghĩ...';
+  try {
+    const response = await puter.ai.chat(prompt, { model: "x-ai/grok-4-1-fast" });
+    const text = response.message?.content || response.toString();
+    statusEl.className = 'ai-status ok';
+    statusEl.textContent = '✓ Grok hoàn thành!';
+    setTimeout(() => statusEl.textContent = '', 2500);
+    return text;
+  } catch (e) {
+    console.error(e);
+    statusEl.className = 'ai-status err';
+    statusEl.textContent = '❌ Lỗi kết nối Grok';
+    return null;
+  }
 }
 
-function parseJSON(raw) {
-    try {
-        return JSON.parse(raw.replace(/```json|```/g, '').trim());
-    } catch (e) {
-        return null;
-    }
-}
+function parseJSON(raw) { try { return JSON.parse(raw.replace(/```json|```/g, '').trim()); } catch (e) { return null; } }
 
-/* AI: Tạo 4 đáp án trắc nghiệm */
 async function aiGenMC(btn) {
-    const block = btn.closest('.q-block');
-    const id = block.dataset.qid;
-    const q = block.querySelector('.q-text').value.trim();
-    if (!q) { block.querySelector('.q-text').focus(); return; }
-
-    btn.disabled = true;
-    const subj = document.getElementById('quizSubject').value;
-
-    const raw = await callGrok(
-        `Bạn là giáo viên ${subj} Việt Nam. Tạo đúng 4 lựa chọn (A,B,C,D) với 1 đáp án đúng.\nChỉ trả về JSON: {"options":["A. ...","B. ...","C. ...","D. ..."],"correct_letter":"A"}\nCâu hỏi: ${q}`,
-        document.getElementById('st_' + id)
-    );
-    btn.disabled = false;
-
-    if (!raw) return;
-    const data = parseJSON(raw);
-    if (!data) return;
-
-    const opts = block.querySelectorAll('.opt-inp');
-    const radios = block.querySelectorAll('input[type=radio]');
-    data.options?.forEach((o, i) => {
-        if (opts[i]) opts[i].value = o.replace(/^[A-D]\.\s*/i, '');
-    });
-    radios.forEach(r => { if (r.value === data.correct_letter) r.checked = true; });
+  const block = btn.closest('.q-block'); const id = block.dataset.qid; const q = block.querySelector('.q-text').value.trim();
+  if (!q) { block.querySelector('.q-text').focus(); return; }
+  btn.disabled = true;
+  const subj = document.getElementById('quizSubject').value;
+  const raw = await callGrok(`Bạn là giáo viên ${subj} Việt Nam. Tạo đúng 4 lựa chọn (A,B,C,D) với 1 đáp án đúng.\nChỉ trả về JSON: {"options":["A. ...","B. ...","C. ...","D. ..."],"correct_letter":"A"}\nCâu hỏi: ${q}`, document.getElementById('st_' + id));
+  btn.disabled = false;
+  if (!raw) return;
+  const data = parseJSON(raw);
+  if (!data) return;
+  const opts = block.querySelectorAll('.opt-inp');
+  const radios = block.querySelectorAll('input[type=radio]');
+  data.options?.forEach((o, i) => { if (opts[i]) opts[i].value = o.replace(/^[A-D]\.\s*/i, ''); });
+  radios.forEach(r => { if (r.value === data.correct_letter) r.checked = true; });
 }
 
-/* AI: Suy nghĩ sâu + giải thích */
 async function aiThinkMC(btn) {
-    const block = btn.closest('.q-block');
-    const id = block.dataset.qid;
-    const q = block.querySelector('.q-text').value.trim();
-    if (!q) { block.querySelector('.q-text').focus(); return; }
-
-    btn.disabled = true;
-    const subj = document.getElementById('quizSubject').value;
-
-    const raw = await callGrok(
-        `Bạn là giáo viên ${subj} giỏi. Tạo 4 đáp án và giải thích chi tiết bằng tiếng Việt.\nChỉ trả về JSON: {"options":["A. ...","B. ...","C. ...","D. ..."],"correct_letter":"A","explanation":"Giải thích chi tiết..."}\nCâu hỏi: ${q}`,
-        document.getElementById('st_' + id)
-    );
-    btn.disabled = false;
-
-    if (!raw) return;
-    const data = parseJSON(raw);
-    if (!data) return;
-
-    const opts = block.querySelectorAll('.opt-inp');
-    const radios = block.querySelectorAll('input[type=radio]');
-    data.options?.forEach((o, i) => {
-        if (opts[i]) opts[i].value = o.replace(/^[A-D]\.\s*/i, '');
-    });
-    radios.forEach(r => { if (r.value === data.correct_letter) r.checked = true; });
-
-    if (data.explanation) {
-        const exp = document.getElementById('exp_' + id);
-        exp.querySelector('.exp-text').textContent = data.explanation;
-        exp.classList.add('show');
-    }
-}
-
-/* AI: Tự luận - Đáp án mẫu + Rubric */
-async function aiEssay(btn) {
-    const block = btn.closest('.q-block');
-    const id = block.dataset.qid;
-    const q = block.querySelector('.q-text').value.trim();
-    if (!q) { block.querySelector('.q-text').focus(); return; }
-
-    btn.disabled = true;
-    const subj = document.getElementById('quizSubject').value;
-
-    const raw = await callGrok(
-        `Bạn là giáo viên ${subj} Việt Nam. Câu hỏi tự luận: ${q}\nChỉ trả về JSON: {"model_answer":"Đáp án mẫu đầy đủ...","rubric":"Tiêu chí chấm điểm chi tiết...","explanation":"Hướng dẫn thêm..."}`,
-        document.getElementById('st_' + id)
-    );
-    btn.disabled = false;
-
-    if (!raw) return;
-    const data = parseJSON(raw);
-    if (!data) return;
-
-    if (data.model_answer) block.querySelector('.essay-box').value = data.model_answer;
-
+  const block = btn.closest('.q-block'); const id = block.dataset.qid; const q = block.querySelector('.q-text').value.trim();
+  if (!q) { block.querySelector('.q-text').focus(); return; }
+  btn.disabled = true;
+  const subj = document.getElementById('quizSubject').value;
+  const raw = await callGrok(`Bạn là giáo viên ${subj} giỏi. Tạo 4 đáp án và giải thích chi tiết bằng tiếng Việt.\nChỉ trả về JSON: {"options":["A. ...","B. ...","C. ...","D. ..."],"correct_letter":"A","explanation":"Giải thích chi tiết..."}\nCâu hỏi: ${q}`, document.getElementById('st_' + id));
+  btn.disabled = false;
+  if (!raw) return;
+  const data = parseJSON(raw);
+  if (!data) return;
+  const opts = block.querySelectorAll('.opt-inp');
+  const radios = block.querySelectorAll('input[type=radio]');
+  data.options?.forEach((o, i) => { if (opts[i]) opts[i].value = o.replace(/^[A-D]\.\s*/i, ''); });
+  radios.forEach(r => { if (r.value === data.correct_letter) r.checked = true; });
+  if (data.explanation) {
     const exp = document.getElementById('exp_' + id);
-    if (data.rubric || data.explanation) {
-        exp.querySelector('.exp-text').textContent = `Rubric:\n${data.rubric || ''}\n\nHướng dẫn:\n${data.explanation || ''}`;
-        exp.classList.add('show');
-    }
+    exp.querySelector('.exp-text').textContent = data.explanation;
+    exp.classList.add('show');
+  }
 }
 
-/* ── Collect quiz ── */
-function collectQuiz(){
-  const title=document.getElementById('quizTitle').value.trim()||'Bài kiểm tra chưa đặt tên';
-  const questions=[];
-  document.querySelectorAll('.q-block').forEach(block=>{
-    const type=block.dataset.type;
-    const qText=block.querySelector('.q-text').value.trim();
-    if(type==='mc'){
-      const opts=Array.from(block.querySelectorAll('.opt-inp')).map(i=>i.value.trim());
-      const correct=block.querySelector('input[type=radio]:checked')?.value||null;
-      questions.push({type:'mc',question:qText,options:opts,correct});
-    }else{
-      questions.push({type:'essay',question:qText,modelAnswer:block.querySelector('.essay-box')?.value.trim()||''});
+async function aiEssay(btn) {
+  const block = btn.closest('.q-block'); const id = block.dataset.qid; const q = block.querySelector('.q-text').value.trim();
+  if (!q) { block.querySelector('.q-text').focus(); return; }
+  btn.disabled = true;
+  const subj = document.getElementById('quizSubject').value;
+  const raw = await callGrok(`Bạn là giáo viên ${subj} Việt Nam. Câu hỏi tự luận: ${q}\nChỉ trả về JSON: {"model_answer":"Đáp án mẫu đầy đủ...","rubric":"Tiêu chí chấm điểm chi tiết...","explanation":"Hướng dẫn thêm..."}`, document.getElementById('st_' + id));
+  btn.disabled = false;
+  if (!raw) return;
+  const data = parseJSON(raw);
+  if (!data) return;
+  if (data.model_answer) block.querySelector('.essay-box').value = data.model_answer;
+  const exp = document.getElementById('exp_' + id);
+  if (data.rubric || data.explanation) {
+    exp.querySelector('.exp-text').textContent = `Rubric:\n${data.rubric || ''}\n\nHướng dẫn:\n${data.explanation || ''}`;
+    exp.classList.add('show');
+  }
+}
+
+function collectQuiz() {
+  const title = document.getElementById('quizTitle').value.trim() || 'Bài kiểm tra chưa đặt tên';
+  const questions = [];
+  document.querySelectorAll('.q-block').forEach(block => {
+    const type = block.dataset.type;
+    const qText = block.querySelector('.q-text').value.trim();
+    if (type === 'mc') {
+      const opts = Array.from(block.querySelectorAll('.opt-inp')).map(i => i.value.trim());
+      const correct = block.querySelector('input[type=radio]:checked')?.value || null;
+      questions.push({ type: 'mc', question: qText, options: opts, correct });
+    } else {
+      questions.push({ type: 'essay', question: qText, modelAnswer: block.querySelector('.essay-box')?.value.trim() || '' });
     }
   });
-  return{title,questions,subject:document.getElementById('quizSubject').value,due:document.getElementById('quizDue').value};
+  return { title, questions, subject: document.getElementById('quizSubject').value, due: document.getElementById('quizDue').value };
 }
 
-/* ── Save quiz to localStorage ── */
-function saveQuizLocal(){
-  const q=collectQuiz();
-  let saved=load('sd-quizzes')||[];
-  const quiz={id:currentQuizId||'qz_'+Date.now(),...q,savedAt:Date.now()};
-  if(currentQuizId)saved=saved.map(x=>x.id===currentQuizId?quiz:x);
-  else{saved.unshift(quiz);if(saved.length>30)saved.pop();}
-  save('sd-quizzes',saved);
-  currentQuizId=quiz.id;
+async function saveQuizLocal() {
+  const q = collectQuiz();
+  let saved = await getQuizzes();
+  const quiz = { id: currentQuizId || 'qz_' + Date.now(), ...q, savedAt: Date.now() };
+  if (currentQuizId) {
+    // update
+    await db.collection('quizzes').doc(quiz.id).set(quiz);
+  } else {
+    await saveQuiz(quiz);
+  }
+  currentQuizId = quiz.id;
   renderSavedQuizList();
   return quiz;
 }
 
-/* ── Save only ── */
-function saveQuizOnly(){
-  const{title,questions}=collectQuiz();
-  if(!title&&!questions.length){showToast('⚠️','Cần có ít nhất tiêu đề hoặc 1 câu hỏi!','');return;}
-  saveQuizLocal();
-  showToast('💾','Đã lưu bài!',`"${title}"`);
+async function saveQuizOnly() {
+  const { title, questions } = collectQuiz();
+  if (!title && !questions.length) { showToast('⚠️', 'Cần có ít nhất tiêu đề hoặc 1 câu hỏi!', ''); return; }
+  await saveQuizLocal();
+  showToast('💾', 'Đã lưu bài!', `"${title}"`);
 }
 
-/* ── Save + Assign ── */
-function saveAndAssign(){
-  const q=collectQuiz();
-  if(!q.title||!q.questions.length){showToast('⚠️','Cần có tiêu đề và ít nhất 1 câu hỏi!','');return;}
-  const quiz=saveQuizLocal();
-  const a={id:Date.now(),title:quiz.title,subject:quiz.subject,due:quiz.due,questions:quiz.questions,status:'active',createdAt:Date.now()};
-  assignments.push(a);
-  activities.unshift({text:`Đã giao bài "${quiz.title}" (${quiz.questions.length} câu)`,color:'var(--accent)',ts:Date.now()});
-  save('sd-assignments',assignments);save('sd-activities',activities.slice(0,30));
-  if(classroom)save('assignments-'+classroom.code,assignments);
-  render();closeQuizModal();
-  showToast('🚀','Đã giao bài!',`"${quiz.title}" — ${quiz.questions.length} câu`);
+async function saveAndAssign() {
+  const q = collectQuiz();
+  if (!q.title || !q.questions.length) { showToast('⚠️', 'Cần có tiêu đề và ít nhất 1 câu hỏi!', ''); return; }
+  const quiz = await saveQuizLocal();
+  const a = {
+    id: Date.now(),
+    title: quiz.title,
+    subject: quiz.subject,
+    due: quiz.due,
+    questions: quiz.questions,
+    status: 'active',
+    createdAt: Date.now()
+  };
+  try {
+    await saveAssignment(classroom.code, a);
+    activities.unshift({ text: `Đã giao bài "${quiz.title}" (${quiz.questions.length} câu)`, color: 'var(--accent)', ts: Date.now() });
+    save('sd-activities', activities.slice(0, 30));
+    showToast('🚀', 'Đã giao bài!', `"${quiz.title}" — ${quiz.questions.length} câu`);
+    closeQuizModal();
+  } catch (e) {
+    showToast('❌', 'Lỗi giao bài!', e.message);
+  }
 }
 
-/* ── Copy quiz to clipboard ── */
-async function copyQuiz(){
-  const{title,questions}=collectQuiz();
-  if(!questions.length){showToast('⚠️','Chưa có câu hỏi!','');return;}
-  const sep='─'.repeat(40);
-  let txt=`${title.toUpperCase()}\nĐỀ KIỂM TRA\n${sep}\n\n`;
-  questions.forEach((q,i)=>{
-    txt+=`Câu ${i+1}: ${q.question||'(Chưa nhập)'}\n\n`;
-    if(q.type==='mc'){
-      ['A','B','C','D'].forEach((l,j)=>{txt+=`${l}. ${q.options[j]||'(Chưa nhập)'}${l===q.correct?' ← Đáp án đúng':''}\n`;});
-    }else{txt+=`Đáp án mẫu:\n${q.modelAnswer||'(Chưa có)'}\n`;}
-    txt+='\n'+sep+'\n\n';
+async function copyQuiz() {
+  const { title, questions } = collectQuiz();
+  if (!questions.length) { showToast('⚠️', 'Chưa có câu hỏi!', ''); return; }
+  const sep = '─'.repeat(40);
+  let txt = `${title.toUpperCase()}\nĐỀ KIỂM TRA\n${sep}\n\n`;
+  questions.forEach((q, i) => {
+    txt += `Câu ${i+1}: ${q.question || '(Chưa nhập)'}\n\n`;
+    if (q.type === 'mc') {
+      ['A', 'B', 'C', 'D'].forEach((l, j) => { txt += `${l}. ${q.options[j] || '(Chưa nhập)'}${l === q.correct ? ' ← Đáp án đúng' : ''}\n`; });
+    } else { txt += `Đáp án mẫu:\n${q.modelAnswer || '(Chưa có)'}\n`; }
+    txt += '\n' + sep + '\n\n';
   });
   await navigator.clipboard.writeText(txt);
-  showToast('📋','Đã copy toàn bộ đề!','Dán vào Word hoặc Google Docs');
+  showToast('📋', 'Đã copy toàn bộ đề!', 'Dán vào Word hoặc Google Docs');
 }
 
-/* ── Render saved quiz list ── */
-function renderSavedQuizList(){
-  const saved=load('sd-quizzes')||[];
-  const el=document.getElementById('savedQuizList');
-  if(!saved.length){el.innerHTML='<div style="font-family:var(--mono);font-size:10px;color:var(--text3);text-align:center;padding:14px 0;">Chưa có bài nào được lưu</div>';return;}
-  el.innerHTML=saved.map(q=>`
-    <div class="sq-item ${q.id===currentQuizId?'active':''}" onclick="loadSavedQuiz('${q.id}')">
-      <div style="font-weight:500;">${q.title}</div>
-      <div class="sq-item-sub">${q.questions.length} câu • ${timeAgo(q.savedAt)}</div>
-    </div>`).join('');
+async function renderSavedQuizList() {
+  try {
+    const saved = await getQuizzes();
+    const el = document.getElementById('savedQuizList');
+    if (!saved.length) {
+      el.innerHTML = '<div style="font-family:var(--mono);font-size:10px;color:var(--text3);text-align:center;padding:14px 0;">Chưa có bài nào được lưu</div>';
+      return;
+    }
+    el.innerHTML = saved.map(q => `
+      <div class="sq-item ${q.id === currentQuizId ? 'active' : ''}" onclick="loadSavedQuiz('${q.id}')">
+        <div style="font-weight:500;">${q.title}</div>
+        <div class="sq-item-sub">${q.questions.length} câu • ${timeAgo(q.savedAt)}</div>
+      </div>
+    `).join('');
+  } catch (e) { console.error(e); }
 }
 
-function loadSavedQuiz(id){
-  const saved=load('sd-quizzes')||[];
-  const quiz=saved.find(q=>q.id===id);if(!quiz)return;
-  currentQuizId=id;
-  document.getElementById('quizTitle').value=quiz.title;
-  if(quiz.subject)document.getElementById('quizSubject').value=quiz.subject;
-  if(quiz.due)document.getElementById('quizDue').value=quiz.due;
-  document.getElementById('questionsContainer').innerHTML='';
-  qCounter=0;
-  quiz.questions.forEach(q=>{
-    if(q.type==='mc'){
+async function loadSavedQuiz(id) {
+  const saved = await getQuizzes();
+  const quiz = saved.find(q => q.id === id); if (!quiz) return;
+  currentQuizId = id;
+  document.getElementById('quizTitle').value = quiz.title;
+  if (quiz.subject) document.getElementById('quizSubject').value = quiz.subject;
+  if (quiz.due) document.getElementById('quizDue').value = quiz.due;
+  document.getElementById('questionsContainer').innerHTML = '';
+  qCounter = 0;
+  quiz.questions.forEach(q => {
+    if (q.type === 'mc') {
       addMCQ();
-      const block=document.getElementById('questionsContainer').lastElementChild;
-      block.querySelector('.q-text').value=q.question||'';
-      const opts=block.querySelectorAll('.opt-inp');
-      const radios=block.querySelectorAll('input[type=radio]');
-      (q.options||[]).forEach((o,i)=>{if(opts[i])opts[i].value=o;});
-      if(q.correct)radios.forEach(r=>{if(r.value===q.correct)r.checked=true;});
-    }else{
+      const block = document.getElementById('questionsContainer').lastElementChild;
+      block.querySelector('.q-text').value = q.question || '';
+      const opts = block.querySelectorAll('.opt-inp');
+      const radios = block.querySelectorAll('input[type=radio]');
+      (q.options || []).forEach((o, i) => { if (opts[i]) opts[i].value = o; });
+      if (q.correct) radios.forEach(r => { if (r.value === q.correct) r.checked = true; });
+    } else {
       addEssayQ();
-      const block=document.getElementById('questionsContainer').lastElementChild;
-      block.querySelector('.q-text').value=q.question||'';
-      if(q.modelAnswer)block.querySelector('.essay-box').value=q.modelAnswer;
+      const block = document.getElementById('questionsContainer').lastElementChild;
+      block.querySelector('.q-text').value = q.question || '';
+      if (q.modelAnswer) block.querySelector('.essay-box').value = q.modelAnswer;
     }
   });
   renderSavedQuizList();
 }
 
-/* ══ ASSIGN DETAIL ══ */
-function openDetail(id){
-  const a=assignments.find(x=>x.id===id);if(!a)return;
+// ====================== ASSIGN DETAIL ======================
+function openDetail(id) {
+  const a = assignments.find(x => x.id === id); if (!a) return;
   document.getElementById('detailOverlay').classList.add('open');
-  const sub=(load('submits-'+(classroom?.code||''))||[]).filter(s=>s.assignId===id);
-  const notSub=students.filter(s=>!sub.find(x=>x.studentName===s.name));
-  const qBlock=a.questions&&a.questions.length?`
+  const sub = submits.filter(s => s.assignId === a.id.toString());
+  const notSub = students.filter(s => !sub.find(x => x.studentName === s.name));
+  const qBlock = a.questions && a.questions.length ? `
     <div style="margin-bottom:14px;">
       <div style="font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:1px;margin-bottom:8px;">NỘI DUNG (${a.questions.length} câu)</div>
-      ${a.questions.map((q,i)=>`<div style="padding:10px;background:var(--bg3);border-radius:8px;margin-bottom:6px;font-size:12px;">
-        <div style="font-weight:600;margin-bottom:4px;">Câu ${i+1}: ${q.question||'—'}</div>
-        ${q.type==='mc'?['A','B','C','D'].map((l,j)=>`<div style="font-family:var(--mono);font-size:11px;color:${l===q.correct?'var(--green)':'var(--text3)'};">${l}. ${(q.options||[])[j]||'—'}${l===q.correct?' ✓':''}</div>`).join('')
-        :`<div style="font-size:11px;color:var(--text2);">Đáp án mẫu: ${q.modelAnswer||'—'}</div>`}
-      </div>`).join('')}
-    </div>`:'';
-  document.getElementById('detailContent').innerHTML=`
+      ${a.questions.map((q, i) => `<div style="padding:10px;background:var(--bg3);border-radius:8px;margin-bottom:6px;font-size:12px;"><div style="font-weight:600;margin-bottom:4px;">Câu ${i+1}: ${q.question || '—'}</div>${q.type === 'mc' ? ['A','B','C','D'].map((l, j) => `<div style="font-family:var(--mono);font-size:11px;color:${l === q.correct ? 'var(--green)' : 'var(--text3)'};">${l}. ${(q.options||[])[j] || '—'}${l === q.correct ? ' ✓' : ''}</div>`).join('') : `<div style="font-size:11px;color:var(--text2);">Đáp án mẫu: ${q.modelAnswer || '—'}</div>`}</div>`).join('')}
+    </div>` : '';
+  document.getElementById('detailContent').innerHTML = `
     <div style="margin-bottom:14px;">
       <div style="font-size:16px;font-weight:700;margin-bottom:8px;">${a.title}</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
         <span class="subj ${subjCls(a.subject)}">${subjIcon(a.subject)} ${a.subject}</span>
-        ${a.due?`<span class="tag tag-b">Hạn: ${a.due}</span>`:''}
-        ${a.questions?`<span class="tag" style="background:rgba(74,222,128,0.1);color:var(--green);">${a.questions.length} câu hỏi</span>`:''}
+        ${a.due ? `<span class="tag tag-b">Hạn: ${a.due}</span>` : ''}
+        ${a.questions ? `<span class="tag" style="background:rgba(74,222,128,0.1);color:var(--green);">${a.questions.length} câu hỏi</span>` : ''}
       </div>
     </div>
     ${qBlock}
-    <div class="divider">Đã nộp (${sub.length}/${students.length||'?'})</div>
+    <div class="divider">Đã nộp (${sub.length}/${students.length || '?'})</div>
     <div style="margin-bottom:14px;">
-      ${sub.length?sub.map(s=>`<div class="submit-row"><span style="color:var(--green)">✅</span>
-        <span class="sub-name">${s.studentName}</span>
-        <span class="sub-note">${s.note||''}</span>
-        <span class="sub-time">${timeAgo(s.submittedAt)}</span></div>`).join('')
-      :'<div style="color:var(--text3);font-size:12px;text-align:center;padding:12px;">Chưa có học sinh nộp bài</div>'}
+      ${sub.length ? sub.map(s => `<div class="submit-row"><span style="color:var(--green)">✅</span><span class="sub-name">${s.studentName}</span><span class="sub-note">${s.note || ''}</span><span class="sub-time">${timeAgo(s.submittedAt)}</span></div>`).join('') : '<div style="color:var(--text3);font-size:12px;text-align:center;padding:12px;">Chưa có học sinh nộp bài</div>'}
     </div>
-    ${notSub.length?`<div class="divider">Chưa nộp (${notSub.length})</div>
-    <div>${notSub.map(s=>`<div class="submit-row"><span style="color:var(--red)">⏳</span>
-      <span class="sub-name">${s.name}</span><span class="sub-time">Chưa làm</span></div>`).join('')}</div>`:''}
+    ${notSub.length ? `<div class="divider">Chưa nộp (${notSub.length})</div><div>${notSub.map(s => `<div class="submit-row"><span style="color:var(--red)">⏳</span><span class="sub-name">${s.name}</span><span class="sub-time">Chưa làm</span></div>`).join('')}</div>` : ''}
     <div style="margin-top:16px;display:flex;gap:8px;">
       <button class="btn btn-ghost btn-sm" onclick="closeDetail()">Đóng</button>
       <button class="btn btn-red btn-sm" onclick="deleteAssign(${a.id})">🗑 Xóa bài tập</button>
     </div>`;
 }
-function closeDetail(){document.getElementById('detailOverlay').classList.remove('open');}
-function deleteAssign(id){
-  if(!confirm('Xóa bài tập này?'))return;
-  assignments=assignments.filter(a=>a.id!==id);
-  save('sd-assignments',assignments);
-  if(classroom)save('assignments-'+classroom.code,assignments);
-  closeDetail();render();showToast('🗑','Đã xóa bài tập!','');
+function closeDetail() { document.getElementById('detailOverlay').classList.remove('open'); }
+async function deleteAssign(id) {
+  if (!confirm('Xóa bài tập này?')) return;
+  try {
+    await deleteAssignment(classroom.code, id.toString());
+    closeDetail();
+    showToast('🗑', 'Đã xóa bài tập!', '');
+  } catch (e) { showToast('❌', 'Lỗi xóa!', e.message); }
 }
 
-/* ══ SUBMITS PANEL ══ */
-function openSubmitsPanel(){
+// ====================== SUBMITS PANEL ======================
+async function openSubmitsPanel() {
   document.getElementById('submitsOverlay').classList.add('open');
-  const sub=load('submits-'+(classroom?.code||''))||[];
-  if(!sub.length){document.getElementById('submitsContent').innerHTML='<div class="empty" style="padding:20px 0;"><div class="empty-icon">📭</div>Chưa có học sinh nộp bài.</div>';return;}
-  const byA={};
-  sub.forEach(s=>{if(!byA[s.assignId])byA[s.assignId]={title:s.assignTitle||'—',subs:[]};byA[s.assignId].subs.push(s);});
-  document.getElementById('submitsContent').innerHTML=Object.entries(byA).map(([,d])=>`
-    <div style="margin-bottom:18px;">
-      <div style="font-size:13px;font-weight:700;margin-bottom:8px;color:var(--accent);">📋 ${d.title} <span style="color:var(--text3);font-weight:400;">(${d.subs.length} lượt nộp)</span></div>
-      ${d.subs.map(s=>`<div class="submit-row"><span style="color:var(--green)">✅</span>
-        <span class="sub-name">${s.studentName}</span>
-        <span class="sub-note">${s.note||'—'}</span>
-        <span class="sub-time">${timeAgo(s.submittedAt)}</span></div>`).join('')}
-    </div>`).join('');
+  try {
+    const sub = await getSubmits(classroom.code);
+    if (!sub.length) { document.getElementById('submitsContent').innerHTML = '<div class="empty" style="padding:20px 0;"><div class="empty-icon">📭</div>Chưa có học sinh nộp bài.</div>'; return; }
+    const byA = {};
+    sub.forEach(s => { if (!byA[s.assignId]) byA[s.assignId] = { title: s.assignTitle || '—', subs: [] }; byA[s.assignId].subs.push(s); });
+    document.getElementById('submitsContent').innerHTML = Object.entries(byA).map(([, d]) => `
+      <div style="margin-bottom:18px;">
+        <div style="font-size:13px;font-weight:700;margin-bottom:8px;color:var(--accent);">📋 ${d.title} <span style="color:var(--text3);font-weight:400;">(${d.subs.length} lượt nộp)</span></div>
+        ${d.subs.map(s => `<div class="submit-row"><span style="color:var(--green)">✅</span><span class="sub-name">${s.studentName}</span><span class="sub-note">${s.note || '—'}</span><span class="sub-time">${timeAgo(s.submittedAt)}</span></div>`).join('')}
+      </div>
+    `).join('');
+  } catch (e) { console.error(e); }
 }
 
-/* ══ MISC ══ */
-function openInviteModal(){document.getElementById('inviteOverlay').classList.add('open');renderStudents();}
-function closeInvite(){document.getElementById('inviteOverlay').classList.remove('open');}
-function setNavActive(el){document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));el.classList.add('active');}
-function copyCode(){if(classroom)navigator.clipboard.writeText(classroom.code);showToast('📋','Đã sao chép mã lớp!','');}
+// ====================== MISC ======================
+function openInviteModal() { document.getElementById('inviteOverlay').classList.add('open'); renderStudents(); }
+function closeInvite() { document.getElementById('inviteOverlay').classList.remove('open'); }
+function setNavActive(el) { document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); el.classList.add('active'); }
+function copyCode() { if (classroom) navigator.clipboard.writeText(classroom.code); showToast('📋', 'Đã sao chép mã lớp!', ''); }
+
+function logout() {
+  if (confirm('Bạn có chắc muốn đăng xuất? Dữ liệu chưa đồng bộ sẽ bị mất.')) {
+    localStorage.clear();
+    window.location.href = 'chxdangky.html';
+  }
+}
 
 let _tt;
-function showToast(icon,title,sub){
+function showToast(icon, title, sub) {
   clearTimeout(_tt);
-  document.getElementById('toastIcon').textContent=icon;
-  document.getElementById('toastTitle').textContent=title;
-  document.getElementById('toastSub').textContent=sub;
-  const t=document.getElementById('toast');t.classList.add('show');
-  _tt=setTimeout(()=>t.classList.remove('show'),3800);
+  document.getElementById('toastIcon').textContent = icon;
+  document.getElementById('toastTitle').textContent = title;
+  document.getElementById('toastSub').textContent = sub;
+  const t = document.getElementById('toast'); t.classList.add('show');
+  _tt = setTimeout(() => t.classList.remove('show'), 3800);
 }
 
-function timeAgo(ts){
-  const d=(Date.now()-ts)/1000;
-  if(d<60)return'vừa xong';if(d<3600)return Math.round(d/60)+' phút trước';
-  if(d<86400)return Math.round(d/3600)+' giờ trước';return Math.round(d/86400)+' ngày trước';
+function timeAgo(ts) {
+  if (!ts) return 'vừa xong';
+  const d = (Date.now() - ts) / 1000;
+  if (d < 60) return 'vừa xong'; if (d < 3600) return Math.round(d / 60) + ' phút trước';
+  if (d < 86400) return Math.round(d / 3600) + ' giờ trước'; return Math.round(d / 86400) + ' ngày trước';
 }
 
-/* Close overlays on backdrop click */
-['quizOverlay','inviteOverlay','detailOverlay','submitsOverlay'].forEach(id=>{
-  document.getElementById(id).addEventListener('click',e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');});
+// Close overlays on backdrop click
+['quizOverlay', 'inviteOverlay', 'detailOverlay', 'submitsOverlay'].forEach(id => {
+  document.getElementById(id).addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('open'); });
 });
 
-/* ══ INIT ══ */
-function init(){
-  teacher=load('sd-teacher');classroom=load('sd-classroom');
-  if(teacher&&classroom){
-    document.getElementById('setupScreen').style.display='none';
-    applyTeacherUI();loadData();render();
-    setInterval(pollStudents,7000);
+// ====================== INIT ======================
+function init() {
+  teacher = load('sd-teacher'); classroom = load('sd-classroom');
+  if (teacher && classroom) {
+    document.getElementById('setupScreen').style.display = 'none';
+    applyTeacherUI();
+    listenClassData();
   }
 }
 init();
