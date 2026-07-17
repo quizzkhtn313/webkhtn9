@@ -7,6 +7,10 @@
   <link rel="stylesheet" href="csss.css" />
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
   <script src="https://js.puter.com/v2/"></script>
+  <!-- Firebase App + Firestore (compat) -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <!-- shared-data.js (nếu có) -->
   <script src="shared-data.js"></script>
   <style>
     /* ==================== CSS CŨ + CSS MỚI ==================== */
@@ -898,14 +902,108 @@
   </div>
 
   <script>
-    // ====================== STORAGE ======================
+    // ============ FIRESTORE HELPERS ============
+    // Khởi tạo Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyC5O71ECa--ePtjpwaO04bnp23vGRXF8AU",
+      authDomain: "webhs-e8c97.firebaseapp.com",
+      projectId: "webhs-e8c97",
+      storageBucket: "webhs-e8c97.firebasestorage.app",
+      messagingSenderId: "885531426823",
+      appId: "1:885531426823:web:26a11c386f419c4fa5aaa2",
+      measurementId: "G-EBJG42QBL1"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // Hàm lưu/đọc dữ liệu
+    async function saveClass(classData) {
+      const { code, ...data } = classData;
+      await db.collection('classes').doc(code).set(data);
+    }
+    async function getClass(classCode) {
+      const doc = await db.collection('classes').doc(classCode).get();
+      return doc.exists ? doc.data() : null;
+    }
+    async function addStudent(classCode, student) {
+      await db.collection('classes').doc(classCode).collection('students').doc(student.username).set({
+        ...student,
+        joinedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }
+    async function getStudents(classCode) {
+      const snapshot = await db.collection('classes').doc(classCode).collection('students').get();
+      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    }
+    function listenStudents(classCode, callback) {
+      return db.collection('classes').doc(classCode).collection('students')
+        .orderBy('joinedAt', 'asc')
+        .onSnapshot(snapshot => {
+          const students = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          callback(students);
+        });
+    }
+    async function saveAssignment(classCode, assignment) {
+      const id = assignment.id || Date.now().toString();
+      await db.collection('classes').doc(classCode).collection('assignments').doc(id).set({
+        ...assignment,
+        id: id,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }
+    async function getAssignments(classCode) {
+      const snapshot = await db.collection('classes').doc(classCode).collection('assignments').get();
+      return snapshot.docs.map(doc => doc.data());
+    }
+    function listenAssignments(classCode, callback) {
+      return db.collection('classes').doc(classCode).collection('assignments')
+        .orderBy('createdAt', 'desc')
+        .onSnapshot(snapshot => {
+          const assignments = snapshot.docs.map(doc => doc.data());
+          callback(assignments);
+        });
+    }
+    async function addSubmit(classCode, submit) {
+      await db.collection('classes').doc(classCode).collection('submits').add({
+        ...submit,
+        submittedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }
+    async function getSubmits(classCode) {
+      const snapshot = await db.collection('classes').doc(classCode).collection('submits').get();
+      return snapshot.docs.map(doc => doc.data());
+    }
+    function listenSubmits(classCode, callback) {
+      return db.collection('classes').doc(classCode).collection('submits')
+        .orderBy('submittedAt', 'desc')
+        .onSnapshot(snapshot => {
+          const submits = snapshot.docs.map(doc => doc.data());
+          callback(submits);
+        });
+    }
+    async function saveQuiz(quiz) {
+      const id = quiz.id || Date.now().toString();
+      await db.collection('quizzes').doc(id).set({
+        ...quiz,
+        id: id,
+        savedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }
+    async function getQuizzes() {
+      const snapshot = await db.collection('quizzes').orderBy('savedAt', 'desc').get();
+      return snapshot.docs.map(doc => doc.data());
+    }
+    async function deleteAssignment(classCode, assignId) {
+      await db.collection('classes').doc(classCode).collection('assignments').doc(assignId).delete();
+    }
+
+    // ====================== STORAGE (vẫn dùng localStorage cho thông tin người dùng) ======================
     async function sdGet(key, shared = false) {
       try {
         const data = localStorage.getItem(key);
         return data ? JSON.parse(data) : null;
       } catch(e) { return null; }
     }
-
     async function sdSet(key, value, shared = false) {
       try {
         localStorage.setItem(key, JSON.stringify(value));
@@ -1022,10 +1120,12 @@
     // ====================== STATS & SIDEBAR ======================
     function updateAchievements(stats) {
       const achievements = document.querySelectorAll('.achievement');
-      achievements[0].textContent = `${stats.totalCorrect || 0} câu đúng` + (stats.totalCorrect >= 100 ? ' 🎯' : '');
-      achievements[1].textContent = `Hoàn thành ${stats.quizStreak || 0} quiz liên tiếp` + (stats.quizStreak >= 5 ? ' 🔥' : '');
-      const days = Math.floor((Date.now() - (stats.firstPlayDate || Date.now())) / 86400000);
-      achievements[2].textContent = `Thành viên ${days} ngày` + (days >= 30 ? ' 🎉' : '');
+      if (achievements.length >= 3) {
+        achievements[0].textContent = `${stats.totalCorrect || 0} câu đúng` + (stats.totalCorrect >= 100 ? ' 🎯' : '');
+        achievements[1].textContent = `Hoàn thành ${stats.quizStreak || 0} quiz liên tiếp` + (stats.quizStreak >= 5 ? ' 🔥' : '');
+        const days = Math.floor((Date.now() - (stats.firstPlayDate || Date.now())) / 86400000);
+        achievements[2].textContent = `Thành viên ${days} ngày` + (days >= 30 ? ' 🎉' : '');
+      }
     }
 
     function updateSidebar() {
@@ -1044,8 +1144,11 @@
       document.getElementById('progressFill').style.width = currentXP + '%';
       document.getElementById('progressText').textContent = `${currentXP} / 100 XP`;
       updateAchievements(s);
-      document.querySelectorAll('.stat')[0].innerHTML = `<b>Tổng điểm:</b> ${s.totalPoints || 0}`;
-      document.querySelectorAll('.stat')[1].innerHTML = `<b>Thời gian chơi:</b> ${((s.playTime || 0) / 3600).toFixed(1)}h`;
+      const statEls = document.querySelectorAll('.stat');
+      if (statEls.length >= 2) {
+        statEls[0].innerHTML = `<b>Tổng điểm:</b> ${s.totalPoints || 0}`;
+        statEls[1].innerHTML = `<b>Thời gian chơi:</b> ${((s.playTime || 0) / 3600).toFixed(1)}h`;
+      }
     }
 
     // ====================== LOGIN / LOGOUT ======================
@@ -1201,7 +1304,7 @@
       }
     });
 
-    // ====================== CHATBOT AI (TÍCH HỢP GROQ API) ======================
+    // ====================== CHATBOT AI ======================
     const chatBtn = document.getElementById('chatBtn');
     const chatbox = document.getElementById('chatbox');
     const closeChat = document.querySelector('.close-chat');
@@ -1228,7 +1331,6 @@
       chatInput.value = '';
       chatSend.disabled = true;
 
-      // Loading message
       const loading = document.createElement('div');
       loading.className = 'message ai';
       loading.innerHTML = `🤖 Đang suy nghĩ...`;
@@ -1281,7 +1383,6 @@
       if (e.key === 'Enter') sendMessage();
     });
 
-    // Click outside to close chat
     document.addEventListener('click', e => {
       if (!chatbox.contains(e.target) && !chatBtn.contains(e.target)) {
         chatbox.classList.remove('show');
@@ -1333,34 +1434,40 @@
       btn.textContent = '⏳ Đang kiểm tra...';
       btn.disabled = true;
 
-      const classInfo = await sdGet('class-' + code, true);
-      if (!classInfo) {
-        errEl.innerHTML = `❌ Không tìm thấy lớp <b>${code}</b>. Kiểm tra lại mã!`;
+      try {
+        const classInfo = await getClass(code);
+        if (!classInfo) {
+          errEl.innerHTML = `❌ Không tìm thấy lớp <b>${code}</b>. Kiểm tra lại mã!`;
+          errEl.style.display = 'block';
+          btn.textContent = '✅ Tham gia lớp';
+          btn.disabled = false;
+          return;
+        }
+
+        const username = '@' + profile.username.replace(/\s+/g, '').toLowerCase();
+
+        // Thêm học sinh vào Firestore
+        await addStudent(code, { name: profile.displayName || profile.username, username });
+
+        // Lưu trạng thái vào localStorage
+        localStorage.setItem('sd-myClass', code);
+        localStorage.setItem('sd-myName', profile.displayName || profile.username);
+        localStorage.setItem('sd-myUsername', username);
+        localStorage.setItem('sd-classInfo-' + code, JSON.stringify(classInfo));
+
+        btn.textContent = '✅ Tham gia lớp';
+        btn.disabled = false;
+        closeJoin();
+        showToast('🎉', `Đã vào lớp "${classInfo.name || code}"!`, 'Bài tập đang tải...');
+        updateClassDashboard();
+        sdLoadAssignments();
+      } catch (e) {
+        console.error(e);
+        errEl.textContent = '❌ Lỗi kết nối. Vui lòng thử lại.';
         errEl.style.display = 'block';
         btn.textContent = '✅ Tham gia lớp';
         btn.disabled = false;
-        return;
       }
-
-      const username = '@' + profile.username.replace(/\s+/g, '').toLowerCase();
-
-      let students = await sdGet('students-' + code, true) || [];
-      if (!students.some(s => s.username === username)) {
-        students.push({ name: profile.displayName || profile.username, username, joinedAt: Date.now(), score: null });
-        await sdSet('students-' + code, students, true);
-      }
-
-      localStorage.setItem('sd-myClass', code);
-      localStorage.setItem('sd-myName', profile.displayName || profile.username);
-      localStorage.setItem('sd-myUsername', username);
-      localStorage.setItem('sd-classInfo-' + code, JSON.stringify(classInfo));
-
-      btn.textContent = '✅ Tham gia lớp';
-      btn.disabled = false;
-      closeJoin();
-      showToast('🎉', `Đã vào lớp "${classInfo.name || code}"!`, 'Bài tập đang tải...');
-      updateClassDashboard();
-      await sdLoadAssignments();
     }
 
     function leaveClass() {
@@ -1378,7 +1485,7 @@
     let _allAssignments = [];
     let _mySubmits = [];
 
-    async function sdLoadAssignments() {
+    function sdLoadAssignments() {
       const code = localStorage.getItem('sd-myClass');
       const myName = localStorage.getItem('sd-myName');
       const username = localStorage.getItem('sd-myUsername') || '';
@@ -1392,31 +1499,41 @@
       }
       card.style.display = 'block';
 
-      const allAssign = await sdGet('assignments-' + code, true) || [];
-      const allPersonal = await sdGet('assign-personal-' + code, true) || [];
-      const myPersonal = allPersonal.filter(a => a.targetUsername === username || a.targetUsername === 'all');
-      const usedIds = new Set(allAssign.map(a => a.id));
-      const combined = [
-        ...allAssign.map(a => ({...a, isPersonal: false})),
-        ...myPersonal.filter(a => !usedIds.has(a.id)).map(a => ({...a, isPersonal: true}))
-      ];
-      _allAssignments = combined;
+      // Hủy lắng nghe cũ nếu có
+      if (window._unlistenAssign) window._unlistenAssign();
+      if (window._unlistenSub) window._unlistenSub();
 
-      const submits = await sdGet('submits-' + code, true) || [];
-      _mySubmits = submits.filter(s => s.studentName === myName);
+      // Lắng nghe bài tập realtime
+      window._unlistenAssign = listenAssignments(code, (assignments) => {
+        _allAssignments = assignments;
+        // Lấy submits của học sinh này để biết đã nộp chưa
+        getSubmits(code).then(submits => {
+          _mySubmits = submits.filter(s => s.studentName === myName);
+          renderAssignmentList();
+        });
+      });
 
-      badge.textContent = combined.length;
+      // Lắng nghe submits để cập nhật trạng thái "đã nộp" realtime
+      window._unlistenSub = listenSubmits(code, (submits) => {
+        _mySubmits = submits.filter(s => s.studentName === myName);
+        renderAssignmentList();
+      });
+    }
 
-      if (!combined.length) {
+    function renderAssignmentList() {
+      const list = document.getElementById('sidebarAssignList');
+      const badge = document.getElementById('sidebarBadge');
+      badge.textContent = _allAssignments.length;
+
+      if (!_allAssignments.length) {
         list.innerHTML = '<div style="text-align:center;padding:10px;color:#3a6080;font-size:12px;font-family:monospace;">📭 Chưa có bài tập</div>';
         return;
       }
 
-      list.innerHTML = [...combined].reverse().map(a => {
-        const submitted = _mySubmits.find(s => s.assignId === a.id);
-        const subjMap = { 'Toán': '∫', 'Vật Lý': '⚡', 'Hóa Học': '⚗', 'Sinh Học': '🧬' };
+      const subjMap = { 'Toán': '∫', 'Vật Lý': '⚡', 'Hóa Học': '⚗', 'Sinh Học': '🧬' };
+      list.innerHTML = [..._allAssignments].reverse().map(a => {
+        const submitted = _mySubmits.some(s => s.assignId === a.id.toString());
         const subjIcon = subjMap[a.subject] || '🔭';
-
         let dueStr = '';
         if (a.due) {
           const diff = Math.ceil((new Date(a.due) - new Date()) / 86400000);
@@ -1424,7 +1541,6 @@
           else if (diff === 0) dueStr = 'Hôm nay';
           else dueStr = `Còn ${diff} ngày`;
         }
-
         return `<div class="assign-item${submitted ? ' done' : ''}" onclick="openQuiz(${a.id})">
           <div class="assign-title">${subjIcon} ${a.title}</div>
           <div class="assign-meta">
@@ -1624,11 +1740,18 @@
       const code = localStorage.getItem('sd-myClass');
       const myName = localStorage.getItem('sd-myName');
       if (!code || !myName || !a) return;
-      const existing = await sdGet('submits-' + code, true) || [];
-      if (existing.find(s => s.assignId === a.id && s.studentName === myName)) return;
-      existing.push({ assignId: a.id, assignTitle: a.title, studentName: myName, note, submittedAt: Date.now() });
-      await sdSet('submits-' + code, existing, true);
-      sdLoadAssignments();
+      try {
+        await addSubmit(code, {
+          assignId: a.id.toString(),
+          assignTitle: a.title,
+          studentName: myName,
+          note: note || ''
+        });
+        // Realtime sẽ tự cập nhật
+      } catch (e) {
+        console.error(e);
+        showToast('❌', 'Lỗi nộp bài!', 'Vui lòng thử lại');
+      }
     }
 
     // ====================== PARTICLE BACKGROUND ======================
