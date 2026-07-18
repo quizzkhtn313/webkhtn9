@@ -310,7 +310,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     <div class="tb-right">
       <div class="code-badge" onclick="copyCode()"><span>Mã lớp:</span><strong id="tbCode">——</strong></div>
       <button class="btn btn-primary btn-sm" onclick="openQuizModal()">＋ Tạo bài mới</button>
-      <button class="btn btn-ghost btn-sm logout-btn" onclick="logout()">Đăng xuất</button>
+       <button class="btn btn-ghost btn-sm logout-btn" onclick="logout()">Đăng xuất</button>
     </div>
   </header>
   <div class="content">
@@ -343,7 +343,9 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   </div>
 </div>
 
-<!-- QUIZ BUILDER MODAL -->
+<!-- ═══════════════════════════════════════
+     QUIZ BUILDER MODAL (style file 2 + AI Claude)
+     ═══════════════════════════════════════ -->
 <div class="overlay" id="quizOverlay">
   <div class="modal" style="padding:0;">
     <div class="quiz-layout">
@@ -453,7 +455,8 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 </div>
 
 <script>
-// ====================== FIRESTORE CONFIG ======================
+// ====================== FIRESTORE INIT ======================
+// Firebase config của bạn
 const firebaseConfig = {
   apiKey: "AIzaSyC5O71ECa--ePtjpwaO04bnp23vGRXF8AU",
   authDomain: "webhs-e8c97.firebaseapp.com",
@@ -471,16 +474,24 @@ async function saveClass(classData) {
   const { code, ...data } = classData;
   await db.collection('classes').doc(code).set(data);
 }
+
 async function getClass(classCode) {
   const doc = await db.collection('classes').doc(classCode).get();
   return doc.exists ? doc.data() : null;
 }
+
 async function addStudent(classCode, student) {
   await db.collection('classes').doc(classCode).collection('students').doc(student.username).set({
     ...student,
     joinedAt: firebase.firestore.FieldValue.serverTimestamp()
   });
 }
+
+async function getStudents(classCode) {
+  const snapshot = await db.collection('classes').doc(classCode).collection('students').get();
+  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+}
+
 function listenStudents(classCode, callback) {
   return db.collection('classes').doc(classCode).collection('students')
     .orderBy('joinedAt', 'asc')
@@ -489,6 +500,24 @@ function listenStudents(classCode, callback) {
       callback(students);
     });
 }
+
+async function saveAssignment(classCode, assignment) {
+  // FIX: luôn ép id về string. Trước đây "assignment.id" có thể là số (Date.now()),
+  // và Firestore .doc(id) yêu cầu string — gây lỗi/ lệch kiểu dữ liệu ngầm giữa
+  // lúc ghi và lúc đọc lại (khiến bấm vào bài tập không hiện gì).
+  const id = String(assignment.id || Date.now());
+  await db.collection('classes').doc(classCode).collection('assignments').doc(id).set({
+    ...assignment,
+    id: id,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+}
+
+async function getAssignments(classCode) {
+  const snapshot = await db.collection('classes').doc(classCode).collection('assignments').get();
+  return snapshot.docs.map(doc => doc.data());
+}
+
 function listenAssignments(classCode, callback) {
   return db.collection('classes').doc(classCode).collection('assignments')
     .orderBy('createdAt', 'desc')
@@ -497,6 +526,19 @@ function listenAssignments(classCode, callback) {
       callback(assignments);
     });
 }
+
+async function addSubmit(classCode, submit) {
+  await db.collection('classes').doc(classCode).collection('submits').add({
+    ...submit,
+    submittedAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+}
+
+async function getSubmits(classCode) {
+  const snapshot = await db.collection('classes').doc(classCode).collection('submits').get();
+  return snapshot.docs.map(doc => doc.data());
+}
+
 function listenSubmits(classCode, callback) {
   return db.collection('classes').doc(classCode).collection('submits')
     .orderBy('submittedAt', 'desc')
@@ -505,59 +547,44 @@ function listenSubmits(classCode, callback) {
       callback(submits);
     });
 }
-async function saveAssignment(classCode, assignment) {
-  const id = assignment.id || Date.now().toString();
-  await db.collection('classes').doc(classCode).collection('assignments').doc(id).set({
-    ...assignment,
-    id: id,
-    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-  });
-}
-async function getAssignments(classCode) {
-  const snapshot = await db.collection('classes').doc(classCode).collection('assignments').get();
-  return snapshot.docs.map(doc => doc.data());
-}
-async function addSubmit(classCode, submit) {
-  await db.collection('classes').doc(classCode).collection('submits').add({
-    ...submit,
-    submittedAt: firebase.firestore.FieldValue.serverTimestamp()
-  });
-}
-async function getSubmits(classCode) {
-  const snapshot = await db.collection('classes').doc(classCode).collection('submits').get();
-  return snapshot.docs.map(doc => doc.data());
-}
-async function deleteAssignment(classCode, assignId) {
-  await db.collection('classes').doc(classCode).collection('assignments').doc(assignId).delete();
-}
 
-// ============ QUIZ WITH TEACHER ID ============
-async function saveQuiz(quiz) {
-  if (!quiz.teacherId || !quiz.classCode) {
-    throw new Error('Thiếu teacherId hoặc classCode khi lưu quiz');
-  }
-  const id = quiz.id || Date.now().toString();
-  await db.collection('quizzes').doc(id).set({
+// FIX: quiz đã lưu giờ được lưu THEO TỪNG LỚP (classes/{code}/quizzes) thay vì
+// một collection "quizzes" dùng chung cho tất cả giáo viên/lớp trên toàn hệ thống.
+// Đây là nguyên nhân khiến tài khoản/lớp mới vẫn thấy bài của lớp cũ.
+async function saveQuiz(classCode, quiz) {
+  const id = quiz.id || ('qz_' + Date.now());
+  await db.collection('classes').doc(classCode).collection('quizzes').doc(id).set({
     ...quiz,
     id: id,
     savedAt: firebase.firestore.FieldValue.serverTimestamp()
   });
 }
-async function getQuizzesByTeacher(teacherId, classCode = null) {
-  let query = db.collection('quizzes').where('teacherId', '==', teacherId);
-  if (classCode) {
-    query = query.where('classCode', '==', classCode);
-  }
-  const snapshot = await query.orderBy('savedAt', 'desc').get();
+
+async function getQuizzes(classCode) {
+  const snapshot = await db.collection('classes').doc(classCode).collection('quizzes').orderBy('savedAt', 'desc').get();
   return snapshot.docs.map(doc => doc.data());
 }
 
-// ====================== STATE ======================
-let teacher = null, classroom = null, assignments = [], students = [], submits = [], activities = [];
-let qCounter = 0, currentQuizId = null;
-let _unlistenStudents = null, _unlistenAssignments = null, _unlistenSubmits = null;
+async function deleteAssignment(classCode, assignId) {
+  await db.collection('classes').doc(classCode).collection('assignments').doc(assignId).delete();
+}
 
-// ====================== STORAGE ======================
+// FIX: chuyển đổi Firestore Timestamp (từ serverTimestamp()) sang số mili-giây.
+// Trước đây timeAgo() trừ thẳng Date.now() - Timestamp, ra kết quả sai lệch
+// hàng chục nghìn ngày (vì Timestamp không phải là số ms).
+function toMs(ts) {
+  if (!ts) return Date.now();
+  if (typeof ts === 'number') return ts;
+  if (typeof ts.toMillis === 'function') return ts.toMillis();
+  if (typeof ts.seconds === 'number') return ts.seconds * 1000;
+  return Date.now();
+}
+
+// ====================== STATE ======================
+let teacher = null, classroom = null, assignments = [], students = [], submits = [];
+let qCounter = 0, currentQuizId = null;
+
+// ====================== STORAGE LOCAL ======================
 const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } };
 const load = k => { try { const d = localStorage.getItem(k); return d ? JSON.parse(d) : null; } catch (e) { return null; } };
 const genCode = () => { const c = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let s = ''; for (let i = 0; i < 6; i++) s += c[Math.floor(Math.random() * c.length)]; return s; };
@@ -565,35 +592,37 @@ const genCode = () => { const c = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let s = ''
 // ====================== SETUP ======================
 function goStep1() { setStep('step1'); }
 function goStep2() { if (!document.getElementById('sName').value.trim()) { document.getElementById('sName').focus(); return; } setStep('step2'); }
-function setStep(id) { ['step1','step2','step3'].forEach(s => document.getElementById(s).classList.toggle('active', s === id)); }
+function setStep(id) { ['step1', 'step2', 'step3'].forEach(s => document.getElementById(s).classList.toggle('active', s === id)); }
 
 async function createClass() {
   const cls = document.getElementById('sClass').value.trim();
   if (!cls) { document.getElementById('sClass').focus(); return; }
-  const code = genCode();
+  // FIX: đảm bảo mã lớp mới không trùng với một lớp đã tồn tại — nếu không,
+  // dữ liệu (bài tập/học sinh) của lớp cũ dùng cùng mã có thể lẫn vào lớp mới.
+  let code = genCode();
+  let tries = 0;
+  while (await getClass(code) && tries < 10) { code = genCode(); tries++; }
   const teacherData = {
     name: document.getElementById('sName').value.trim(),
     email: document.getElementById('sEmail').value.trim(),
     subject: document.getElementById('sSubject').value
   };
-  const teacherId = teacherData.email || (teacherData.name + '_' + Date.now());
   const classData = {
     name: cls,
     code: code,
     grade: document.getElementById('sGrade').value,
     year: document.getElementById('sYear').value,
     teacher: teacherData.name,
-    subject: teacherData.subject,
-    teacherId: teacherId
+    subject: teacherData.subject
   };
   try {
     await saveClass(classData);
-    teacher = { ...teacherData, id: teacherId };
+    teacher = teacherData;
     classroom = { ...classData, code };
     save('sd-teacher', teacher);
     save('sd-classroom', classroom);
     document.getElementById('displayCode').textContent = code;
-    document.getElementById('joinLink').textContent = `${location.origin}/trangchu.html?join=${code}`;
+    document.getElementById('joinLink').textContent = `${location.origin}/newtrangchu.html?join=${code}`;
     setStep('step3');
   } catch (e) {
     alert('Lỗi tạo lớp: ' + e.message);
@@ -607,14 +636,9 @@ function enterDashboard() {
   setTimeout(() => el.style.display = 'none', 400);
   applyTeacherUI();
   listenClassData();
-  renderSavedQuizList();
 }
 
-function confirmReset() {
-  if (!confirm('Tạo lớp mới? Dữ liệu cũ sẽ mất.')) return;
-  localStorage.clear();
-  location.reload();
-}
+function confirmReset() { if (!confirm('Tạo lớp mới? Dữ liệu cũ sẽ mất.')) return; localStorage.clear(); location.reload(); }
 
 // ====================== TEACHER UI ======================
 function applyTeacherUI() {
@@ -630,41 +654,62 @@ function applyTeacherUI() {
   document.getElementById('tbDate').textContent = new Date().toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
   document.getElementById('inviteCode').textContent = classroom.code;
   document.getElementById('inviteClassName').textContent = classroom.name;
-  document.getElementById('inviteLink2').textContent = `${location.origin}/trangchu.html?join=${classroom.code}`;
+  document.getElementById('inviteLink2').textContent = `${location.origin}/newtrangchu.html?join=${classroom.code}`;
   const d = new Date(); d.setDate(d.getDate() + 7);
   document.getElementById('quizDue').value = d.toISOString().split('T')[0];
 }
 
-// ====================== LISTEN FIRESTORE ======================
+// ====================== LISTEN FIRESTORE REALTIME ======================
 function listenClassData() {
   if (!classroom) return;
   const code = classroom.code;
 
-  if (_unlistenStudents) _unlistenStudents();
-  if (_unlistenAssignments) _unlistenAssignments();
-  if (_unlistenSubmits) _unlistenSubmits();
+  if (window._unlistenStudents) window._unlistenStudents();
+  if (window._unlistenAssignments) window._unlistenAssignments();
+  if (window._unlistenSubmits) window._unlistenSubmits();
 
-  _unlistenStudents = listenStudents(code, (data) => {
+  window._unlistenStudents = listenStudents(code, (data) => {
     students = data;
     renderStudents();
     renderStats();
+    renderActivities();
   });
 
-  _unlistenAssignments = listenAssignments(code, (data) => {
+  window._unlistenAssignments = listenAssignments(code, (data) => {
     assignments = data;
     renderAssignments();
     renderStats();
     renderProgress();
+    renderActivities();
     document.getElementById('navBadge').textContent = assignments.filter(a => a.status !== 'done').length;
   });
 
-  _unlistenSubmits = listenSubmits(code, (data) => {
+  window._unlistenSubmits = listenSubmits(code, (data) => {
     submits = data;
     renderStats();
+    renderActivities();
   });
 }
 
-// ====================== RENDER FUNCTIONS ======================
+// FIX: "Hoạt động gần đây" trước đây bị đẩy vào một mảng cục bộ (activities)
+// nhưng KHÔNG có hàm nào render nó ra #actFeed — nên khung "Hoạt động gần đây"
+// luôn trống. Giờ đây feed được tổng hợp trực tiếp từ 3 nguồn dữ liệu realtime
+// đã có sẵn (bài tập, học sinh, lượt nộp bài), nên luôn phản ánh đúng dữ liệu
+// thật và không bị mất khi đăng xuất/đổi trình duyệt.
+function renderActivities() {
+  const el = document.getElementById('actFeed');
+  if (!el) return;
+  const items = [];
+  assignments.forEach(a => items.push({ text: `📋 Đã giao bài "${a.title}"`, ts: toMs(a.createdAt), color: 'var(--accent)' }));
+  students.forEach(s => items.push({ text: `👥 ${s.name} đã tham gia lớp`, ts: toMs(s.joinedAt), color: 'var(--green)' }));
+  submits.forEach(s => items.push({ text: `✅ ${s.studentName} đã nộp bài "${s.assignTitle || ''}"`, ts: toMs(s.submittedAt), color: 'var(--amber)' }));
+  items.sort((x, y) => y.ts - x.ts);
+  const top = items.slice(0, 12);
+  if (!top.length) { el.innerHTML = '<div class="empty" style="padding:14px 0;">Chưa có hoạt động nào</div>'; return; }
+  el.innerHTML = top.map(i => `<div class="feed-item"><div class="feed-dot" style="background:${i.color}"></div><div><div class="feed-text">${i.text}</div><div class="feed-time">${timeAgo(i.ts)}</div></div></div>`).join('');
+}
+
+// ====================== RENDER ======================
 function renderStats() {
   document.getElementById('stOpen').textContent = assignments.filter(a => a.status !== 'done').length;
   document.getElementById('navBadge').textContent = assignments.filter(a => a.status !== 'done').length;
@@ -883,61 +928,47 @@ function collectQuiz() {
 }
 
 async function saveQuizLocal() {
-  if (!teacher || !classroom) {
-    showToast('❌', 'Chưa có giáo viên hoặc lớp học!', 'Hãy tạo lớp trước.');
-    return null;
-  }
   const q = collectQuiz();
-  const quiz = {
-    id: currentQuizId || 'qz_' + Date.now(),
-    ...q,
-    teacherId: teacher.id,
-    classCode: classroom.code,
-    savedAt: Date.now()
-  };
-  try {
-    await saveQuiz(quiz);
-    currentQuizId = quiz.id;
-    renderSavedQuizList();
-    return quiz;
-  } catch (e) {
-    showToast('❌', 'Lỗi lưu quiz!', e.message);
-    return null;
-  }
+  const quiz = { id: currentQuizId || 'qz_' + Date.now(), ...q };
+  // FIX: lưu vào classes/{code}/quizzes thay vì collection "quizzes" toàn cục,
+  // và luôn để saveQuiz() tự gắn serverTimestamp (tránh field savedAt bị ghi đè
+  // bằng số Date.now() cục bộ rồi lại bị serverTimestamp ghi đè lần nữa, gây
+  // sai lệch giữa client/server).
+  await saveQuiz(classroom.code, quiz);
+  currentQuizId = quiz.id;
+  renderSavedQuizList();
+  return quiz;
 }
 
 async function saveQuizOnly() {
   const { title, questions } = collectQuiz();
   if (!title && !questions.length) { showToast('⚠️', 'Cần có ít nhất tiêu đề hoặc 1 câu hỏi!', ''); return; }
-  const saved = await saveQuizLocal();
-  if (saved) showToast('💾', 'Đã lưu bài!', `"${saved.title}"`);
+  await saveQuizLocal();
+  showToast('💾', 'Đã lưu bài!', `"${title}"`);
 }
 
 async function saveAndAssign() {
-  if (!classroom || !classroom.code) {
-    showToast('❌', 'Chưa có lớp học!', 'Hãy tạo lớp trước khi giao bài.');
-    return;
-  }
   const q = collectQuiz();
   if (!q.title || !q.questions.length) { showToast('⚠️', 'Cần có tiêu đề và ít nhất 1 câu hỏi!', ''); return; }
   const quiz = await saveQuizLocal();
-  if (!quiz) return;
   const a = {
-    id: Date.now().toString(),
+    id: String(Date.now()), // FIX: id luôn là string, khớp với doc ID trong Firestore
     title: quiz.title,
     subject: quiz.subject,
     due: quiz.due,
     questions: quiz.questions,
-    status: 'active',
-    createdAt: Date.now()
+    status: 'active'
   };
   try {
     await saveAssignment(classroom.code, a);
-    activities.unshift({ text: `Đã giao bài "${quiz.title}" (${quiz.questions.length} câu)`, color: 'var(--accent)', ts: Date.now() });
-    save('sd-activities', activities.slice(0, 30));
+    // FIX: "Hoạt động gần đây" giờ được suy ra trực tiếp từ dữ liệu realtime
+    // (assignments/students/submits) trong renderActivities(), không còn dùng
+    // biến activities cục bộ (biến này trước đây không bao giờ được render ra UI
+    // và bị xóa sạch mỗi khi đăng xuất).
     showToast('🚀', 'Đã giao bài!', `"${quiz.title}" — ${quiz.questions.length} câu`);
     closeQuizModal();
   } catch (e) {
+    console.error(e);
     showToast('❌', 'Lỗi giao bài!', e.message);
   }
 }
@@ -959,12 +990,9 @@ async function copyQuiz() {
 }
 
 async function renderSavedQuizList() {
-  if (!teacher) {
-    document.getElementById('savedQuizList').innerHTML = '<div style="font-family:var(--mono);font-size:10px;color:var(--text3);text-align:center;padding:14px 0;">Chưa có giáo viên</div>';
-    return;
-  }
+  if (!classroom) return;
   try {
-    const saved = await getQuizzesByTeacher(teacher.id, classroom?.code);
+    const saved = await getQuizzes(classroom.code);
     const el = document.getElementById('savedQuizList');
     if (!saved.length) {
       el.innerHTML = '<div style="font-family:var(--mono);font-size:10px;color:var(--text3);text-align:center;padding:14px 0;">Chưa có bài nào được lưu</div>';
@@ -980,40 +1008,36 @@ async function renderSavedQuizList() {
 }
 
 async function loadSavedQuiz(id) {
-  if (!teacher) return;
-  try {
-    const saved = await getQuizzesByTeacher(teacher.id, classroom?.code);
-    const quiz = saved.find(q => q.id === id);
-    if (!quiz) { showToast('⚠️', 'Không tìm thấy bài!', ''); return; }
-    currentQuizId = id;
-    document.getElementById('quizTitle').value = quiz.title;
-    if (quiz.subject) document.getElementById('quizSubject').value = quiz.subject;
-    if (quiz.due) document.getElementById('quizDue').value = quiz.due;
-    document.getElementById('questionsContainer').innerHTML = '';
-    qCounter = 0;
-    quiz.questions.forEach(q => {
-      if (q.type === 'mc') {
-        addMCQ();
-        const block = document.getElementById('questionsContainer').lastElementChild;
-        block.querySelector('.q-text').value = q.question || '';
-        const opts = block.querySelectorAll('.opt-inp');
-        const radios = block.querySelectorAll('input[type=radio]');
-        (q.options || []).forEach((o, i) => { if (opts[i]) opts[i].value = o; });
-        if (q.correct) radios.forEach(r => { if (r.value === q.correct) r.checked = true; });
-      } else {
-        addEssayQ();
-        const block = document.getElementById('questionsContainer').lastElementChild;
-        block.querySelector('.q-text').value = q.question || '';
-        if (q.modelAnswer) block.querySelector('.essay-box').value = q.modelAnswer;
-      }
-    });
-    renderSavedQuizList();
-  } catch (e) { console.error(e); }
+  const saved = await getQuizzes(classroom.code);
+  const quiz = saved.find(q => q.id === id); if (!quiz) return;
+  currentQuizId = id;
+  document.getElementById('quizTitle').value = quiz.title;
+  if (quiz.subject) document.getElementById('quizSubject').value = quiz.subject;
+  if (quiz.due) document.getElementById('quizDue').value = quiz.due;
+  document.getElementById('questionsContainer').innerHTML = '';
+  qCounter = 0;
+  quiz.questions.forEach(q => {
+    if (q.type === 'mc') {
+      addMCQ();
+      const block = document.getElementById('questionsContainer').lastElementChild;
+      block.querySelector('.q-text').value = q.question || '';
+      const opts = block.querySelectorAll('.opt-inp');
+      const radios = block.querySelectorAll('input[type=radio]');
+      (q.options || []).forEach((o, i) => { if (opts[i]) opts[i].value = o; });
+      if (q.correct) radios.forEach(r => { if (r.value === q.correct) r.checked = true; });
+    } else {
+      addEssayQ();
+      const block = document.getElementById('questionsContainer').lastElementChild;
+      block.querySelector('.q-text').value = q.question || '';
+      if (q.modelAnswer) block.querySelector('.essay-box').value = q.modelAnswer;
+    }
+  });
+  renderSavedQuizList();
 }
 
-// ====================== DETAIL, SUBMITS, INVITE ======================
+// ====================== ASSIGN DETAIL ======================
 function openDetail(id) {
-  const a = assignments.find(x => x.id === id); if (!a) return;
+  const a = assignments.find(x => x.id.toString() === id.toString()); if (!a) return;
   document.getElementById('detailOverlay').classList.add('open');
   const sub = submits.filter(s => s.assignId === a.id.toString());
   const notSub = students.filter(s => !sub.find(x => x.studentName === s.name));
@@ -1046,12 +1070,13 @@ function closeDetail() { document.getElementById('detailOverlay').classList.remo
 async function deleteAssign(id) {
   if (!confirm('Xóa bài tập này?')) return;
   try {
-    await deleteAssignment(classroom.code, id);
+    await deleteAssignment(classroom.code, id.toString());
     closeDetail();
     showToast('🗑', 'Đã xóa bài tập!', '');
   } catch (e) { showToast('❌', 'Lỗi xóa!', e.message); }
 }
 
+// ====================== SUBMITS PANEL ======================
 async function openSubmitsPanel() {
   document.getElementById('submitsOverlay').classList.add('open');
   try {
@@ -1068,17 +1093,19 @@ async function openSubmitsPanel() {
   } catch (e) { console.error(e); }
 }
 
+// ====================== MISC ======================
 function openInviteModal() { document.getElementById('inviteOverlay').classList.add('open'); renderStudents(); }
 function closeInvite() { document.getElementById('inviteOverlay').classList.remove('open'); }
 function setNavActive(el) { document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); el.classList.add('active'); }
 function copyCode() { if (classroom) navigator.clipboard.writeText(classroom.code); showToast('📋', 'Đã sao chép mã lớp!', ''); }
 
 function logout() {
-  if (confirm('Bạn có chắc muốn đăng xuất? Dữ liệu chưa đồng bộ sẽ bị mất.')) {
-    if (_unlistenStudents) _unlistenStudents();
-    if (_unlistenAssignments) _unlistenAssignments();
-    if (_unlistenSubmits) _unlistenSubmits();
-    _unlistenStudents = _unlistenAssignments = _unlistenSubmits = null;
+  if (confirm('Bạn có chắc muốn đăng xuất?')) {
+    // FIX: hủy các listener realtime trước khi rời trang, tránh rò rỉ bộ nhớ
+    // và tránh dữ liệu của lớp cũ "kẹt" lại nếu quay về trang này.
+    if (window._unlistenStudents) window._unlistenStudents();
+    if (window._unlistenAssignments) window._unlistenAssignments();
+    if (window._unlistenSubmits) window._unlistenSubmits();
     localStorage.clear();
     window.location.href = 'chxdangky.html';
   }
@@ -1089,14 +1116,15 @@ function showToast(icon, title, sub) {
   clearTimeout(_tt);
   document.getElementById('toastIcon').textContent = icon;
   document.getElementById('toastTitle').textContent = title;
-  document.getElementById('toastSub').textContent = sub || '';
+  document.getElementById('toastSub').textContent = sub;
   const t = document.getElementById('toast'); t.classList.add('show');
   _tt = setTimeout(() => t.classList.remove('show'), 3800);
 }
 
 function timeAgo(ts) {
   if (!ts) return 'vừa xong';
-  const d = (Date.now() - ts) / 1000;
+  const ms = toMs(ts);
+  const d = Math.max(0, (Date.now() - ms) / 1000);
   if (d < 60) return 'vừa xong'; if (d < 3600) return Math.round(d / 60) + ' phút trước';
   if (d < 86400) return Math.round(d / 3600) + ' giờ trước'; return Math.round(d / 86400) + ' ngày trước';
 }
@@ -1108,13 +1136,11 @@ function timeAgo(ts) {
 
 // ====================== INIT ======================
 function init() {
-  teacher = load('sd-teacher');
-  classroom = load('sd-classroom');
+  teacher = load('sd-teacher'); classroom = load('sd-classroom');
   if (teacher && classroom) {
     document.getElementById('setupScreen').style.display = 'none';
     applyTeacherUI();
     listenClassData();
-    renderSavedQuizList();
   }
 }
 init();
