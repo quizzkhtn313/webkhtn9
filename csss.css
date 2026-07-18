@@ -338,8 +338,15 @@ p.lead {
   display: flex;
   flex-direction: column;
   gap: 18px;
+  overflow-y: auto;
+  overflow-x: hidden;              /* thêm: chặn cuộn ngang không mong muốn */
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 30px;            /* thêm: chừa khoảng đệm dưới, tránh card cuối bị dính sát mép */
 }
 
+.sidebar > * {
+  flex-shrink: 0;                  /* thêm: giữ nguyên chiều cao từng card, không bị co bóp gây tràn ngang */
+}
 .card {
   background: rgba(255, 255, 255, 0.1);
   border-radius: 15px;
