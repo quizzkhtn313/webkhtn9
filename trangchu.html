@@ -372,21 +372,45 @@
     }
     #soanBtn:hover { transform: scale(1.05); }
 
-    /* ==================== SIDEBAR – BÀI TẬP ==================== */
-    #sidebarAssignCard .badge {
+    /* ==================== SIDEBAR – BÀI TẬP (ĐÃ SỬA LỖI CUỘN) ==================== */
+    #sidebarAssignCard {
+      overflow: visible !important;
+      display: flex;
+      flex-direction: column;
+    }
+    #sidebarAssignList {
+      max-height: 250px !important;      /* tăng chiều cao nếu cần */
+      overflow-y: auto !important;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 6px;
+      padding-right: 4px;                /* tránh thanh cuộn đè nội dung */
+    }
+    /* Tuỳ chỉnh thanh cuộn cho đẹp */
+    #sidebarAssignList::-webkit-scrollbar {
+      width: 4px;
+    }
+    #sidebarAssignList::-webkit-scrollbar-track {
+      background: rgba(255,255,255,0.05);
+      border-radius: 4px;
+    }
+    #sidebarAssignList::-webkit-scrollbar-thumb {
+      background: rgba(103,232,249,0.3);
+      border-radius: 4px;
+    }
+
+    /* Đảm bảo card trong sidebar không bị ẩn overflow */
+    .sidebar .card {
+      overflow: visible !important;
+    }
+
+    .badge {
       background: rgba(103,232,249,0.15);
       color: #67e8f9;
       padding: 2px 10px;
       border-radius: 20px;
       font-size: 11px;
-    }
-    #sidebarAssignList {
-      max-height: 200px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-top: 6px;
     }
     #sidebarAssignList .assign-item {
       background: rgba(255,255,255,0.04);
